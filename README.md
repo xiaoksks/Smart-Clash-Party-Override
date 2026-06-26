@@ -1,3 +1,6 @@
+# 来源
+https://github.com/IvanSolis1989/Smart-Config-Kit
+
 # Clash Party Custom Override
 
 这个仓库会定时拉取上游 `ClashParty(mihomo-smart).js`，把 `custom-pre-rules.js` 里的自定义规则插入到 `function injectRules(config) { config.rules = [` 的最前面，然后生成 Clash Party 可导入的 JS 覆写文件。
