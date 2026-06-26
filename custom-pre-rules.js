@@ -17,6 +17,12 @@ const CUSTOM_PRE_RULES = [
   'DOMAIN,ip.cip.cc,DIRECT',
   'DOMAIN,myip.ipip.net,DIRECT',
 
+  // Patreon is Cloudflare-fronted and can be flaky when it falls through to
+  // DIRECT/final routing or gets caught by the generic overseas QUIC reject.
+  'DOMAIN-SUFFIX,patreon.com,🌐 国外网站',
+  'DOMAIN-SUFFIX,patreonusercontent.com,🌐 国外网站',
+  'DOMAIN-SUFFIX,patreoncommunity.com,🌐 国外网站',
+
   // Steam download/CDN domains: keep downloads and static assets DIRECT,
   // while community/store/account domains continue to follow upstream rules.
   'DOMAIN-SUFFIX,steamcdn-a.akamaihd.net,DIRECT',
