@@ -10,13 +10,13 @@
 4. 在 Clash Party 覆写页面导入下面这个 Raw 地址：
 
 ```text
-https://raw.githubusercontent.com/xiaoksks/Smart-Clash-Party-Config/main/dist/Smart-Override.js
+https://raw.githubusercontent.com/xiaoksks/Smart-Clash-Party-Override/main/dist/Smart-Override.js
 ```
 
 也可以使用 jsDelivr：
 
 ```text
-https://cdn.jsdelivr.net/gh/xiaoksks/Smart-Clash-Party-Config@main/dist/Smart-Override.js
+https://cdn.jsdelivr.net/gh/xiaoksks/Smart-Clash-Party-Override@main/dist/Smart-Override.js
 ```
 
 ## 本地生成
