@@ -22,8 +22,8 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Build merged override
-        run: npm run build
+      - name: Build and validate merged override
+        run: npm run check
 
       - name: Commit generated override
         uses: stefanzweifel/git-auto-commit-action@v5

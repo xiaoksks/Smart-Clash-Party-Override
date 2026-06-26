@@ -3,10 +3,31 @@
 // Edit custom-pre-rules.js, then run: npm run build
 
 // Rules inserted at the very beginning of injectRules(config).
-// Keep this file small and personal; the upstream script is pulled automatically.
+// Keep this file small and personal; rules here override all upstream rules.
 const CUSTOM_PRE_RULES = [
+  // Clash Party network info / current IP lookup.
+  // Keep foreign IP check APIs on proxy so the result reflects the selected exit IP.
+  'DOMAIN-SUFFIX,ip.sb,🌐 国外网站',
+  'DOMAIN-SUFFIX,api.ipify.org,🌐 国外网站',
+  'DOMAIN-SUFFIX,ipify.org,🌐 国外网站',
+  'DOMAIN-SUFFIX,ipinfo.io,🌐 国外网站',
+  'DOMAIN-SUFFIX,ipapi.co,🌐 国外网站',
+  'DOMAIN-SUFFIX,ip-api.com,🌐 国外网站',
+  'DOMAIN-SUFFIX,ipwho.is,🌐 国外网站',
+  'DOMAIN-SUFFIX,ident.me,🌐 国外网站',
+  'DOMAIN-SUFFIX,icanhazip.com,🌐 国外网站',
+  'DOMAIN-SUFFIX,ifconfig.me,🌐 国外网站',
+  // Keep China-friendly IP check APIs direct as a fallback.
+  'DOMAIN,ip.cip.cc,DIRECT',
+  'DOMAIN,myip.ipip.net,DIRECT',
+
+  // Steam download/CDN domains: keep downloads and static assets DIRECT,
+  // while community/store/account domains continue to follow upstream rules.
   'DOMAIN-SUFFIX,steamcdn-a.akamaihd.net,DIRECT',
-  // 'DOMAIN-SUFFIX,steamstatic.com,DIRECT',
+  'DOMAIN-SUFFIX,steampipe.akamaized.net,DIRECT',
+  'DOMAIN-SUFFIX,steamcontent.com,DIRECT',
+  'DOMAIN-SUFFIX,steamserver.net,DIRECT',
+  'DOMAIN-SUFFIX,steamstatic.com,DIRECT',
 ]
 // Clash Smart 内核覆写脚本 - SUB-STORE 多机场精细分流版
 // 版本：v5.4.32 (2026-06-25)

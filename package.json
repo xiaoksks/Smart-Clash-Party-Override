@@ -4,9 +4,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "node scripts/merge-custom-rules.mjs"
+    "build": "node scripts/merge-custom-rules.mjs",
+    "check": "npm run build && node --check dist/Smart-Override.js"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=14.21"
   }
 }
