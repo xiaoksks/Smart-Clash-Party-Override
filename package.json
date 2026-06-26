@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "build": "node scripts/merge-custom-rules.mjs",
-    "check": "npm run build && node --check dist/Smart-Override.js"
+    "audit:direct": "node scripts/audit-direct-priority.mjs",
+    "check": "npm run build && npm run audit:direct && node --check dist/Smart-Override.js"
   },
   "engines": {
     "node": ">=14.21"

@@ -21,6 +21,18 @@ const CUSTOM_PRE_RULES = [
   'DOMAIN,ip.cip.cc,DIRECT',
   'DOMAIN,myip.ipip.net,DIRECT',
 
+  // High-priority DIRECT guards promoted from upstream's later rule sections.
+  // These avoid being shadowed by broad mail/work/foreign-site rules or QUIC handling.
+  'DOMAIN-SUFFIX,mail.qq.com,DIRECT',
+  'DOMAIN-SUFFIX,mail.163.com,DIRECT',
+  'DOMAIN-SUFFIX,mail.126.com,DIRECT',
+  'DOMAIN-SUFFIX,mail.sina.com.cn,DIRECT',
+  'DOMAIN-SUFFIX,mail.aliyun.com,DIRECT',
+  'DOMAIN-SUFFIX,feishu.cn,DIRECT',
+  'DOMAIN-SUFFIX,dingtalk.com,DIRECT',
+  'DOMAIN-SUFFIX,welink.huaweicloud.com,DIRECT',
+  'DOMAIN-SUFFIX,bbys.app,DIRECT',
+
   // Patreon is Cloudflare-fronted and can be flaky when it falls through to
   // DIRECT/final routing or gets caught by the generic overseas QUIC reject.
   'DOMAIN-SUFFIX,patreon.com,🌐 国外网站',
