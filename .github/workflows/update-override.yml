@@ -1,0 +1,32 @@
+name: Update Clash Party Override
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Daily at 04:20 UTC, 12:20 Beijing time.
+    - cron: '20 4 * * *'
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Build merged override
+        run: npm run build
+
+      - name: Commit generated override
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: 'chore: update generated clash party override'
+          file_pattern: dist/Smart-Override.js

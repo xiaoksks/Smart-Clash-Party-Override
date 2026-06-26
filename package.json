@@ -1,0 +1,12 @@
+{
+  "name": "clash-party-custom-override",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/merge-custom-rules.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
