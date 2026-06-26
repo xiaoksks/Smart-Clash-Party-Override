@@ -28,7 +28,7 @@ npm run build
 生成文件：
 
 ```text
-dist/ClashParty-mihomo-smart-custom.js
+dist/Smart-Override.js
 ```
 
 ## 更新频率
