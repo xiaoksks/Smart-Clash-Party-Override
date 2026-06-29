@@ -23,16 +23,6 @@ const REQUIRED_PRE_RULES = [
   'DOMAIN-SUFFIX,steamstatic.com,DIRECT',
 ]
 
-const REQUIRED_REGION_PRE_RULES = [
-  'DOMAIN,gemini.google.com,🇺🇸 美国节点',
-  'DOMAIN,bard.google.com,🇺🇸 美国节点',
-  'DOMAIN,content-push.googleapis.com,🇺🇸 美国节点',
-  'DOMAIN-SUFFIX,generativelanguage.googleapis.com,🇺🇸 美国节点',
-  'DOMAIN-SUFFIX,aistudio.google.com,🇺🇸 美国节点',
-  'DOMAIN-SUFFIX,ai.google.dev,🇺🇸 美国节点',
-  'DOMAIN-SUFFIX,makersuite.google.com,🇺🇸 美国节点',
-]
-
 function getCustomPreRulesBlock(text) {
   const start = text.indexOf('const CUSTOM_PRE_RULES = [')
   if (start === -1) throw new Error('Could not find CUSTOM_PRE_RULES in generated output')
@@ -46,7 +36,7 @@ function getCustomPreRulesBlock(text) {
 async function main() {
   const output = await readFile(OUTPUT_PATH, 'utf8')
   const preRules = getCustomPreRulesBlock(output)
-  const required = REQUIRED_PRE_RULES.concat(REQUIRED_REGION_PRE_RULES)
+  const required = REQUIRED_PRE_RULES
   const missing = required.filter(rule => !preRules.includes(`'${rule}'`))
 
   if (missing.length) {

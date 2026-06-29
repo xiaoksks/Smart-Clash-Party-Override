@@ -35,16 +35,6 @@ const CUSTOM_PRE_RULES = [
   'DOMAIN-SUFFIX,patreonusercontent.com,🌐 国外网站',
   'DOMAIN-SUFFIX,patreoncommunity.com,🌐 国外网站',
 
-  // Chrome Gemini is more region-sensitive than the normal Gemini web app.
-  // Prefer a supported US exit instead of the generic AI group, which may pick EU.
-  'DOMAIN,gemini.google.com,🇺🇸 美国节点',
-  'DOMAIN,bard.google.com,🇺🇸 美国节点',
-  'DOMAIN,content-push.googleapis.com,🇺🇸 美国节点',
-  'DOMAIN-SUFFIX,generativelanguage.googleapis.com,🇺🇸 美国节点',
-  'DOMAIN-SUFFIX,aistudio.google.com,🇺🇸 美国节点',
-  'DOMAIN-SUFFIX,ai.google.dev,🇺🇸 美国节点',
-  'DOMAIN-SUFFIX,makersuite.google.com,🇺🇸 美国节点',
-
   // Steam download/CDN domains: keep downloads and static assets DIRECT,
   // while community/store/account domains continue to follow upstream rules.
   'DOMAIN-SUFFIX,steamcdn-a.akamaihd.net,DIRECT',
