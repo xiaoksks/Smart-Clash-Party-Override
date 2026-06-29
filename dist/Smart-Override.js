@@ -56,6 +56,10 @@ const CUSTOM_PRE_RULES = [
   'DOMAIN-SUFFIX,steamcontent.com,DIRECT',
   'DOMAIN-SUFFIX,steamserver.net,DIRECT',
   'DOMAIN-SUFFIX,steamstatic.com,DIRECT',
+
+  // Zenless Zone Zero mainland China site. Upstream HoYoverse rules classify
+  // juequling.com as overseas game, but CN service should stay DIRECT.
+  'DOMAIN-SUFFIX,juequling.com,DIRECT',
 ]
 // Clash Smart 内核覆写脚本 - SUB-STORE 多机场精细分流版
 // 版本：v5.4.35 (2026-06-28)
