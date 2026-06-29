@@ -72,6 +72,16 @@ npm run check
 
 然后重新导入或等待 Actions 更新 `dist/Smart-Override.js`。
 
+### country code id not found in geoip.dat
+
+如果 Clash Party 导入覆写时报：
+
+```text
+[GeoIP] failed to decode geodata file: geoip.dat, base error: country code id not found in geoip.dat
+```
+
+说明当前客户端使用的 `geoip.dat` 不包含上游脚本里的印尼 GeoIP 国家码规则。本项目会在生成阶段自动移除这条不兼容兜底规则，保留前面已有的印尼域名规则，避免整份覆写加载失败。
+
 ## 一、安装客户端
 
 ### Mihomo Party（推荐）

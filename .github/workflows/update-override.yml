@@ -3,8 +3,8 @@ name: Update Clash Party Override
 on:
   workflow_dispatch:
   schedule:
-    # Daily at 04:20 UTC, 12:20 Beijing time.
-    - cron: '20 4 * * *'
+    # Daily at 17:00 UTC, 01:00 Beijing time.
+    - cron: '0 17 * * *'
 
 permissions:
   contents: write

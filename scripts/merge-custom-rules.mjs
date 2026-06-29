@@ -143,6 +143,26 @@ function injectCustomRules(upstream, customRules) {
     + stripBom(upstream).slice(insertAt + 1)
 }
 
+function applyCompatibilityPatches(merged) {
+  let patched = merged
+
+  // Clash Party can fail to load when the active geoip.dat does not contain
+  // the Indonesia country-code entry. The upstream script already has exact
+  // Indonesian domain rules before this line, so removing this GeoIP fallback
+  // is safer than breaking the whole override at parse time.
+  const before = patched
+  patched = patched.replace(
+    /    `GEOIP,ID,\$\{BIZ\.INTL_SITE\},no-resolve`,\r?\n/,
+    '    // Compatibility: removed Indonesia GeoIP fallback because some geoip.dat builds do not expose its country-code entry.\n',
+  )
+
+  if (patched !== before) {
+    console.log('Applied compatibility patch: removed unsupported Indonesia GeoIP fallback')
+  }
+
+  return patched
+}
+
 async function main() {
   const [upstream, customRules] = await Promise.all([
     fetchUpstream(),
@@ -151,7 +171,7 @@ async function main() {
 
   ensureCustomRulesDeclaration(customRules)
 
-  const merged = injectCustomRules(upstream, customRules)
+  const merged = applyCompatibilityPatches(injectCustomRules(upstream, customRules))
 
   await mkdir(path.dirname(OUTPUT_PATH), { recursive: true })
   await writeFile(OUTPUT_PATH, merged, 'utf8')
