@@ -39,59 +39,13 @@ const CUSTOM_PRE_RULES = [
   'DOMAIN-SUFFIX,patreonusercontent.com,🌐 国外网站',
   'DOMAIN-SUFFIX,patreoncommunity.com,🌐 国外网站',
 
-  // Steam / Valve ecosystem: keep Store, Community, chat, media, downloads,
-  // Steam China, and common Valve game/CDN endpoints DIRECT.
-  'PROCESS-NAME,steam.exe,DIRECT',
-  'PROCESS-NAME,Steam.exe,DIRECT',
-  'PROCESS-NAME,steamwebhelper.exe,DIRECT',
-  'PROCESS-NAME,Steam Client WebHelper.exe,DIRECT',
-  'PROCESS-NAME,steamservice.exe,DIRECT',
-  'PROCESS-NAME,SteamService.exe,DIRECT',
-  'RULE-SET,steam,DIRECT',
-  'RULE-SET,steamcn,DIRECT',
-  'DOMAIN-SUFFIX,steampowered.com,DIRECT',
-  'DOMAIN-SUFFIX,steamcommunity.com,DIRECT',
-  'DOMAIN-SUFFIX,steamgames.com,DIRECT',
-  'DOMAIN-SUFFIX,steamusercontent.com,DIRECT',
-  'DOMAIN-SUFFIX,steamusercontent-a.akamaihd.net,DIRECT',
-  'DOMAIN-SUFFIX,steamuserimages-a.akamaihd.net,DIRECT',
-  'DOMAIN-SUFFIX,steamcommunity-a.akamaihd.net,DIRECT',
-  'DOMAIN-SUFFIX,steamstore-a.akamaihd.net,DIRECT',
-  'DOMAIN-SUFFIX,steammobile.akamaized.net,DIRECT',
-  'DOMAIN-SUFFIX,steambroadcast.akamaized.net,DIRECT',
-  'DOMAIN-SUFFIX,steamvideo-a.akamaihd.net,DIRECT',
-  'DOMAIN-SUFFIX,steam-chat.com,DIRECT',
-  'DOMAIN-SUFFIX,steam-api.com,DIRECT',
-  'DOMAIN-SUFFIX,steam.tv,DIRECT',
-  'DOMAIN-SUFFIX,steamstat.us,DIRECT',
-  'DOMAIN-SUFFIX,steamdeck.com,DIRECT',
-  'DOMAIN-SUFFIX,s.team,DIRECT',
-  'DOMAIN-SUFFIX,valvesoftware.com,DIRECT',
-  'DOMAIN-SUFFIX,steamchina.com,DIRECT',
-  'DOMAIN-SUFFIX,wmsjsteam.com,DIRECT',
-  'DOMAIN-SUFFIX,csgo.wmsj.cn,DIRECT',
-  'DOMAIN-SUFFIX,dota2.wmsj.cn,DIRECT',
+  // Steam download/CDN domains: keep downloads and static assets DIRECT,
+  // while community/store/account domains continue to follow upstream rules.
   'DOMAIN-SUFFIX,steamcdn-a.akamaihd.net,DIRECT',
   'DOMAIN-SUFFIX,steampipe.akamaized.net,DIRECT',
-  'DOMAIN-SUFFIX,steampipe-kr.akamaized.net,DIRECT',
-  'DOMAIN-SUFFIX,steampipe-partner.akamaized.net,DIRECT',
   'DOMAIN-SUFFIX,steamcontent.com,DIRECT',
-  'DOMAIN-SUFFIX,steamcontent.tnkjmec.com,DIRECT',
   'DOMAIN-SUFFIX,steamserver.net,DIRECT',
   'DOMAIN-SUFFIX,steamstatic.com,DIRECT',
-  'DOMAIN-SUFFIX,cdn-ali.content.steamchina.com,DIRECT',
-  'DOMAIN-SUFFIX,cdn-qc.content.steamchina.com,DIRECT',
-  'DOMAIN-SUFFIX,cdn-ws.content.steamchina.com,DIRECT',
-  'DOMAIN-SUFFIX,dl.steam.clngaa.com,DIRECT',
-  'DOMAIN-SUFFIX,dl.steam.ksyna.com,DIRECT',
-  'DOMAIN-SUFFIX,st.dl.bscstorage.net,DIRECT',
-  'DOMAIN-SUFFIX,st.dl.eccdnx.com,DIRECT',
-  'DOMAIN-SUFFIX,st.dl.pinyuncloud.com,DIRECT',
-  'DOMAIN-SUFFIX,steampowered.com.8686c.com,DIRECT',
-  'DOMAIN-SUFFIX,steamstatic.com.8686c.com,DIRECT',
-  'DOMAIN-KEYWORD,steambroadcast,DIRECT',
-  'DOMAIN-KEYWORD,steamstore,DIRECT',
-  'DOMAIN-KEYWORD,steamuserimages,DIRECT',
 
   // Zenless Zone Zero mainland China site. Upstream HoYoverse rules classify
   // juequling.com as overseas game, but CN service should stay DIRECT.
@@ -2416,14 +2370,15 @@ function overwriteGeneral(config) {
   // 1 个明文兜底；消除 bootstrap 阶段的 DNS 泄漏，同时保留明文韧性（防 443 被劫持/首包失败）。
   var bootstrapDns = ['https://223.5.5.5/dns-query', 'https://223.6.6.6/dns-query', 'https://8.8.8.8/dns-query', 'https://1.1.1.1/dns-query', '223.5.5.5']
   var domesticDoH = ['https://dns.alidns.com/dns-query', 'https://doh.pub/dns-query']
+  var domesticPlainDns = ['223.5.5.5', '223.6.6.6', '119.29.29.29']
   var foreignDoH = ['https://cloudflare-dns.com/dns-query', 'https://dns.google/dns-query']
   var proxyDoH = foreignDoH.concat(domesticDoH)
   config.dns['default-nameserver'] = bootstrapDns.slice()
   config.dns.nameserver = domesticDoH.slice()
-  config.dns['direct-nameserver'] = domesticDoH.slice()
+  config.dns['direct-nameserver'] = domesticDoH.concat(domesticPlainDns)
   // v5.4.19 #5 借鉴 Proxy-override：让 direct-nameserver 也遵循 nameserver-policy（默认 false 会忽略它）。
   // 官方 use case 即"direct 用国内 DoH + policy 指定域名走指定 DNS"；本仓库 policy 同时覆盖境外 CDN 与 geosite 级分流。
-  config.dns['direct-nameserver-follow-policy'] = true
+  config.dns['direct-nameserver-follow-policy'] = false
   config.dns['proxy-server-nameserver'] = proxyDoH.slice()
   config.dns.fallback = foreignDoH.slice()
   if (!config.dns['nameserver-policy'] || typeof config.dns['nameserver-policy'] !== 'object' || Array.isArray(config.dns['nameserver-policy'])) {

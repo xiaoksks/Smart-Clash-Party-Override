@@ -16,13 +16,6 @@ const REQUIRED_PRE_RULES = [
   'DOMAIN-SUFFIX,dingtalk.com,DIRECT',
   'DOMAIN-SUFFIX,welink.huaweicloud.com,DIRECT',
   'DOMAIN-SUFFIX,bbys.app,DIRECT',
-  'PROCESS-NAME,steam.exe,DIRECT',
-  'PROCESS-NAME,steamwebhelper.exe,DIRECT',
-  'RULE-SET,steam,DIRECT',
-  'RULE-SET,steamcn,DIRECT',
-  'DOMAIN-SUFFIX,steampowered.com,DIRECT',
-  'DOMAIN-SUFFIX,steamcommunity.com,DIRECT',
-  'DOMAIN-SUFFIX,steam-chat.com,DIRECT',
   'DOMAIN-SUFFIX,steamcdn-a.akamaihd.net,DIRECT',
   'DOMAIN-SUFFIX,steampipe.akamaized.net,DIRECT',
   'DOMAIN-SUFFIX,steamcontent.com,DIRECT',
@@ -40,6 +33,9 @@ const REQUIRED_OUTPUT_SNIPPETS = [
   "config.profile['store-selected'] = false",
   'buildStandardProxies()',
   'withResidential(LOW_LATENCY_REGION_ORDER)',
+  "var domesticPlainDns = ['223.5.5.5', '223.6.6.6', '119.29.29.29']",
+  "config.dns['direct-nameserver'] = domesticDoH.concat(domesticPlainDns)",
+  "config.dns['direct-nameserver-follow-policy'] = false",
 ]
 
 function getCustomPreRulesBlock(text) {

@@ -161,6 +161,7 @@ function applyCompatibilityPatches(merged) {
   }
 
   patched = applySmartStabilityPatch(patched)
+  patched = applyDirectDnsStabilityPatch(patched)
 
   return patched
 }
@@ -248,6 +249,33 @@ function applySmartStabilityPatch(merged) {
     /config\.profile\['store-selected'\] = true/,
     "config.profile['store-selected'] = false",
     'disable stale selected-group persistence',
+  )
+
+  return patched
+}
+
+function applyDirectDnsStabilityPatch(merged) {
+  let patched = merged
+
+  patched = replaceOrThrow(
+    patched,
+    /var domesticDoH = \['https:\/\/dns\.alidns\.com\/dns-query', 'https:\/\/doh\.pub\/dns-query'\]/,
+    "var domesticDoH = ['https://dns.alidns.com/dns-query', 'https://doh.pub/dns-query']\n  var domesticPlainDns = ['223.5.5.5', '223.6.6.6', '119.29.29.29']",
+    'add plain DNS fallback for DIRECT resolution',
+  )
+
+  patched = replaceOrThrow(
+    patched,
+    /config\.dns\['direct-nameserver'\] = domesticDoH\.slice\(\)/,
+    "config.dns['direct-nameserver'] = domesticDoH.concat(domesticPlainDns)",
+    'give DIRECT resolution DoH plus plain domestic DNS',
+  )
+
+  patched = replaceOrThrow(
+    patched,
+    /config\.dns\['direct-nameserver-follow-policy'\] = true/,
+    "config.dns['direct-nameserver-follow-policy'] = false",
+    'keep DIRECT resolution off foreign nameserver-policy',
   )
 
   return patched
