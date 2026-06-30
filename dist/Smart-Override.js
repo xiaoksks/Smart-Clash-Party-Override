@@ -39,13 +39,59 @@ const CUSTOM_PRE_RULES = [
   'DOMAIN-SUFFIX,patreonusercontent.com,🌐 国外网站',
   'DOMAIN-SUFFIX,patreoncommunity.com,🌐 国外网站',
 
-  // Steam download/CDN domains: keep downloads and static assets DIRECT,
-  // while community/store/account domains continue to follow upstream rules.
+  // Steam / Valve ecosystem: keep Store, Community, chat, media, downloads,
+  // Steam China, and common Valve game/CDN endpoints DIRECT.
+  'PROCESS-NAME,steam.exe,DIRECT',
+  'PROCESS-NAME,Steam.exe,DIRECT',
+  'PROCESS-NAME,steamwebhelper.exe,DIRECT',
+  'PROCESS-NAME,Steam Client WebHelper.exe,DIRECT',
+  'PROCESS-NAME,steamservice.exe,DIRECT',
+  'PROCESS-NAME,SteamService.exe,DIRECT',
+  'RULE-SET,steam,DIRECT',
+  'RULE-SET,steamcn,DIRECT',
+  'DOMAIN-SUFFIX,steampowered.com,DIRECT',
+  'DOMAIN-SUFFIX,steamcommunity.com,DIRECT',
+  'DOMAIN-SUFFIX,steamgames.com,DIRECT',
+  'DOMAIN-SUFFIX,steamusercontent.com,DIRECT',
+  'DOMAIN-SUFFIX,steamusercontent-a.akamaihd.net,DIRECT',
+  'DOMAIN-SUFFIX,steamuserimages-a.akamaihd.net,DIRECT',
+  'DOMAIN-SUFFIX,steamcommunity-a.akamaihd.net,DIRECT',
+  'DOMAIN-SUFFIX,steamstore-a.akamaihd.net,DIRECT',
+  'DOMAIN-SUFFIX,steammobile.akamaized.net,DIRECT',
+  'DOMAIN-SUFFIX,steambroadcast.akamaized.net,DIRECT',
+  'DOMAIN-SUFFIX,steamvideo-a.akamaihd.net,DIRECT',
+  'DOMAIN-SUFFIX,steam-chat.com,DIRECT',
+  'DOMAIN-SUFFIX,steam-api.com,DIRECT',
+  'DOMAIN-SUFFIX,steam.tv,DIRECT',
+  'DOMAIN-SUFFIX,steamstat.us,DIRECT',
+  'DOMAIN-SUFFIX,steamdeck.com,DIRECT',
+  'DOMAIN-SUFFIX,s.team,DIRECT',
+  'DOMAIN-SUFFIX,valvesoftware.com,DIRECT',
+  'DOMAIN-SUFFIX,steamchina.com,DIRECT',
+  'DOMAIN-SUFFIX,wmsjsteam.com,DIRECT',
+  'DOMAIN-SUFFIX,csgo.wmsj.cn,DIRECT',
+  'DOMAIN-SUFFIX,dota2.wmsj.cn,DIRECT',
   'DOMAIN-SUFFIX,steamcdn-a.akamaihd.net,DIRECT',
   'DOMAIN-SUFFIX,steampipe.akamaized.net,DIRECT',
+  'DOMAIN-SUFFIX,steampipe-kr.akamaized.net,DIRECT',
+  'DOMAIN-SUFFIX,steampipe-partner.akamaized.net,DIRECT',
   'DOMAIN-SUFFIX,steamcontent.com,DIRECT',
+  'DOMAIN-SUFFIX,steamcontent.tnkjmec.com,DIRECT',
   'DOMAIN-SUFFIX,steamserver.net,DIRECT',
   'DOMAIN-SUFFIX,steamstatic.com,DIRECT',
+  'DOMAIN-SUFFIX,cdn-ali.content.steamchina.com,DIRECT',
+  'DOMAIN-SUFFIX,cdn-qc.content.steamchina.com,DIRECT',
+  'DOMAIN-SUFFIX,cdn-ws.content.steamchina.com,DIRECT',
+  'DOMAIN-SUFFIX,dl.steam.clngaa.com,DIRECT',
+  'DOMAIN-SUFFIX,dl.steam.ksyna.com,DIRECT',
+  'DOMAIN-SUFFIX,st.dl.bscstorage.net,DIRECT',
+  'DOMAIN-SUFFIX,st.dl.eccdnx.com,DIRECT',
+  'DOMAIN-SUFFIX,st.dl.pinyuncloud.com,DIRECT',
+  'DOMAIN-SUFFIX,steampowered.com.8686c.com,DIRECT',
+  'DOMAIN-SUFFIX,steamstatic.com.8686c.com,DIRECT',
+  'DOMAIN-KEYWORD,steambroadcast,DIRECT',
+  'DOMAIN-KEYWORD,steamstore,DIRECT',
+  'DOMAIN-KEYWORD,steamuserimages,DIRECT',
 
   // Zenless Zone Zero mainland China site. Upstream HoYoverse rules classify
   // juequling.com as overseas game, but CN service should stay DIRECT.
@@ -358,6 +404,13 @@ const DOUYIN_CNMEDIA_GUARD_RULES = [
 ]
 
 const REGION_ORDER = ['GLOBAL', 'HK', 'TW', 'SG', 'JPKR', 'APAC', 'US', 'EU', 'AMERICAS', 'AFRICA', 'OTHER']
+// Personal stability patch: business groups should not default to the
+// all-region Smart pool. Prefer nearby regions first, then fall back wider.
+const LOW_LATENCY_REGION_ORDER = ['HK', 'SG', 'TW', 'JPKR', 'APAC', 'US', 'EU', 'AMERICAS', 'OTHER', 'AFRICA', 'GLOBAL']
+const SEA_REGION_ORDER = ['SG', 'HK', 'TW', 'JPKR', 'APAC', 'US', 'EU', 'GLOBAL']
+const SMART_CHECK_URL = 'https://www.gstatic.com/generate_204'
+const SMART_CHECK_INTERVAL = 180
+const SMART_CHECK_TIMEOUT = 3000
 const REGION_HOME_MAP = {
   GLOBAL: 'GLOBAL_HOME', HK: 'HK_HOME', TW: 'TW_HOME',
   SG: 'SG_HOME', JPKR: 'JPKR_HOME', APAC: 'APAC_HOME',
@@ -377,7 +430,7 @@ function withResidential(keys) {
 }
 
 function buildStandardProxies() {
-  return withResidential(REGION_ORDER).concat('DIRECT')
+  return withResidential(LOW_LATENCY_REGION_ORDER).concat('DIRECT')
 }
 
 function buildHomeFirstProxies(keys) {
@@ -396,20 +449,20 @@ function buildHomeFirstProxies(keys) {
 }
 
 function buildRegionPreferredProxies(primaryKey) {
-  var order = [primaryKey].concat(REGION_ORDER.filter(function(key) { return key !== primaryKey }))
+  var order = [primaryKey].concat(LOW_LATENCY_REGION_ORDER.filter(function(key) { return key !== primaryKey }))
   return withResidential(order).concat('DIRECT')
 }
 
 function buildDirectFirstProxies() {
-  return ['DIRECT'].concat(withResidential(REGION_ORDER))
+  return ['DIRECT'].concat(withResidential(LOW_LATENCY_REGION_ORDER))
 }
 
 function buildTrackerProxies() {
-  return ['REJECT', 'DIRECT'].concat(withResidential(['GLOBAL', 'HK', 'SG', 'APAC']))
+  return ['REJECT', 'DIRECT'].concat(withResidential(['HK', 'SG', 'GLOBAL', 'APAC']))
 }
 
 function buildSeaProxies() {
-  return withResidential(['SG', 'APAC', 'GLOBAL', 'HK', 'JPKR', 'US']).concat('DIRECT')
+  return withResidential(SEA_REGION_ORDER).concat('DIRECT')
 }
 
 // v5.1.2: GeoRouting 区域列表（module-level，供 providers + rules 共用）
@@ -431,7 +484,7 @@ const GEO_REGIONS_INTL_IP_RULES = GEO_REGIONS_INTL.map(function(r) { return 'RUL
 // ================================================================
 
 function upsertSmartGroup(config, name, proxies) {
-  var group = { name: name, type: 'smart', uselightgbm: true, collectdata: false, strategy: 'sticky-sessions', interval: 300, tolerance: 30, proxies: proxies.slice() }
+  var group = { name: name, type: 'smart', uselightgbm: true, collectdata: true, strategy: 'sticky-sessions', url: SMART_CHECK_URL, interval: SMART_CHECK_INTERVAL, tolerance: 20, timeout: SMART_CHECK_TIMEOUT, lazy: false, 'max-failed-times': 2, proxies: proxies.slice() }
   var idx = config['proxy-groups'].findIndex(function(g) { return g && g.name === name })
   if (idx !== -1) { config['proxy-groups'][idx] = group } else { config['proxy-groups'].push(group) }
   console.log(`[${VERSION}] Smart: "${name}" -> ${proxies.length} nodes`)
@@ -446,7 +499,7 @@ function injectBusinessGroups(config, activeSmartNames) {
     if (!activeSmartNames) return arr.slice()
     return arr.filter(function(p) { return activeSmartNames.has(p) })
   }
-  var aiProxies = filterActive(buildHomeFirstProxies(REGION_ORDER))
+  var aiProxies = filterActive(buildHomeFirstProxies(LOW_LATENCY_REGION_ORDER))
   var standardProxies = filterActive(buildStandardProxies())
   var streamUsProxies = filterActive(buildRegionPreferredProxies('US'))
   var streamHkProxies = filterActive(buildRegionPreferredProxies('HK'))
@@ -2335,7 +2388,7 @@ function overwriteGeneral(config) {
   }
   config['geo-auto-update'] = true
   if (!config.profile) config.profile = {}
-  config.profile['store-selected'] = true
+  config.profile['store-selected'] = false
   config.profile['store-fake-ip'] = true
   config.profile['tracing'] = true
   // v5.4.1 P2: Hosts DNS 预解析——消除 fake-ip 冷启动循环依赖

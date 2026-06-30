@@ -16,11 +16,30 @@ const REQUIRED_PRE_RULES = [
   'DOMAIN-SUFFIX,dingtalk.com,DIRECT',
   'DOMAIN-SUFFIX,welink.huaweicloud.com,DIRECT',
   'DOMAIN-SUFFIX,bbys.app,DIRECT',
+  'PROCESS-NAME,steam.exe,DIRECT',
+  'PROCESS-NAME,steamwebhelper.exe,DIRECT',
+  'RULE-SET,steam,DIRECT',
+  'RULE-SET,steamcn,DIRECT',
+  'DOMAIN-SUFFIX,steampowered.com,DIRECT',
+  'DOMAIN-SUFFIX,steamcommunity.com,DIRECT',
+  'DOMAIN-SUFFIX,steam-chat.com,DIRECT',
   'DOMAIN-SUFFIX,steamcdn-a.akamaihd.net,DIRECT',
   'DOMAIN-SUFFIX,steampipe.akamaized.net,DIRECT',
   'DOMAIN-SUFFIX,steamcontent.com,DIRECT',
   'DOMAIN-SUFFIX,steamserver.net,DIRECT',
   'DOMAIN-SUFFIX,steamstatic.com,DIRECT',
+  'DOMAIN-SUFFIX,juequling.com,DIRECT',
+]
+
+const REQUIRED_OUTPUT_SNIPPETS = [
+  "const LOW_LATENCY_REGION_ORDER = ['HK', 'SG', 'TW', 'JPKR', 'APAC', 'US', 'EU', 'AMERICAS', 'OTHER', 'AFRICA', 'GLOBAL']",
+  "const SMART_CHECK_URL = 'https://www.gstatic.com/generate_204'",
+  "collectdata: true",
+  'lazy: false',
+  "'max-failed-times': 2",
+  "config.profile['store-selected'] = false",
+  'buildStandardProxies()',
+  'withResidential(LOW_LATENCY_REGION_ORDER)',
 ]
 
 function getCustomPreRulesBlock(text) {
@@ -45,6 +64,11 @@ async function main() {
 
   if (/`GEOIP,ID,/.test(output)) {
     throw new Error('Generated output still contains the unsupported Indonesia GeoIP fallback')
+  }
+
+  const missingSnippets = REQUIRED_OUTPUT_SNIPPETS.filter(snippet => !output.includes(snippet))
+  if (missingSnippets.length) {
+    throw new Error(`Missing Smart stability patches:\n${missingSnippets.join('\n')}`)
   }
 
   console.log(`Priority audit passed (${required.length} guarded rules)`)

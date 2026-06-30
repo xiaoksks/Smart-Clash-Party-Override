@@ -160,6 +160,96 @@ function applyCompatibilityPatches(merged) {
     console.log('Applied compatibility patch: removed unsupported Indonesia GeoIP fallback')
   }
 
+  patched = applySmartStabilityPatch(patched)
+
+  return patched
+}
+
+function replaceOrThrow(text, pattern, replacement, label) {
+  const next = text.replace(pattern, replacement)
+  if (next === text) {
+    throw new Error(`Failed to apply compatibility patch: ${label}`)
+  }
+  console.log(`Applied compatibility patch: ${label}`)
+  return next
+}
+
+function applySmartStabilityPatch(merged) {
+  let patched = merged
+
+  patched = replaceOrThrow(
+    patched,
+    /const REGION_ORDER = \['GLOBAL', 'HK', 'TW', 'SG', 'JPKR', 'APAC', 'US', 'EU', 'AMERICAS', 'AFRICA', 'OTHER'\]\r?\n/,
+    [
+      "const REGION_ORDER = ['GLOBAL', 'HK', 'TW', 'SG', 'JPKR', 'APAC', 'US', 'EU', 'AMERICAS', 'AFRICA', 'OTHER']",
+      "// Personal stability patch: business groups should not default to the",
+      "// all-region Smart pool. Prefer nearby regions first, then fall back wider.",
+      "const LOW_LATENCY_REGION_ORDER = ['HK', 'SG', 'TW', 'JPKR', 'APAC', 'US', 'EU', 'AMERICAS', 'OTHER', 'AFRICA', 'GLOBAL']",
+      "const SEA_REGION_ORDER = ['SG', 'HK', 'TW', 'JPKR', 'APAC', 'US', 'EU', 'GLOBAL']",
+      "const SMART_CHECK_URL = 'https://www.gstatic.com/generate_204'",
+      'const SMART_CHECK_INTERVAL = 180',
+      'const SMART_CHECK_TIMEOUT = 3000',
+      '',
+    ].join('\n'),
+    'prefer nearby regions for business group defaults',
+  )
+
+  patched = replaceOrThrow(
+    patched,
+    /function buildStandardProxies\(\) \{\r?\n  return withResidential\(REGION_ORDER\)\.concat\('DIRECT'\)\r?\n\}/,
+    "function buildStandardProxies() {\n  return withResidential(LOW_LATENCY_REGION_ORDER).concat('DIRECT')\n}",
+    'make standard business groups prefer nearby regions',
+  )
+
+  patched = replaceOrThrow(
+    patched,
+    /function buildRegionPreferredProxies\(primaryKey\) \{\r?\n  var order = \[primaryKey\]\.concat\(REGION_ORDER\.filter\(function\(key\) \{ return key !== primaryKey \}\)\)\r?\n  return withResidential\(order\)\.concat\('DIRECT'\)\r?\n\}/,
+    "function buildRegionPreferredProxies(primaryKey) {\n  var order = [primaryKey].concat(LOW_LATENCY_REGION_ORDER.filter(function(key) { return key !== primaryKey }))\n  return withResidential(order).concat('DIRECT')\n}",
+    'make region-preferred groups fall back to nearby regions',
+  )
+
+  patched = replaceOrThrow(
+    patched,
+    /function buildDirectFirstProxies\(\) \{\r?\n  return \['DIRECT'\]\.concat\(withResidential\(REGION_ORDER\)\)\r?\n\}/,
+    "function buildDirectFirstProxies() {\n  return ['DIRECT'].concat(withResidential(LOW_LATENCY_REGION_ORDER))\n}",
+    'make direct-first fallbacks prefer nearby regions',
+  )
+
+  patched = replaceOrThrow(
+    patched,
+    /function buildTrackerProxies\(\) \{\r?\n  return \['REJECT', 'DIRECT'\]\.concat\(withResidential\(\['GLOBAL', 'HK', 'SG', 'APAC'\]\)\)\r?\n\}/,
+    "function buildTrackerProxies() {\n  return ['REJECT', 'DIRECT'].concat(withResidential(['HK', 'SG', 'GLOBAL', 'APAC']))\n}",
+    'make tracker fallback order deterministic',
+  )
+
+  patched = replaceOrThrow(
+    patched,
+    /function buildSeaProxies\(\) \{\r?\n  return withResidential\(\['SG', 'APAC', 'GLOBAL', 'HK', 'JPKR', 'US'\]\)\.concat\('DIRECT'\)\r?\n\}/,
+    "function buildSeaProxies() {\n  return withResidential(SEA_REGION_ORDER).concat('DIRECT')\n}",
+    'make SEA business groups prefer nearby regions',
+  )
+
+  patched = replaceOrThrow(
+    patched,
+    /var aiProxies = filterActive\(buildHomeFirstProxies\(REGION_ORDER\)\)/,
+    'var aiProxies = filterActive(buildHomeFirstProxies(LOW_LATENCY_REGION_ORDER))',
+    'make AI home-IP defaults prefer nearby regions',
+  )
+
+  patched = replaceOrThrow(
+    patched,
+    /var group = \{ name: name, type: 'smart', uselightgbm: true, collectdata: false, strategy: 'sticky-sessions', interval: 300, tolerance: 30, proxies: proxies\.slice\(\) \}/,
+    "var group = { name: name, type: 'smart', uselightgbm: true, collectdata: true, strategy: 'sticky-sessions', url: SMART_CHECK_URL, interval: SMART_CHECK_INTERVAL, tolerance: 20, timeout: SMART_CHECK_TIMEOUT, lazy: false, 'max-failed-times': 2, proxies: proxies.slice() }",
+    'enable active Smart health checks and local data collection',
+  )
+
+  patched = replaceOrThrow(
+    patched,
+    /config\.profile\['store-selected'\] = true/,
+    "config.profile['store-selected'] = false",
+    'disable stale selected-group persistence',
+  )
+
   return patched
 }
 
