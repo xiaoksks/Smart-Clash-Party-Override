@@ -25,7 +25,7 @@ const REQUIRED_PRE_RULES = [
 ]
 
 const REQUIRED_OUTPUT_SNIPPETS = [
-  "const LOW_LATENCY_REGION_ORDER = ['HK', 'SG', 'TW', 'JPKR', 'APAC', 'US', 'EU', 'AMERICAS', 'OTHER', 'AFRICA', 'GLOBAL']",
+  "const LOW_LATENCY_REGION_ORDER = ['GLOBAL', 'HK', 'SG', 'TW', 'JPKR', 'APAC', 'US', 'EU', 'AMERICAS', 'OTHER', 'AFRICA']",
   "const SMART_CHECK_URL = 'https://www.gstatic.com/generate_204'",
   "collectdata: true",
   'lazy: false',

@@ -183,16 +183,16 @@ function applySmartStabilityPatch(merged) {
     /const REGION_ORDER = \['GLOBAL', 'HK', 'TW', 'SG', 'JPKR', 'APAC', 'US', 'EU', 'AMERICAS', 'AFRICA', 'OTHER'\]\r?\n/,
     [
       "const REGION_ORDER = ['GLOBAL', 'HK', 'TW', 'SG', 'JPKR', 'APAC', 'US', 'EU', 'AMERICAS', 'AFRICA', 'OTHER']",
-      "// Personal stability patch: business groups should not default to the",
-      "// all-region Smart pool. Prefer nearby regions first, then fall back wider.",
-      "const LOW_LATENCY_REGION_ORDER = ['HK', 'SG', 'TW', 'JPKR', 'APAC', 'US', 'EU', 'AMERICAS', 'OTHER', 'AFRICA', 'GLOBAL']",
+      "// Personal stability patch: business groups default to the global Smart pool,",
+      "// then keep the existing nearby-region fallback order unchanged.",
+      "const LOW_LATENCY_REGION_ORDER = ['GLOBAL', 'HK', 'SG', 'TW', 'JPKR', 'APAC', 'US', 'EU', 'AMERICAS', 'OTHER', 'AFRICA']",
       "const SEA_REGION_ORDER = ['SG', 'HK', 'TW', 'JPKR', 'APAC', 'US', 'EU', 'GLOBAL']",
       "const SMART_CHECK_URL = 'https://www.gstatic.com/generate_204'",
       'const SMART_CHECK_INTERVAL = 180',
       'const SMART_CHECK_TIMEOUT = 3000',
       '',
     ].join('\n'),
-    'prefer nearby regions for business group defaults',
+    'prefer global Smart group for business group defaults',
   )
 
   patched = replaceOrThrow(
