@@ -376,9 +376,9 @@ function withResidential(keys) {
   var result = []
   for (var i = 0; i < keys.length; i++) {
     var key = keys[i]
-    if (SMART[key]) result.push(SMART[key])
     var homeKey = REGION_HOME_MAP[key]
     if (homeKey && SMART[homeKey]) result.push(SMART[homeKey])
+    if (SMART[key]) result.push(SMART[key])
   }
   return result
 }

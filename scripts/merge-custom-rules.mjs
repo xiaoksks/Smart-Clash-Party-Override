@@ -204,6 +204,13 @@ function applySmartStabilityPatch(merged) {
 
   patched = replaceOrThrow(
     patched,
+    /function withResidential\(keys\) \{\r?\n  var result = \[\]\r?\n  for \(var i = 0; i < keys\.length; i\+\+\) \{\r?\n    var key = keys\[i\]\r?\n    if \(SMART\[key\]\) result\.push\(SMART\[key\]\)\r?\n    var homeKey = REGION_HOME_MAP\[key\]\r?\n    if \(homeKey && SMART\[homeKey\]\) result\.push\(SMART\[homeKey\]\)\r?\n  \}\r?\n  return result\r?\n\}/,
+    "function withResidential(keys) {\n  var result = []\n  for (var i = 0; i < keys.length; i++) {\n    var key = keys[i]\n    var homeKey = REGION_HOME_MAP[key]\n    if (homeKey && SMART[homeKey]) result.push(SMART[homeKey])\n    if (SMART[key]) result.push(SMART[key])\n  }\n  return result\n}",
+    'prefer residential Smart groups before general Smart groups',
+  )
+
+  patched = replaceOrThrow(
+    patched,
     /function buildRegionPreferredProxies\(primaryKey\) \{\r?\n  var order = \[primaryKey\]\.concat\(REGION_ORDER\.filter\(function\(key\) \{ return key !== primaryKey \}\)\)\r?\n  return withResidential\(order\)\.concat\('DIRECT'\)\r?\n\}/,
     "function buildRegionPreferredProxies(primaryKey) {\n  var order = [primaryKey].concat(LOW_LATENCY_REGION_ORDER.filter(function(key) { return key !== primaryKey }))\n  return withResidential(order).concat('DIRECT')\n}",
     'make region-preferred groups fall back to nearby regions',
