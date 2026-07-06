@@ -2576,7 +2576,7 @@ function sortProxyGroups(config) {
     if (!g || !g.name) return
     if (bizNames.has(g.name)) { bizGroups.push(g) }
     else if (smartNames.has(g.name) || g.type === 'smart') { smartGroups.push(g) }
-    else { otherGroups.push(g) }
+    else if (g.name !== 'GLOBAL') { otherGroups.push(g) }
   })
   const bizOrder = Object.values(BIZ)
   bizGroups.sort((a, b) => bizOrder.indexOf(a.name) - bizOrder.indexOf(b.name))

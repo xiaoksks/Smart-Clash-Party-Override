@@ -246,6 +246,13 @@ function applySmartStabilityPatch(merged) {
 
   patched = replaceOrThrow(
     patched,
+    /    else \{ otherGroups\.push\(g\) \}/,
+    "    else if (g.name !== 'GLOBAL') { otherGroups.push(g) }",
+    'drop legacy GLOBAL proxy group',
+  )
+
+  patched = replaceOrThrow(
+    patched,
     /config\.profile\['store-selected'\] = true/,
     "config.profile['store-selected'] = false",
     'disable stale selected-group persistence',

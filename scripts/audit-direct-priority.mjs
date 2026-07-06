@@ -33,6 +33,7 @@ const REQUIRED_OUTPUT_SNIPPETS = [
   "config.profile['store-selected'] = false",
   'buildStandardProxies()',
   'withResidential(LOW_LATENCY_REGION_ORDER)',
+  "else if (g.name !== 'GLOBAL') { otherGroups.push(g) }",
   "var domesticPlainDns = ['223.5.5.5', '223.6.6.6', '119.29.29.29']",
   "config.dns['direct-nameserver'] = domesticDoH.concat(domesticPlainDns)",
   "config.dns['direct-nameserver-follow-policy'] = false",
