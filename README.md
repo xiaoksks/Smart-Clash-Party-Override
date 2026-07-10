@@ -3,7 +3,7 @@ https://github.com/IvanSolis1989/Smart-Config-Kit
 
 # Clash Party Custom Override
 
-这个仓库会定时拉取上游 `ClashParty(mihomo-smart).js`，把 `custom-pre-rules.js` 里的自定义规则插入到 `function injectRules(config) { config.rules = [` 的最前面，然后生成 Clash Party 可导入的 JS 覆写文件。
+这个仓库会定时拉取上游 `ClashParty(mihomo-smart).js`，把 `custom-pre-rules.js` 里的自定义规则放到最终规则列表最前面，然后生成 Clash Party 可导入的 JS 覆写文件。
 
 当前本仓库的自定义层主要用于补强上游尚未覆盖、或个人环境需要强制优先的规则。注意：`custom-pre-rules.js` 的规则会先于广告拦截、AI、游戏、国内直连等所有上游规则命中，因此只建议放少量“确定必须优先”的精准规则。
 

@@ -45,7 +45,7 @@ function getCustomPreRulesBlock(text) {
   const start = text.indexOf('const CUSTOM_PRE_RULES = [')
   if (start === -1) throw new Error('Could not find CUSTOM_PRE_RULES in generated output')
 
-  const end = text.indexOf(']\n// Clash Smart', start)
+  const end = text.indexOf('\n]\n', start)
   if (end === -1) throw new Error('Could not find end of generated CUSTOM_PRE_RULES block')
 
   return text.slice(start, end)
@@ -63,6 +63,18 @@ async function main() {
 
   if (/`GEOIP,ID,/.test(output)) {
     throw new Error('Generated output still contains the unsupported Indonesia GeoIP fallback')
+  }
+
+  if (output.includes('function applyMihomoFusedRuleSets(config) {')) {
+    const requiredFusedSnippets = [
+      'function prependCustomPreRules(config) {',
+      'config.rules = CUSTOM_PRE_RULES.concat(rest)',
+      'prependCustomPreRules(config)',
+    ]
+    const missingFusedSnippets = requiredFusedSnippets.filter(snippet => !output.includes(snippet))
+    if (missingFusedSnippets.length) {
+      throw new Error(`Missing fused-rule custom pre-rule injection:\n${missingFusedSnippets.join('\n')}`)
+    }
   }
 
   const missingSnippets = REQUIRED_OUTPUT_SNIPPETS.filter(snippet => !output.includes(snippet))

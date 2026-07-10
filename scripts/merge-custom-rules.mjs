@@ -108,27 +108,8 @@ function ensureCustomRulesDeclaration(customRules) {
   }
 }
 
-function injectCustomRules(upstream, customRules) {
-  const marker = 'function injectRules(config) {'
-  const markerIndex = upstream.indexOf(marker)
-
-  if (markerIndex === -1) {
-    throw new Error('Could not find function injectRules(config) in upstream file')
-  }
-
-  const rulesStart = upstream.indexOf('config.rules = [', markerIndex)
-
-  if (rulesStart === -1) {
-    throw new Error('Could not find config.rules = [ inside injectRules(config)')
-  }
-
-  const insertAt = upstream.indexOf('\n', rulesStart)
-
-  if (insertAt === -1) {
-    throw new Error('Could not find insertion point after config.rules = [')
-  }
-
-  const header = [
+function buildHeader(customRules) {
+  return [
     '// This file is generated automatically. Do not edit dist output directly.',
     `// Upstream: ${UPSTREAM_URL}`,
     '// Edit custom-pre-rules.js, then run: npm run build',
@@ -136,11 +117,68 @@ function injectCustomRules(upstream, customRules) {
     stripBom(customRules).trim(),
     '',
   ].join('\n')
+}
 
-  return header
-    + stripBom(upstream).slice(0, insertAt + 1)
+function buildPrependCustomRulesFunction() {
+  return [
+    'function prependCustomPreRules(config) {',
+    '  if (!Array.isArray(config.rules)) config.rules = []',
+    '  var customSet = {}',
+    '  CUSTOM_PRE_RULES.forEach(function(rule) { customSet[rule] = true })',
+    '  var rest = config.rules.filter(function(rule) { return !customSet[rule] })',
+    '  config.rules = CUSTOM_PRE_RULES.concat(rest)',
+    '}',
+    '',
+  ].join('\n')
+}
+
+function injectLegacyCustomRules(upstream, customRules, markerIndex) {
+  const rulesStart = upstream.indexOf('config.rules = [', markerIndex)
+
+  if (rulesStart === -1) {
+    throw new Error('Could not find config.rules = [ inside injectRules(config)')
+  }
+  const insertAt = upstream.indexOf('\n', rulesStart)
+
+  if (insertAt === -1) {
+    throw new Error('Could not find insertion point after config.rules = [')
+  }
+
+  return buildHeader(customRules)
+    + upstream.slice(0, insertAt + 1)
     + '    ...CUSTOM_PRE_RULES,\n'
-    + stripBom(upstream).slice(insertAt + 1)
+    + upstream.slice(insertAt + 1)
+}
+
+function injectFusedCustomRules(upstream, customRules) {
+  if (!upstream.includes('function applyMihomoFusedRuleSets(config) {')) {
+    throw new Error('Could not find applyMihomoFusedRuleSets(config) in upstream file')
+  }
+
+  const sortCall = '    sortProxyGroups(config)'
+  const sortCallIndex = upstream.indexOf(sortCall)
+
+  if (sortCallIndex === -1) {
+    throw new Error('Could not find sortProxyGroups(config) call in upstream main(config)')
+  }
+
+  return buildHeader(customRules)
+    + buildPrependCustomRulesFunction()
+    + upstream.slice(0, sortCallIndex)
+    + '    prependCustomPreRules(config)\n'
+    + upstream.slice(sortCallIndex)
+}
+
+function injectCustomRules(upstream, customRules) {
+  const cleanUpstream = stripBom(upstream)
+  const legacyMarker = 'function injectRules(config) {'
+  const legacyMarkerIndex = cleanUpstream.indexOf(legacyMarker)
+
+  if (legacyMarkerIndex !== -1) {
+    return injectLegacyCustomRules(cleanUpstream, customRules, legacyMarkerIndex)
+  }
+
+  return injectFusedCustomRules(cleanUpstream, customRules)
 }
 
 function applyCompatibilityPatches(merged) {

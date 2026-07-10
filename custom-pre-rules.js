@@ -1,4 +1,4 @@
-// Rules inserted at the very beginning of injectRules(config).
+// Rules inserted at the beginning of the generated rule list.
 // Keep this file small and personal; rules here override all upstream rules.
 const CUSTOM_PRE_RULES = [
   // Clash Party network info / current IP lookup.
