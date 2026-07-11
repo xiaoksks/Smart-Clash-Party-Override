@@ -63,9 +63,32 @@ const CUSTOM_PRE_RULES = [
   'DOMAIN-SUFFIX,wmsjsteam.com,DIRECT',
   'DOMAIN-SUFFIX,xz.pphimalayanrt.com,DIRECT',
 
-  // Zenless Zone Zero mainland China site. Upstream HoYoverse rules classify
-  // juequling.com as overseas game, but CN service should stay DIRECT.
+  // Mainland China game services. Upstream v6 fused rules route these through
+  // the selectable "domestic games" policy; pin core CN game domains to DIRECT.
+  'DOMAIN-SUFFIX,mihoyo.com,DIRECT',
+  'DOMAIN-SUFFIX,miyoushe.com,DIRECT',
+  'DOMAIN-SUFFIX,yuanshen.com,DIRECT',
+  'DOMAIN-SUFFIX,bhsr.com,DIRECT',
+  'DOMAIN-SUFFIX,zenlesszonezero.com,DIRECT',
   'DOMAIN-SUFFIX,juequling.com,DIRECT',
+  'DOMAIN,game.163.com,DIRECT',
+  'DOMAIN-SUFFIX,gm.163.com,DIRECT',
+  'DOMAIN-SUFFIX,ds.163.com,DIRECT',
+  'DOMAIN-SUFFIX,nie.163.com,DIRECT',
+  'DOMAIN-SUFFIX,nie.netease.com,DIRECT',
+  'DOMAIN-SUFFIX,update.netease.com,DIRECT',
+  'DOMAIN-SUFFIX,netease.com,DIRECT',
+  'DOMAIN-SUFFIX,wegame.com,DIRECT',
+  'DOMAIN-SUFFIX,wegame.com.cn,DIRECT',
+  'DOMAIN-SUFFIX,perfect-world.com,DIRECT',
+  'DOMAIN-SUFFIX,wanmei.com,DIRECT',
+  'DOMAIN-SUFFIX,xd.com,DIRECT',
+  'DOMAIN-SUFFIX,taptap.com,DIRECT',
+  'DOMAIN-SUFFIX,taptap.io,DIRECT',
+  'DOMAIN-SUFFIX,papegames.com,DIRECT',
+  'DOMAIN-SUFFIX,hypergryph.com,DIRECT',
+  'DOMAIN-SUFFIX,gryphline.com,DIRECT',
+  'DOMAIN-SUFFIX,lilith.com,DIRECT',
 ]
 function prependCustomPreRules(config) {
   if (!Array.isArray(config.rules)) config.rules = []

@@ -132,24 +132,6 @@ function buildPrependCustomRulesFunction() {
   ].join('\n')
 }
 
-function injectLegacyCustomRules(upstream, customRules, markerIndex) {
-  const rulesStart = upstream.indexOf('config.rules = [', markerIndex)
-
-  if (rulesStart === -1) {
-    throw new Error('Could not find config.rules = [ inside injectRules(config)')
-  }
-  const insertAt = upstream.indexOf('\n', rulesStart)
-
-  if (insertAt === -1) {
-    throw new Error('Could not find insertion point after config.rules = [')
-  }
-
-  return buildHeader(customRules)
-    + upstream.slice(0, insertAt + 1)
-    + '    ...CUSTOM_PRE_RULES,\n'
-    + upstream.slice(insertAt + 1)
-}
-
 function injectFusedCustomRules(upstream, customRules) {
   if (!upstream.includes('function applyMihomoFusedRuleSets(config) {')) {
     throw new Error('Could not find applyMihomoFusedRuleSets(config) in upstream file')
@@ -171,32 +153,12 @@ function injectFusedCustomRules(upstream, customRules) {
 
 function injectCustomRules(upstream, customRules) {
   const cleanUpstream = stripBom(upstream)
-  const legacyMarker = 'function injectRules(config) {'
-  const legacyMarkerIndex = cleanUpstream.indexOf(legacyMarker)
-
-  if (legacyMarkerIndex !== -1) {
-    return injectLegacyCustomRules(cleanUpstream, customRules, legacyMarkerIndex)
-  }
 
   return injectFusedCustomRules(cleanUpstream, customRules)
 }
 
-function applyCompatibilityPatches(merged) {
+function applyLocalPatches(merged) {
   let patched = merged
-
-  // Clash Party can fail to load when the active geoip.dat does not contain
-  // the Indonesia country-code entry. The upstream script already has exact
-  // Indonesian domain rules before this line, so removing this GeoIP fallback
-  // is safer than breaking the whole override at parse time.
-  const before = patched
-  patched = patched.replace(
-    /    `GEOIP,ID,\$\{BIZ\.INTL_SITE\},no-resolve`,\r?\n/,
-    '    // Compatibility: removed Indonesia GeoIP fallback because some geoip.dat builds do not expose its country-code entry.\n',
-  )
-
-  if (patched !== before) {
-    console.log('Applied compatibility patch: removed unsupported Indonesia GeoIP fallback')
-  }
 
   patched = applySmartStabilityPatch(patched)
   patched = applyDirectDnsStabilityPatch(patched)
@@ -207,9 +169,9 @@ function applyCompatibilityPatches(merged) {
 function replaceOrThrow(text, pattern, replacement, label) {
   const next = text.replace(pattern, replacement)
   if (next === text) {
-    throw new Error(`Failed to apply compatibility patch: ${label}`)
+    throw new Error(`Failed to apply local patch: ${label}`)
   }
-  console.log(`Applied compatibility patch: ${label}`)
+  console.log(`Applied local patch: ${label}`)
   return next
 }
 
@@ -341,7 +303,7 @@ async function main() {
 
   ensureCustomRulesDeclaration(customRules)
 
-  const merged = applyCompatibilityPatches(injectCustomRules(upstream, customRules))
+  const merged = applyLocalPatches(injectCustomRules(upstream, customRules))
 
   await mkdir(path.dirname(OUTPUT_PATH), { recursive: true })
   await writeFile(OUTPUT_PATH, merged, 'utf8')

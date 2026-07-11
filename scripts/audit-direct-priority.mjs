@@ -37,7 +37,30 @@ const REQUIRED_PRE_RULES = [
   'DOMAIN-SUFFIX,steamstatic.com.8686c.com,DIRECT',
   'DOMAIN-SUFFIX,wmsjsteam.com,DIRECT',
   'DOMAIN-SUFFIX,xz.pphimalayanrt.com,DIRECT',
+  'DOMAIN-SUFFIX,mihoyo.com,DIRECT',
+  'DOMAIN-SUFFIX,miyoushe.com,DIRECT',
+  'DOMAIN-SUFFIX,yuanshen.com,DIRECT',
+  'DOMAIN-SUFFIX,bhsr.com,DIRECT',
+  'DOMAIN-SUFFIX,zenlesszonezero.com,DIRECT',
   'DOMAIN-SUFFIX,juequling.com,DIRECT',
+  'DOMAIN,game.163.com,DIRECT',
+  'DOMAIN-SUFFIX,gm.163.com,DIRECT',
+  'DOMAIN-SUFFIX,ds.163.com,DIRECT',
+  'DOMAIN-SUFFIX,nie.163.com,DIRECT',
+  'DOMAIN-SUFFIX,nie.netease.com,DIRECT',
+  'DOMAIN-SUFFIX,update.netease.com,DIRECT',
+  'DOMAIN-SUFFIX,netease.com,DIRECT',
+  'DOMAIN-SUFFIX,wegame.com,DIRECT',
+  'DOMAIN-SUFFIX,wegame.com.cn,DIRECT',
+  'DOMAIN-SUFFIX,perfect-world.com,DIRECT',
+  'DOMAIN-SUFFIX,wanmei.com,DIRECT',
+  'DOMAIN-SUFFIX,xd.com,DIRECT',
+  'DOMAIN-SUFFIX,taptap.com,DIRECT',
+  'DOMAIN-SUFFIX,taptap.io,DIRECT',
+  'DOMAIN-SUFFIX,papegames.com,DIRECT',
+  'DOMAIN-SUFFIX,hypergryph.com,DIRECT',
+  'DOMAIN-SUFFIX,gryphline.com,DIRECT',
+  'DOMAIN-SUFFIX,lilith.com,DIRECT',
 ]
 
 const REQUIRED_OUTPUT_SNIPPETS = [
@@ -75,10 +98,6 @@ async function main() {
 
   if (missing.length) {
     throw new Error(`Missing high-priority pre-rules:\n${missing.join('\n')}`)
-  }
-
-  if (/`GEOIP,ID,/.test(output)) {
-    throw new Error('Generated output still contains the unsupported Indonesia GeoIP fallback')
   }
 
   if (output.includes('function applyMihomoFusedRuleSets(config) {')) {
