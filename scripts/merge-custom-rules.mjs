@@ -306,7 +306,7 @@ function applyPatreonDnsPatch(merged) {
       '  })',
       '  // Patreon page bootstrap spans first-party, consent, media, video, and chat CDNs.',
       '  // Resolve them overseas directly instead of waiting for generic geosite/fallback classification.',
-      "  ['+.patreon.com', '+.patreonusercontent.com', '+.patreoncommunity.com', '+.transcend-cdn.com', '+.transcend.io', 'patreon-media.s3-accelerate.amazonaws.com', '+.mux.com', '+.stream-io-api.com', '+.stream-io-video.com'].forEach(function(host) {",
+      "  ;['+.patreon.com', '+.patreonusercontent.com', '+.patreoncommunity.com', '+.transcend-cdn.com', '+.transcend.io', 'patreon-media.s3-accelerate.amazonaws.com', '+.mux.com', '+.stream-io-api.com', '+.stream-io-video.com'].forEach(function(host) {",
       "    config.dns['nameserver-policy'][host] = foreignDoH.slice()",
       '  })',
     ].join('\n'),

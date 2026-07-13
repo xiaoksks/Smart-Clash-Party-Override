@@ -1,5 +1,6 @@
 import { readFile } from 'node:fs/promises'
 import path from 'node:path'
+import vm from 'node:vm'
 
 const ROOT = process.cwd()
 const OUTPUT_PATH = path.join(ROOT, 'dist', 'Smart-Override.js')
@@ -87,8 +88,40 @@ const REQUIRED_OUTPUT_SNIPPETS = [
   "var domesticPlainDns = ['223.5.5.5', '223.6.6.6', '119.29.29.29']",
   "config.dns['direct-nameserver'] = domesticDoH.concat(domesticPlainDns)",
   "config.dns['direct-nameserver-follow-policy'] = false",
-  "['+.patreon.com', '+.patreonusercontent.com', '+.patreoncommunity.com', '+.transcend-cdn.com', '+.transcend.io', 'patreon-media.s3-accelerate.amazonaws.com', '+.mux.com', '+.stream-io-api.com', '+.stream-io-video.com']",
+  ";['+.patreon.com', '+.patreonusercontent.com', '+.patreoncommunity.com', '+.transcend-cdn.com', '+.transcend.io', 'patreon-media.s3-accelerate.amazonaws.com', '+.mux.com', '+.stream-io-api.com', '+.stream-io-video.com']",
 ]
+
+function auditRuntime(output) {
+  const config = {
+    proxies: [
+      { name: '香港-运行审计', type: 'ss', server: '1.1.1.1', port: 443, cipher: 'aes-128-gcm', password: 'audit' },
+    ],
+    'proxy-groups': [],
+    rules: [],
+  }
+  const runtimeErrors = []
+  const sandbox = {
+    __config: config,
+    console: {
+      log() {},
+      error(...args) {
+        runtimeErrors.push(args.map(value => String(value?.message || value)).join(' '))
+      },
+    },
+  }
+
+  const result = vm.runInNewContext(`${output}\n;main(__config)`, sandbox, { timeout: 5000 })
+  if (runtimeErrors.length) throw new Error(`Generated override failed at runtime:\n${runtimeErrors.join('\n')}`)
+  if (!Array.isArray(result?.['proxy-groups']) || result['proxy-groups'].length === 0) {
+    throw new Error('Generated override runtime audit produced no proxy groups')
+  }
+  if (!Array.isArray(result?.rules) || result.rules.length === 0) {
+    throw new Error('Generated override runtime audit produced no rules')
+  }
+  if (!result?.dns?.['nameserver-policy']?.['+.patreon.com']) {
+    throw new Error('Generated override runtime audit is missing Patreon DNS policy')
+  }
+}
 
 function getCustomPreRulesBlock(text) {
   const start = text.indexOf('const CUSTOM_PRE_RULES = [')
@@ -126,6 +159,8 @@ async function main() {
   if (missingSnippets.length) {
     throw new Error(`Missing Smart stability patches:\n${missingSnippets.join('\n')}`)
   }
+
+  auditRuntime(output)
 
   console.log(`Priority audit passed (${required.length} guarded rules)`)
 }
