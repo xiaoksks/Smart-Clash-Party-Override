@@ -29,11 +29,18 @@ const CUSTOM_PRE_RULES = [
   'DOMAIN-SUFFIX,welink.huaweicloud.com,DIRECT',
   'DOMAIN-SUFFIX,bbys.app,DIRECT',
 
-  // Patreon is Cloudflare-fronted and can be flaky when it falls through to
-  // DIRECT/final routing or gets caught by the generic overseas QUIC reject.
+  // Patreon is Cloudflare-fronted and loads consent, media, video, and
+  // community data from third-party CDNs. Keep the whole critical request
+  // chain ahead of upstream ad rules and the generic overseas QUIC reject.
   'DOMAIN-SUFFIX,patreon.com,🌐 国外网站',
   'DOMAIN-SUFFIX,patreonusercontent.com,🌐 国外网站',
   'DOMAIN-SUFFIX,patreoncommunity.com,🌐 国外网站',
+  'DOMAIN-SUFFIX,transcend-cdn.com,🌐 国外网站',
+  'DOMAIN-SUFFIX,transcend.io,🌐 国外网站',
+  'DOMAIN,patreon-media.s3-accelerate.amazonaws.com,🌐 国外网站',
+  'DOMAIN-SUFFIX,mux.com,🌐 国外网站',
+  'DOMAIN-SUFFIX,stream-io-api.com,🌐 国外网站',
+  'DOMAIN-SUFFIX,stream-io-video.com,🌐 国外网站',
 
   // Steam download/CDN domains: keep downloads and static assets DIRECT,
   // while community/store/account domains continue to follow upstream rules.

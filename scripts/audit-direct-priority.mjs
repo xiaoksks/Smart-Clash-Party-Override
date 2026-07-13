@@ -16,6 +16,15 @@ const REQUIRED_PRE_RULES = [
   'DOMAIN-SUFFIX,dingtalk.com,DIRECT',
   'DOMAIN-SUFFIX,welink.huaweicloud.com,DIRECT',
   'DOMAIN-SUFFIX,bbys.app,DIRECT',
+  'DOMAIN-SUFFIX,patreon.com,🌐 国外网站',
+  'DOMAIN-SUFFIX,patreonusercontent.com,🌐 国外网站',
+  'DOMAIN-SUFFIX,patreoncommunity.com,🌐 国外网站',
+  'DOMAIN-SUFFIX,transcend-cdn.com,🌐 国外网站',
+  'DOMAIN-SUFFIX,transcend.io,🌐 国外网站',
+  'DOMAIN,patreon-media.s3-accelerate.amazonaws.com,🌐 国外网站',
+  'DOMAIN-SUFFIX,mux.com,🌐 国外网站',
+  'DOMAIN-SUFFIX,stream-io-api.com,🌐 国外网站',
+  'DOMAIN-SUFFIX,stream-io-video.com,🌐 国外网站',
   'DOMAIN-SUFFIX,steamcdn-a.akamaihd.net,DIRECT',
   'DOMAIN-SUFFIX,steampipe.akamaized.net,DIRECT',
   'DOMAIN-SUFFIX,steampipe-kr.akamaized.net,DIRECT',
@@ -78,6 +87,7 @@ const REQUIRED_OUTPUT_SNIPPETS = [
   "var domesticPlainDns = ['223.5.5.5', '223.6.6.6', '119.29.29.29']",
   "config.dns['direct-nameserver'] = domesticDoH.concat(domesticPlainDns)",
   "config.dns['direct-nameserver-follow-policy'] = false",
+  "['+.patreon.com', '+.patreonusercontent.com', '+.patreoncommunity.com', '+.transcend-cdn.com', '+.transcend.io', 'patreon-media.s3-accelerate.amazonaws.com', '+.mux.com', '+.stream-io-api.com', '+.stream-io-video.com']",
 ]
 
 function getCustomPreRulesBlock(text) {

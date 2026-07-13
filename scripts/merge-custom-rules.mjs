@@ -162,6 +162,7 @@ function applyLocalPatches(merged) {
 
   patched = applySmartStabilityPatch(patched)
   patched = applyDirectDnsStabilityPatch(patched)
+  patched = applyPatreonDnsPatch(patched)
 
   return patched
 }
@@ -293,6 +294,24 @@ function applyDirectDnsStabilityPatch(merged) {
   )
 
   return patched
+}
+
+function applyPatreonDnsPatch(merged) {
+  return replaceOrThrow(
+    merged,
+    /  \['\+\.jsdelivr\.net', '\+\.github\.com', '\+\.githubusercontent\.com', '\+\.githubassets\.com', '\+\.fastly\.net'\]\.forEach\(function\(host\) \{\r?\n    if \(!config\.dns\['nameserver-policy'\]\[host\]\) config\.dns\['nameserver-policy'\]\[host\] = foreignDoH\.slice\(\)\r?\n  \}\)/,
+    [
+      "  ['+.jsdelivr.net', '+.github.com', '+.githubusercontent.com', '+.githubassets.com', '+.fastly.net'].forEach(function(host) {",
+      "    if (!config.dns['nameserver-policy'][host]) config.dns['nameserver-policy'][host] = foreignDoH.slice()",
+      '  })',
+      '  // Patreon page bootstrap spans first-party, consent, media, video, and chat CDNs.',
+      '  // Resolve them overseas directly instead of waiting for generic geosite/fallback classification.',
+      "  ['+.patreon.com', '+.patreonusercontent.com', '+.patreoncommunity.com', '+.transcend-cdn.com', '+.transcend.io', 'patreon-media.s3-accelerate.amazonaws.com', '+.mux.com', '+.stream-io-api.com', '+.stream-io-video.com'].forEach(function(host) {",
+      "    config.dns['nameserver-policy'][host] = foreignDoH.slice()",
+      '  })',
+    ].join('\n'),
+    'pin Patreon request chain to foreign DNS',
+  )
 }
 
 async function main() {
