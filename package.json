@@ -5,9 +5,10 @@
   "type": "module",
   "scripts": {
     "build": "node scripts/merge-custom-rules.mjs",
-    "audit:upstream": "node scripts/audit-upstream-overlap.mjs",
-    "audit:direct": "node scripts/audit-direct-priority.mjs",
-    "check": "npm run build && npm run audit:direct && node --check dist/Smart-Override.js"
+    "audit:upstream": "node scripts/audit-upstream-graph.mjs",
+    "audit:generated": "node scripts/audit-generated-override.mjs",
+    "report": "node scripts/report-generated.mjs",
+    "check": "npm run build && npm run audit:upstream && npm run audit:generated && node --check dist/Smart-Override.js"
   },
   "engines": {
     "node": ">=14.21"

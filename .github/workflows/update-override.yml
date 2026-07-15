@@ -9,9 +9,14 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: update-clash-party-override
+  cancel-in-progress: false
+
 jobs:
   update:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
       - name: Checkout
@@ -24,6 +29,19 @@ jobs:
 
       - name: Build and validate merged override
         run: npm run check
+
+      - name: Publish build summary
+        run: npm run report >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload diagnostics on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: override-build-diagnostics
+          path: |
+            .build/
+            dist/Smart-Override.js
+          if-no-files-found: ignore
 
       - name: Commit generated override
         uses: stefanzweifel/git-auto-commit-action@v5

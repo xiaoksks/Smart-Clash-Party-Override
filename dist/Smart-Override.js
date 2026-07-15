@@ -1,109 +1,94 @@
 // This file is generated automatically. Do not edit dist output directly.
-// Upstream: https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/main/Clash%20Party/ClashParty(mihomo-smart).js
-// Edit custom-pre-rules.js, then run: npm run build
+// Upstream source: https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/main/Clash%20Party/ClashParty(mihomo-smart).js
+// Upstream version: v6.0.8
+// Upstream SHA-256: 47b86f84006c0aeb9bdf157aabc3b9208ae7d5b6587705b0350aec97b5446a45
+// Edit custom-overrides.js, then run: npm run check
 
-// Rules inserted at the beginning of the generated rule list.
-// Keep this file small and personal; rules here override all upstream rules.
 const CUSTOM_PRE_RULES = [
-  // Clash Party network info / current IP lookup.
-  // Keep foreign IP check APIs on proxy so the result reflects the selected exit IP.
-  'DOMAIN-SUFFIX,ip.sb,🌐 国外网站',
-  'DOMAIN-SUFFIX,api.ipify.org,🌐 国外网站',
-  'DOMAIN-SUFFIX,ipify.org,🌐 国外网站',
-  'DOMAIN-SUFFIX,ipinfo.io,🌐 国外网站',
-  'DOMAIN-SUFFIX,ipapi.co,🌐 国外网站',
-  'DOMAIN-SUFFIX,ip-api.com,🌐 国外网站',
-  'DOMAIN-SUFFIX,ipwho.is,🌐 国外网站',
-  'DOMAIN-SUFFIX,ident.me,🌐 国外网站',
-  'DOMAIN-SUFFIX,icanhazip.com,🌐 国外网站',
-  'DOMAIN-SUFFIX,ifconfig.me,🌐 国外网站',
-  // Keep China-friendly IP check APIs direct as a fallback.
-  'DOMAIN,ip.cip.cc,DIRECT',
-  'DOMAIN,myip.ipip.net,DIRECT',
-
-  // High-priority DIRECT guards promoted from upstream's later rule sections.
-  // These avoid being shadowed by broad mail/work/foreign-site rules or QUIC handling.
-  'DOMAIN-SUFFIX,mail.qq.com,DIRECT',
-  'DOMAIN-SUFFIX,mail.163.com,DIRECT',
-  'DOMAIN-SUFFIX,mail.126.com,DIRECT',
-  'DOMAIN-SUFFIX,mail.sina.com.cn,DIRECT',
-  'DOMAIN-SUFFIX,mail.aliyun.com,DIRECT',
-  'DOMAIN-SUFFIX,feishu.cn,DIRECT',
-  'DOMAIN-SUFFIX,dingtalk.com,DIRECT',
-  'DOMAIN-SUFFIX,welink.huaweicloud.com,DIRECT',
-  'DOMAIN-SUFFIX,bbys.app,DIRECT',
-
-  // Patreon is Cloudflare-fronted and loads consent, media, video, and
-  // community data from third-party CDNs. Keep the whole critical request
-  // chain ahead of upstream ad rules and the generic overseas QUIC reject.
-  'DOMAIN-SUFFIX,patreon.com,🌐 国外网站',
-  'DOMAIN-SUFFIX,patreonusercontent.com,🌐 国外网站',
-  'DOMAIN-SUFFIX,patreoncommunity.com,🌐 国外网站',
-  'DOMAIN-SUFFIX,transcend-cdn.com,🌐 国外网站',
-  'DOMAIN-SUFFIX,transcend.io,🌐 国外网站',
-  'DOMAIN,patreon-media.s3-accelerate.amazonaws.com,🌐 国外网站',
-  'DOMAIN-SUFFIX,mux.com,🌐 国外网站',
-  'DOMAIN-SUFFIX,stream-io-api.com,🌐 国外网站',
-  'DOMAIN-SUFFIX,stream-io-video.com,🌐 国外网站',
-
-  // Steam download/CDN domains: keep downloads and static assets DIRECT,
-  // while community/store/account domains continue to follow upstream rules.
-  'DOMAIN-SUFFIX,steamcdn-a.akamaihd.net,DIRECT',
-  'DOMAIN-SUFFIX,steampipe.akamaized.net,DIRECT',
-  'DOMAIN-SUFFIX,steampipe-kr.akamaized.net,DIRECT',
-  'DOMAIN-SUFFIX,steampipe-partner.akamaized.net,DIRECT',
-  'DOMAIN-SUFFIX,steamcontent.com,DIRECT',
-  'DOMAIN-SUFFIX,steamcontent.tnkjmec.com,DIRECT',
-  'DOMAIN-SUFFIX,steamserver.net,DIRECT',
-  'DOMAIN-SUFFIX,steamstatic.com,DIRECT',
-  'DOMAIN-SUFFIX,cdn-ali.content.steamchina.com,DIRECT',
-  'DOMAIN-SUFFIX,cdn-qc.content.steamchina.com,DIRECT',
-  'DOMAIN-SUFFIX,cdn-ws.content.steamchina.com,DIRECT',
-  'DOMAIN-SUFFIX,cm.steampowered.com,DIRECT',
-  'DOMAIN-SUFFIX,dl.steam.clngaa.com,DIRECT',
-  'DOMAIN-SUFFIX,dl.steam.ksyna.com,DIRECT',
-  'DOMAIN-SUFFIX,st.dl.bscstorage.net,DIRECT',
-  'DOMAIN-SUFFIX,st.dl.eccdnx.com,DIRECT',
-  'DOMAIN-SUFFIX,st.dl.pinyuncloud.com,DIRECT',
-  'DOMAIN-SUFFIX,steampowered.com.8686c.com,DIRECT',
-  'DOMAIN-SUFFIX,steamstatic.com.8686c.com,DIRECT',
-  'DOMAIN-SUFFIX,wmsjsteam.com,DIRECT',
-  'DOMAIN-SUFFIX,xz.pphimalayanrt.com,DIRECT',
-
-  // Mainland China game services. Upstream v6 fused rules route these through
-  // the selectable "domestic games" policy; pin core CN game domains to DIRECT.
-  'DOMAIN-SUFFIX,mihoyo.com,DIRECT',
-  'DOMAIN-SUFFIX,miyoushe.com,DIRECT',
-  'DOMAIN-SUFFIX,yuanshen.com,DIRECT',
-  'DOMAIN-SUFFIX,bhsr.com,DIRECT',
-  'DOMAIN-SUFFIX,zenlesszonezero.com,DIRECT',
-  'DOMAIN-SUFFIX,juequling.com,DIRECT',
-  'DOMAIN,game.163.com,DIRECT',
-  'DOMAIN-SUFFIX,gm.163.com,DIRECT',
-  'DOMAIN-SUFFIX,ds.163.com,DIRECT',
-  'DOMAIN-SUFFIX,nie.163.com,DIRECT',
-  'DOMAIN-SUFFIX,nie.netease.com,DIRECT',
-  'DOMAIN-SUFFIX,update.netease.com,DIRECT',
-  'DOMAIN-SUFFIX,netease.com,DIRECT',
-  'DOMAIN-SUFFIX,wegame.com,DIRECT',
-  'DOMAIN-SUFFIX,wegame.com.cn,DIRECT',
-  'DOMAIN-SUFFIX,perfect-world.com,DIRECT',
-  'DOMAIN-SUFFIX,wanmei.com,DIRECT',
-  'DOMAIN-SUFFIX,xd.com,DIRECT',
-  'DOMAIN-SUFFIX,taptap.com,DIRECT',
-  'DOMAIN-SUFFIX,taptap.io,DIRECT',
-  'DOMAIN-SUFFIX,papegames.com,DIRECT',
-  'DOMAIN-SUFFIX,hypergryph.com,DIRECT',
-  'DOMAIN-SUFFIX,gryphline.com,DIRECT',
-  'DOMAIN-SUFFIX,lilith.com,DIRECT',
+  "DOMAIN-SUFFIX,ip.sb,🌐 国外网站",
+  "DOMAIN-SUFFIX,ipify.org,🌐 国外网站",
+  "DOMAIN-SUFFIX,ipinfo.io,🌐 国外网站",
+  "DOMAIN-SUFFIX,ipapi.co,🌐 国外网站",
+  "DOMAIN-SUFFIX,ip-api.com,🌐 国外网站",
+  "DOMAIN-SUFFIX,ipwho.is,🌐 国外网站",
+  "DOMAIN-SUFFIX,ident.me,🌐 国外网站",
+  "DOMAIN-SUFFIX,icanhazip.com,🌐 国外网站",
+  "DOMAIN-SUFFIX,ifconfig.me,🌐 国外网站",
+  "DOMAIN,ip.cip.cc,DIRECT",
+  "DOMAIN,myip.ipip.net,DIRECT",
+  "DOMAIN-SUFFIX,mail.qq.com,DIRECT",
+  "DOMAIN-SUFFIX,mail.163.com,DIRECT",
+  "DOMAIN-SUFFIX,mail.126.com,DIRECT",
+  "DOMAIN-SUFFIX,mail.sina.com.cn,DIRECT",
+  "DOMAIN-SUFFIX,mail.aliyun.com,DIRECT",
+  "DOMAIN-SUFFIX,feishu.cn,DIRECT",
+  "DOMAIN-SUFFIX,dingtalk.com,DIRECT",
+  "DOMAIN-SUFFIX,welink.huaweicloud.com,DIRECT",
+  "DOMAIN-SUFFIX,bbys.app,DIRECT",
+  "DOMAIN-SUFFIX,patreon.com,🌐 国外网站",
+  "DOMAIN-SUFFIX,patreonusercontent.com,🌐 国外网站",
+  "DOMAIN-SUFFIX,patreoncommunity.com,🌐 国外网站",
+  "DOMAIN-SUFFIX,transcend-cdn.com,🌐 国外网站",
+  "DOMAIN-SUFFIX,transcend.io,🌐 国外网站",
+  "DOMAIN,patreon-media.s3-accelerate.amazonaws.com,🌐 国外网站",
+  "DOMAIN-SUFFIX,mux.com,🌐 国外网站",
+  "DOMAIN-SUFFIX,stream-io-api.com,🌐 国外网站",
+  "DOMAIN-SUFFIX,stream-io-video.com,🌐 国外网站",
+  "DOMAIN-SUFFIX,steamcdn-a.akamaihd.net,DIRECT",
+  "DOMAIN-SUFFIX,steampipe.akamaized.net,DIRECT",
+  "DOMAIN-SUFFIX,steampipe-kr.akamaized.net,DIRECT",
+  "DOMAIN-SUFFIX,steampipe-partner.akamaized.net,DIRECT",
+  "DOMAIN-SUFFIX,steamcontent.com,DIRECT",
+  "DOMAIN-SUFFIX,steamcontent.tnkjmec.com,DIRECT",
+  "DOMAIN-SUFFIX,steamserver.net,DIRECT",
+  "DOMAIN-SUFFIX,steamstatic.com,DIRECT",
+  "DOMAIN-SUFFIX,cdn-ali.content.steamchina.com,DIRECT",
+  "DOMAIN-SUFFIX,cdn-qc.content.steamchina.com,DIRECT",
+  "DOMAIN-SUFFIX,cdn-ws.content.steamchina.com,DIRECT",
+  "DOMAIN-SUFFIX,cm.steampowered.com,DIRECT",
+  "DOMAIN-SUFFIX,dl.steam.clngaa.com,DIRECT",
+  "DOMAIN-SUFFIX,dl.steam.ksyna.com,DIRECT",
+  "DOMAIN-SUFFIX,st.dl.bscstorage.net,DIRECT",
+  "DOMAIN-SUFFIX,st.dl.eccdnx.com,DIRECT",
+  "DOMAIN-SUFFIX,st.dl.pinyuncloud.com,DIRECT",
+  "DOMAIN-SUFFIX,steampowered.com.8686c.com,DIRECT",
+  "DOMAIN-SUFFIX,steamstatic.com.8686c.com,DIRECT",
+  "DOMAIN-SUFFIX,wmsjsteam.com,DIRECT",
+  "DOMAIN-SUFFIX,xz.pphimalayanrt.com,DIRECT",
+  "DOMAIN-SUFFIX,mihoyo.com,DIRECT",
+  "DOMAIN-SUFFIX,miyoushe.com,DIRECT",
+  "DOMAIN-SUFFIX,yuanshen.com,DIRECT",
+  "DOMAIN-SUFFIX,bhsr.com,DIRECT",
+  "DOMAIN-SUFFIX,zenlesszonezero.com,DIRECT",
+  "DOMAIN-SUFFIX,juequling.com,DIRECT",
+  "DOMAIN,game.163.com,DIRECT",
+  "DOMAIN-SUFFIX,gm.163.com,DIRECT",
+  "DOMAIN-SUFFIX,ds.163.com,DIRECT",
+  "DOMAIN-SUFFIX,nie.163.com,DIRECT",
+  "DOMAIN-SUFFIX,netease.com,DIRECT",
+  "DOMAIN-SUFFIX,wegame.com,DIRECT",
+  "DOMAIN-SUFFIX,wegame.com.cn,DIRECT",
+  "DOMAIN-SUFFIX,perfect-world.com,DIRECT",
+  "DOMAIN-SUFFIX,wanmei.com,DIRECT",
+  "DOMAIN-SUFFIX,xd.com,DIRECT",
+  "DOMAIN-SUFFIX,taptap.com,DIRECT",
+  "DOMAIN-SUFFIX,taptap.io,DIRECT",
+  "DOMAIN-SUFFIX,papegames.com,DIRECT",
+  "DOMAIN-SUFFIX,hypergryph.com,DIRECT",
+  "DOMAIN-SUFFIX,gryphline.com,DIRECT",
+  "DOMAIN-SUFFIX,lilith.com,DIRECT"
 ]
-function prependCustomPreRules(config) {
-  if (!Array.isArray(config.rules)) config.rules = []
-  var customSet = {}
-  CUSTOM_PRE_RULES.forEach(function(rule) { customSet[rule] = true })
-  var rest = config.rules.filter(function(rule) { return !customSet[rule] })
-  config.rules = CUSTOM_PRE_RULES.concat(rest)
-}
+const CUSTOM_FOREIGN_DNS_DOMAINS = [
+  "+.patreon.com",
+  "+.patreonusercontent.com",
+  "+.patreoncommunity.com",
+  "+.transcend-cdn.com",
+  "+.transcend.io",
+  "patreon-media.s3-accelerate.amazonaws.com",
+  "+.mux.com",
+  "+.stream-io-api.com",
+  "+.stream-io-video.com"
+]
 // Clash Smart 内核覆写脚本 - SUB-STORE 多机场精细分流版
 // 版本：v6.0.8 (2026-07-15)
 // 架构：SUB-STORE 多机场融合 + 22 Smart 区域组（11 全部 + 11 家宽）+ 33 业务策略组 + 126 融合 rule-providers / 143 rules
@@ -306,13 +291,6 @@ function applyMihomoFusedRuleSets(config) {
 // END AUTO-GENERATED MIHOMO FUSED RULE-SETS
 
 const REGION_ORDER = ['GLOBAL', 'HK', 'TW', 'SG', 'JPKR', 'APAC', 'US', 'EU', 'AMERICAS', 'AFRICA', 'OTHER']
-// Personal stability patch: business groups default to the global Smart pool,
-// then keep the existing nearby-region fallback order unchanged.
-const LOW_LATENCY_REGION_ORDER = ['GLOBAL', 'HK', 'SG', 'TW', 'JPKR', 'APAC', 'US', 'EU', 'AMERICAS', 'OTHER', 'AFRICA']
-const SEA_REGION_ORDER = ['SG', 'HK', 'TW', 'JPKR', 'APAC', 'US', 'EU', 'GLOBAL']
-const SMART_CHECK_URL = 'https://www.gstatic.com/generate_204'
-const SMART_CHECK_INTERVAL = 180
-const SMART_CHECK_TIMEOUT = 3000
 const REGION_HOME_MAP = {
   GLOBAL: 'GLOBAL_HOME', HK: 'HK_HOME', TW: 'TW_HOME',
   SG: 'SG_HOME', JPKR: 'JPKR_HOME', APAC: 'APAC_HOME',
@@ -324,15 +302,15 @@ function withResidential(keys) {
   var result = []
   for (var i = 0; i < keys.length; i++) {
     var key = keys[i]
+    if (SMART[key]) result.push(SMART[key])
     var homeKey = REGION_HOME_MAP[key]
     if (homeKey && SMART[homeKey]) result.push(SMART[homeKey])
-    if (SMART[key]) result.push(SMART[key])
   }
   return result
 }
 
 function buildStandardProxies() {
-  return withResidential(LOW_LATENCY_REGION_ORDER).concat('DIRECT')
+  return withResidential(REGION_ORDER).concat('DIRECT')
 }
 
 function buildHomeFirstProxies(keys) {
@@ -351,20 +329,20 @@ function buildHomeFirstProxies(keys) {
 }
 
 function buildRegionPreferredProxies(primaryKey) {
-  var order = [primaryKey].concat(LOW_LATENCY_REGION_ORDER.filter(function(key) { return key !== primaryKey }))
+  var order = [primaryKey].concat(REGION_ORDER.filter(function(key) { return key !== primaryKey }))
   return withResidential(order).concat('DIRECT')
 }
 
 function buildDirectFirstProxies() {
-  return ['DIRECT'].concat(withResidential(LOW_LATENCY_REGION_ORDER))
+  return ['DIRECT'].concat(withResidential(REGION_ORDER))
 }
 
 function buildTrackerProxies() {
-  return ['REJECT', 'DIRECT'].concat(withResidential(['HK', 'SG', 'GLOBAL', 'APAC']))
+  return ['REJECT', 'DIRECT'].concat(withResidential(['GLOBAL', 'HK', 'SG', 'APAC']))
 }
 
 function buildSeaProxies() {
-  return withResidential(SEA_REGION_ORDER).concat('DIRECT')
+  return withResidential(['SG', 'APAC', 'GLOBAL', 'HK', 'JPKR', 'US']).concat('DIRECT')
 }
 
 // ================================================================
@@ -372,7 +350,7 @@ function buildSeaProxies() {
 // ================================================================
 
 function upsertSmartGroup(config, name, proxies) {
-  var group = { name: name, type: 'smart', uselightgbm: true, collectdata: true, strategy: 'sticky-sessions', url: SMART_CHECK_URL, interval: SMART_CHECK_INTERVAL, tolerance: 20, timeout: SMART_CHECK_TIMEOUT, lazy: false, 'max-failed-times': 2, proxies: proxies.slice() }
+  var group = { name: name, type: 'smart', uselightgbm: true, collectdata: false, strategy: 'sticky-sessions', interval: 300, tolerance: 30, proxies: proxies.slice() }
   var idx = config['proxy-groups'].findIndex(function(g) { return g && g.name === name })
   if (idx !== -1) { config['proxy-groups'][idx] = group } else { config['proxy-groups'].push(group) }
   console.log(`[${VERSION}] Smart: "${name}" -> ${proxies.length} nodes`)
@@ -387,7 +365,7 @@ function injectBusinessGroups(config, activeSmartNames) {
     if (!activeSmartNames) return arr.slice()
     return arr.filter(function(p) { return activeSmartNames.has(p) })
   }
-  var aiProxies = filterActive(buildHomeFirstProxies(LOW_LATENCY_REGION_ORDER))
+  var aiProxies = filterActive(buildHomeFirstProxies(REGION_ORDER))
   var standardProxies = filterActive(buildStandardProxies())
   var streamUsProxies = filterActive(buildRegionPreferredProxies('US'))
   var streamHkProxies = filterActive(buildRegionPreferredProxies('HK'))
@@ -460,7 +438,7 @@ function overwriteGeneral(config) {
   }
   config['geo-auto-update'] = true
   if (!config.profile) config.profile = {}
-  config.profile['store-selected'] = false
+  config.profile['store-selected'] = true
   config.profile['store-fake-ip'] = true
   config.profile['tracing'] = true
   // v5.4.1 P2: Hosts DNS 预解析——消除 fake-ip 冷启动循环依赖
@@ -488,15 +466,14 @@ function overwriteGeneral(config) {
   // 1 个明文兜底；消除 bootstrap 阶段的 DNS 泄漏，同时保留明文韧性（防 443 被劫持/首包失败）。
   var bootstrapDns = ['https://223.5.5.5/dns-query', 'https://223.6.6.6/dns-query', 'https://8.8.8.8/dns-query', 'https://1.1.1.1/dns-query', '223.5.5.5']
   var domesticDoH = ['https://dns.alidns.com/dns-query', 'https://doh.pub/dns-query']
-  var domesticPlainDns = ['223.5.5.5', '223.6.6.6', '119.29.29.29']
   var foreignDoH = ['https://cloudflare-dns.com/dns-query', 'https://dns.google/dns-query']
   var proxyDoH = foreignDoH.concat(domesticDoH)
   config.dns['default-nameserver'] = bootstrapDns.slice()
   config.dns.nameserver = domesticDoH.slice()
-  config.dns['direct-nameserver'] = domesticDoH.concat(domesticPlainDns)
+  config.dns['direct-nameserver'] = domesticDoH.slice()
   // v5.4.19 #5 借鉴 Proxy-override：让 direct-nameserver 也遵循 nameserver-policy（默认 false 会忽略它）。
   // 官方 use case 即"direct 用国内 DoH + policy 指定域名走指定 DNS"；本仓库 policy 同时覆盖境外 CDN 与 geosite 级分流。
-  config.dns['direct-nameserver-follow-policy'] = false
+  config.dns['direct-nameserver-follow-policy'] = true
   config.dns['proxy-server-nameserver'] = proxyDoH.slice()
   config.dns.fallback = foreignDoH.slice()
   if (!config.dns['nameserver-policy'] || typeof config.dns['nameserver-policy'] !== 'object' || Array.isArray(config.dns['nameserver-policy'])) {
@@ -504,11 +481,6 @@ function overwriteGeneral(config) {
   }
   ['+.jsdelivr.net', '+.github.com', '+.githubusercontent.com', '+.githubassets.com', '+.fastly.net'].forEach(function(host) {
     if (!config.dns['nameserver-policy'][host]) config.dns['nameserver-policy'][host] = foreignDoH.slice()
-  })
-  // Patreon page bootstrap spans first-party, consent, media, video, and chat CDNs.
-  // Resolve them overseas directly instead of waiting for generic geosite/fallback classification.
-  ;['+.patreon.com', '+.patreonusercontent.com', '+.patreoncommunity.com', '+.transcend-cdn.com', '+.transcend.io', 'patreon-media.s3-accelerate.amazonaws.com', '+.mux.com', '+.stream-io-api.com', '+.stream-io-video.com'].forEach(function(host) {
-    config.dns['nameserver-policy'][host] = foreignDoH.slice()
   })
   // DNS-POLICY#170：nameserver-policy 优先于 nameserver/fallback。用 geosite 将国内域名固定到国内 DoH，
   // 非国内域名固定到海外 DoH，避免先向国内递归 resolver 发起 geolocation-!cn 查询后再 fallback。
@@ -700,7 +672,7 @@ function sortProxyGroups(config) {
     if (!g || !g.name) return
     if (bizNames.has(g.name)) { bizGroups.push(g) }
     else if (smartNames.has(g.name) || g.type === 'smart') { smartGroups.push(g) }
-    else if (g.name !== 'GLOBAL') { otherGroups.push(g) }
+    else { otherGroups.push(g) }
   })
   const bizOrder = Object.values(BIZ)
   bizGroups.sort((a, b) => bizOrder.indexOf(a.name) - bizOrder.indexOf(b.name))
@@ -716,7 +688,7 @@ function sortProxyGroups(config) {
 //  主函数
 // ================================================================
 
-function main(config) {
+function upstreamMain(config) {
   try {
     if (!config || typeof config !== 'object') return config
     if (!Array.isArray(config.proxies) || config.proxies.length === 0) return config
@@ -768,12 +740,152 @@ function main(config) {
 
     injectBusinessGroups(config, activeSmartNames)
     applyMihomoFusedRuleSets(config)
-    prependCustomPreRules(config)
     sortProxyGroups(config)
     console.log(`[${VERSION}] Done! Groups: ${config['proxy-groups'].length}, Rules: ${config.rules.length}, Providers: ${Object.keys(config['rule-providers']).length}`)
     return config
   } catch (e) {
     console.error(`[${VERSION}] Error:`, e)
     return config
+  }
+}
+
+
+// ================================================================
+//  Local post-processing layer
+// ================================================================
+
+const LOCAL_REGION_ORDER = ['GLOBAL', 'HK', 'SG', 'TW', 'JPKR', 'APAC', 'US', 'EU', 'AMERICAS', 'OTHER', 'AFRICA']
+const LOCAL_SMART_CHECK_URL = 'https://www.gstatic.com/generate_204'
+
+function localExistingProxyNames(config) {
+  var names = new Set(['DIRECT', 'REJECT'])
+  ;(config['proxy-groups'] || []).forEach(function(group) {
+    if (group && group.name) names.add(group.name)
+  })
+  return names
+}
+
+function localWithResidential(keys) {
+  var result = []
+  for (var i = 0; i < keys.length; i++) {
+    var key = keys[i]
+    var homeKey = typeof REGION_HOME_MAP !== 'undefined' ? REGION_HOME_MAP[key] : null
+    if (homeKey && SMART[homeKey]) result.push(SMART[homeKey])
+    if (SMART[key]) result.push(SMART[key])
+  }
+  return result
+}
+
+function localHomeFirst(keys) {
+  var homes = []
+  var full = []
+  for (var i = 0; i < keys.length; i++) {
+    var homeKey = typeof REGION_HOME_MAP !== 'undefined' ? REGION_HOME_MAP[keys[i]] : null
+    if (homeKey && SMART[homeKey]) homes.push(SMART[homeKey])
+    if (SMART[keys[i]]) full.push(SMART[keys[i]])
+  }
+  return homes.concat(full, ['DIRECT'])
+}
+
+function localFilterExisting(values, existing) {
+  return values.filter(function(value, index) {
+    return existing.has(value) && values.indexOf(value) === index
+  })
+}
+
+function localSetGroupProxies(config, groupName, proxies, existing) {
+  var group = (config['proxy-groups'] || []).find(function(item) { return item && item.name === groupName })
+  if (group) group.proxies = localFilterExisting(proxies, existing)
+}
+
+function localApplyBusinessGroupOrder(config) {
+  var existing = localExistingProxyNames(config)
+  var standard = localWithResidential(LOCAL_REGION_ORDER).concat('DIRECT')
+  var directFirst = ['DIRECT'].concat(localWithResidential(LOCAL_REGION_ORDER))
+  var ai = localHomeFirst(LOCAL_REGION_ORDER)
+  var tracker = ['REJECT', 'DIRECT'].concat(localWithResidential(['HK', 'SG', 'GLOBAL', 'APAC']))
+  function region(primary) {
+    return localWithResidential([primary].concat(LOCAL_REGION_ORDER.filter(function(key) { return key !== primary }))).concat('DIRECT')
+  }
+
+  ;[
+    BIZ.CRYPTO, BIZ.PAYMENTS, BIZ.IM, BIZ.SOCIAL, BIZ.WORK, BIZ.TOK,
+    BIZ.NFLX, BIZ.DSNP, BIZ.HBO, BIZ.PRIME, BIZ.YT, BIZ.MUSIC,
+    BIZ.STREAM_OTHER, BIZ.GAME_INTL, BIZ.GOOGLE, BIZ.TOOLS, BIZ.MS,
+    BIZ.DOWNLOAD, BIZ.GFW, BIZ.INTL_SITE, BIZ.FINAL,
+  ].forEach(function(name) { localSetGroupProxies(config, name, standard, existing) })
+
+  ;[BIZ.CNMEDIA, BIZ.GAME_CN, BIZ.APPLE, BIZ.CN_SITE].forEach(function(name) {
+    localSetGroupProxies(config, name, directFirst, existing)
+  })
+
+  localSetGroupProxies(config, BIZ.AI, ai, existing)
+  localSetGroupProxies(config, BIZ.HULU, region('US'), existing)
+  localSetGroupProxies(config, BIZ.STREAM_HK, region('HK'), existing)
+  localSetGroupProxies(config, BIZ.STREAM_TW, region('TW'), existing)
+  localSetGroupProxies(config, BIZ.STREAM_JP, region('JPKR'), existing)
+  localSetGroupProxies(config, BIZ.STREAM_EU, region('EU'), existing)
+  localSetGroupProxies(config, BIZ.TRACKER, tracker, existing)
+}
+
+function localApplySmartSettings(config) {
+  config['proxy-groups'] = (config['proxy-groups'] || []).filter(function(group) {
+    return group && group.name !== 'GLOBAL'
+  })
+  config['proxy-groups'].forEach(function(group) {
+    if (group.type !== 'smart') return
+    group.uselightgbm = true
+    group.collectdata = true
+    group.strategy = 'sticky-sessions'
+    group.url = LOCAL_SMART_CHECK_URL
+    group.interval = 180
+    group.tolerance = 20
+    group.timeout = 3000
+    group.lazy = false
+    group['max-failed-times'] = 2
+  })
+  localApplyBusinessGroupOrder(config)
+}
+
+function localApplyDns(config) {
+  if (!config.dns) config.dns = {}
+  var domesticDoH = ['https://dns.alidns.com/dns-query', 'https://doh.pub/dns-query']
+  var domesticPlain = ['223.5.5.5', '223.6.6.6', '119.29.29.29']
+  var foreignDoH = ['https://cloudflare-dns.com/dns-query', 'https://dns.google/dns-query']
+  config.dns['direct-nameserver'] = domesticDoH.concat(domesticPlain)
+  config.dns['direct-nameserver-follow-policy'] = false
+  if (!config.dns['nameserver-policy'] || typeof config.dns['nameserver-policy'] !== 'object' || Array.isArray(config.dns['nameserver-policy'])) {
+    config.dns['nameserver-policy'] = {}
+  }
+  CUSTOM_FOREIGN_DNS_DOMAINS.forEach(function(host) {
+    config.dns['nameserver-policy'][host] = foreignDoH.slice()
+  })
+}
+
+function localPrependRules(config) {
+  if (!Array.isArray(config.rules)) config.rules = []
+  var custom = new Set(CUSTOM_PRE_RULES)
+  config.rules = CUSTOM_PRE_RULES.concat(config.rules.filter(function(rule) { return !custom.has(rule) }))
+}
+
+function applyLocalOverrides(config) {
+  if (!config || typeof config !== 'object') return config
+  if (!Array.isArray(config.proxies) || config.proxies.length === 0) return config
+  if (!config.profile || typeof config.profile !== 'object') config.profile = {}
+  config.profile['store-selected'] = false
+  localApplySmartSettings(config)
+  localApplyDns(config)
+  localPrependRules(config)
+  console.log('[local] Applied custom rules, Smart settings, DNS policy and Hulu US preference')
+  return config
+}
+
+function main(config) {
+  var upstreamResult = upstreamMain(config)
+  try {
+    return applyLocalOverrides(upstreamResult)
+  } catch (error) {
+    console.error('[local] Post-processing failed:', error)
+    return upstreamResult
   }
 }
