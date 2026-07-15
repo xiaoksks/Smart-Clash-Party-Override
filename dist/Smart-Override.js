@@ -350,7 +350,7 @@ function buildSeaProxies() {
 // ================================================================
 
 function upsertSmartGroup(config, name, proxies) {
-  var group = { name: name, type: 'smart', uselightgbm: true, collectdata: false, strategy: 'sticky-sessions', interval: 300, tolerance: 30, proxies: proxies.slice() }
+  var group = { name: name, type: 'smart', uselightgbm: true, collectdata: false, interval: 300, tolerance: 30, proxies: proxies.slice() }
   var idx = config['proxy-groups'].findIndex(function(g) { return g && g.name === name })
   if (idx !== -1) { config['proxy-groups'][idx] = group } else { config['proxy-groups'].push(group) }
   console.log(`[${VERSION}] Smart: "${name}" -> ${proxies.length} nodes`)
@@ -836,7 +836,6 @@ function localApplySmartSettings(config) {
     if (group.type !== 'smart') return
     group.uselightgbm = true
     group.collectdata = true
-    group.strategy = 'sticky-sessions'
     group.url = LOCAL_SMART_CHECK_URL
     group.interval = 180
     group.tolerance = 20

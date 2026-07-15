@@ -74,6 +74,7 @@ function assertSmartContract(config) {
   const smartGroups = (config['proxy-groups'] || []).filter(group => group.type === 'smart')
   assert(smartGroups.length > 0, 'Generated override produced no Smart groups')
   smartGroups.forEach(group => {
+    assert(!Object.prototype.hasOwnProperty.call(group, 'strategy'), `${group.name} still contains the removed Smart strategy option`)
     assert(group.collectdata === true, `${group.name} must collect Smart data`)
     assert(group.url === 'https://www.gstatic.com/generate_204', `${group.name} has unexpected health-check URL`)
     assert(group.interval === 180 && group.timeout === 3000, `${group.name} has unexpected health-check timing`)

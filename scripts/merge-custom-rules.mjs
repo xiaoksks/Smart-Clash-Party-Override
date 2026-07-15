@@ -35,6 +35,11 @@ function renameUpstreamMain(upstream) {
   return upstream.replace(marker, 'function upstreamMain(config) {')
 }
 
+function stripDeprecatedSmartStrategy(upstream) {
+  const smartGroupStrategy = /(function upsertSmartGroup\(config, name, proxies\)\s*\{[\s\S]*?var group\s*=\s*\{[^}\n]*?),\s*strategy\s*:\s*(['"])[^'"]+\2/
+  return upstream.replace(smartGroupStrategy, (_match, prefix) => prefix)
+}
+
 function buildLocalRuntime() {
   return `
 
@@ -124,7 +129,6 @@ function localApplySmartSettings(config) {
     if (group.type !== 'smart') return
     group.uselightgbm = true
     group.collectdata = true
-    group.strategy = 'sticky-sessions'
     group.url = LOCAL_SMART_CHECK_URL
     group.interval = 180
     group.tolerance = 20
@@ -181,7 +185,7 @@ function main(config) {
 }
 
 function generateOutput(upstream, spec) {
-  const source = upstream.body.replace(/^\uFEFF/, '')
+  const source = stripDeprecatedSmartStrategy(upstream.body.replace(/^\uFEFF/, ''))
   if (!source.includes('function applyMihomoFusedRuleSets(config) {')) {
     throw new Error('Upstream no longer exposes the fused Mihomo ruleset contract')
   }
