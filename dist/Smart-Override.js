@@ -755,7 +755,6 @@ function upstreamMain(config) {
 // ================================================================
 
 const LOCAL_REGION_ORDER = ['GLOBAL', 'HK', 'SG', 'TW', 'JPKR', 'APAC', 'US', 'EU', 'AMERICAS', 'OTHER', 'AFRICA']
-const LOCAL_SMART_CHECK_URL = 'https://www.gstatic.com/generate_204'
 
 function localExistingProxyNames(config) {
   var names = new Set(['DIRECT', 'REJECT'])
@@ -788,18 +787,25 @@ function localHomeFirst(keys) {
 }
 
 function localFilterExisting(values, existing) {
-  return values.filter(function(value, index) {
-    return existing.has(value) && values.indexOf(value) === index
+  var seen = new Set()
+  return values.filter(function(value) {
+    if (!existing.has(value) || seen.has(value)) return false
+    seen.add(value)
+    return true
   })
 }
 
-function localSetGroupProxies(config, groupName, proxies, existing) {
-  var group = (config['proxy-groups'] || []).find(function(item) { return item && item.name === groupName })
+function localSetGroupProxies(groupIndex, groupName, proxies, existing) {
+  var group = groupIndex.get(groupName)
   if (group) group.proxies = localFilterExisting(proxies, existing)
 }
 
 function localApplyBusinessGroupOrder(config) {
   var existing = localExistingProxyNames(config)
+  var groupIndex = new Map()
+  ;(config['proxy-groups'] || []).forEach(function(group) {
+    if (group && group.name) groupIndex.set(group.name, group)
+  })
   var standard = localWithResidential(LOCAL_REGION_ORDER).concat('DIRECT')
   var directFirst = ['DIRECT'].concat(localWithResidential(LOCAL_REGION_ORDER))
   var ai = localHomeFirst(LOCAL_REGION_ORDER)
@@ -813,35 +819,24 @@ function localApplyBusinessGroupOrder(config) {
     BIZ.NFLX, BIZ.DSNP, BIZ.HBO, BIZ.PRIME, BIZ.YT, BIZ.MUSIC,
     BIZ.STREAM_OTHER, BIZ.GAME_INTL, BIZ.GOOGLE, BIZ.TOOLS, BIZ.MS,
     BIZ.DOWNLOAD, BIZ.GFW, BIZ.INTL_SITE, BIZ.FINAL,
-  ].forEach(function(name) { localSetGroupProxies(config, name, standard, existing) })
+  ].forEach(function(name) { localSetGroupProxies(groupIndex, name, standard, existing) })
 
   ;[BIZ.CNMEDIA, BIZ.GAME_CN, BIZ.APPLE, BIZ.CN_SITE].forEach(function(name) {
-    localSetGroupProxies(config, name, directFirst, existing)
+    localSetGroupProxies(groupIndex, name, directFirst, existing)
   })
 
-  localSetGroupProxies(config, BIZ.AI, ai, existing)
-  localSetGroupProxies(config, BIZ.HULU, region('US'), existing)
-  localSetGroupProxies(config, BIZ.STREAM_HK, region('HK'), existing)
-  localSetGroupProxies(config, BIZ.STREAM_TW, region('TW'), existing)
-  localSetGroupProxies(config, BIZ.STREAM_JP, region('JPKR'), existing)
-  localSetGroupProxies(config, BIZ.STREAM_EU, region('EU'), existing)
-  localSetGroupProxies(config, BIZ.TRACKER, tracker, existing)
+  localSetGroupProxies(groupIndex, BIZ.AI, ai, existing)
+  localSetGroupProxies(groupIndex, BIZ.HULU, region('US'), existing)
+  localSetGroupProxies(groupIndex, BIZ.STREAM_HK, region('HK'), existing)
+  localSetGroupProxies(groupIndex, BIZ.STREAM_TW, region('TW'), existing)
+  localSetGroupProxies(groupIndex, BIZ.STREAM_JP, region('JPKR'), existing)
+  localSetGroupProxies(groupIndex, BIZ.STREAM_EU, region('EU'), existing)
+  localSetGroupProxies(groupIndex, BIZ.TRACKER, tracker, existing)
 }
 
-function localApplySmartSettings(config) {
+function localApplyProxyGroupOverrides(config) {
   config['proxy-groups'] = (config['proxy-groups'] || []).filter(function(group) {
     return group && group.name !== 'GLOBAL'
-  })
-  config['proxy-groups'].forEach(function(group) {
-    if (group.type !== 'smart') return
-    group.uselightgbm = true
-    group.collectdata = true
-    group.url = LOCAL_SMART_CHECK_URL
-    group.interval = 180
-    group.tolerance = 20
-    group.timeout = 3000
-    group.lazy = false
-    group['max-failed-times'] = 2
   })
   localApplyBusinessGroupOrder(config)
 }
@@ -872,10 +867,10 @@ function applyLocalOverrides(config) {
   if (!Array.isArray(config.proxies) || config.proxies.length === 0) return config
   if (!config.profile || typeof config.profile !== 'object') config.profile = {}
   config.profile['store-selected'] = false
-  localApplySmartSettings(config)
+  localApplyProxyGroupOverrides(config)
   localApplyDns(config)
   localPrependRules(config)
-  console.log('[local] Applied custom rules, Smart settings, DNS policy and Hulu US preference')
+  console.log('[local] Applied custom rules, proxy-group preferences, DNS policy and Hulu US preference')
   return config
 }
 

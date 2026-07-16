@@ -27,7 +27,7 @@ function fixtureConfig() {
   }
 }
 
-function runOverride(output, config) {
+function runOverride(output, config, entrypoint = 'main') {
   const runtimeErrors = []
   const sandbox = {
     __config: config,
@@ -36,7 +36,7 @@ function runOverride(output, config) {
       error(...args) { runtimeErrors.push(args.map(value => String(value?.message || value)).join(' ')) },
     },
   }
-  const result = vm.runInNewContext(`${output}\n;main(__config)`, sandbox, { timeout: 10000 })
+  const result = vm.runInNewContext(`${output}\n;${entrypoint}(__config)`, sandbox, { timeout: 10000 })
   if (runtimeErrors.length) throw new Error(`Generated override failed at runtime:\n${runtimeErrors.join('\n')}`)
   return result
 }
@@ -70,15 +70,31 @@ function assertReferences(config) {
   })
 }
 
-function assertSmartContract(config) {
+function comparableSmartSettings(group) {
+  const settings = {}
+  Object.keys(group).sort().forEach(key => {
+    if (key !== 'proxies' && key !== 'strategy') settings[key] = group[key]
+  })
+  return settings
+}
+
+function assertSmartContract(config, upstreamConfig) {
   const smartGroups = (config['proxy-groups'] || []).filter(group => group.type === 'smart')
+  const upstreamGroups = new Map(
+    (upstreamConfig['proxy-groups'] || [])
+      .filter(group => group.type === 'smart')
+      .map(group => [group.name, group]),
+  )
   assert(smartGroups.length > 0, 'Generated override produced no Smart groups')
   smartGroups.forEach(group => {
+    const upstreamGroup = upstreamGroups.get(group.name)
+    assert(upstreamGroup, `Generated Smart group is missing upstream counterpart: ${group.name}`)
     assert(!Object.prototype.hasOwnProperty.call(group, 'strategy'), `${group.name} still contains the removed Smart strategy option`)
-    assert(group.collectdata === true, `${group.name} must collect Smart data`)
-    assert(group.url === 'https://www.gstatic.com/generate_204', `${group.name} has unexpected health-check URL`)
-    assert(group.interval === 180 && group.timeout === 3000, `${group.name} has unexpected health-check timing`)
-    assert(group.lazy === false && group['max-failed-times'] === 2, `${group.name} has incomplete active-check settings`)
+    assert(group.collectdata === false, `${group.name} must keep upstream Smart data collection disabled`)
+    assert(
+      JSON.stringify(comparableSmartSettings(group)) === JSON.stringify(comparableSmartSettings(upstreamGroup)),
+      `${group.name} Smart settings drifted from upstream`,
+    )
   })
   assert(!(config['proxy-groups'] || []).some(group => group.name === 'GLOBAL'), 'Legacy GLOBAL group was not removed')
   assert(config.profile?.['store-selected'] === false, 'store-selected must be disabled')
@@ -115,9 +131,10 @@ async function main() {
   assert(version, 'Could not parse generated upstream version')
 
   const first = runOverride(output, fixtureConfig())
+  const upstream = runOverride(output, fixtureConfig(), 'upstreamMain')
   assertRulePrefix(first, spec.preRules)
   assertReferences(first)
-  assertSmartContract(first)
+  assertSmartContract(first, upstream)
   assertDnsContract(first, spec.foreignDnsDomains)
   assertProviderVersioning(first, version)
   assertHuluPreference(first)
