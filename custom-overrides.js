@@ -2,6 +2,9 @@
 // Rules are prepended in order; foreignDnsDomains are resolved with overseas DoH.
 const CUSTOM_OVERRIDE_SPEC = {
   preRules: [
+    // QQ Favorites may call unlisted domains or direct IPs; keep the desktop client fully direct.
+    'PROCESS-NAME,QQ.exe,DIRECT',
+
     // Clash Party network info / current IP lookup.
     'DOMAIN-SUFFIX,ip.sb,🌐 国外网站',
     'DOMAIN-SUFFIX,ipify.org,🌐 国外网站',

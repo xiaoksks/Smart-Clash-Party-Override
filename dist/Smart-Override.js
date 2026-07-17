@@ -5,6 +5,7 @@
 // Edit custom-overrides.js, then run: npm run check
 
 const CUSTOM_PRE_RULES = [
+  "PROCESS-NAME,QQ.exe,DIRECT",
   "DOMAIN-SUFFIX,ip.sb,🌐 国外网站",
   "DOMAIN-SUFFIX,ipify.org,🌐 国外网站",
   "DOMAIN-SUFFIX,ipinfo.io,🌐 国外网站",

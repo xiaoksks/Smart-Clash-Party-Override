@@ -8,6 +8,7 @@ https://github.com/IvanSolis1989/Smart-Config-Kit
 当前本仓库的自定义层主要用于补强上游尚未覆盖、或个人环境需要强制优先的规则。注意：`custom-overrides.js` 的前置规则会先于广告拦截、AI、游戏、国内直连等所有上游规则命中，因此只建议放少量“确定必须优先”的精准规则。
 
 当前已补充：
+- Windows QQ 客户端进程直连，覆盖收藏详情、编辑等未公开接口和直接 IP 请求。
 - Clash Party「网络信息 / 当前 IP」常用查询域名：`ip.sb`、`ipify.org`、`ipinfo.io`、`ipapi.co`、`ip-api.com`、`ipwho.is`、`ident.me`、`icanhazip.com`、`ifconfig.me`。
 - Steam 下载/CDN 域名直连。
 - 国内邮件、办公、视频与核心游戏域名的高优先级直连。
