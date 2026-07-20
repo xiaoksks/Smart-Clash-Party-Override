@@ -51,6 +51,35 @@ function assertRulePrefix(config, expected) {
   expected.forEach((rule, index) => assert(config.rules[index] === rule, `Custom rule lost priority at index ${index}: ${rule}`))
 }
 
+function ruleTarget(rule) {
+  const parts = String(rule).split(',')
+  return parts[parts.length - 1] === 'no-resolve' ? parts[parts.length - 2] : parts[parts.length - 1]
+}
+
+function assertAdBlockingPreference(config, upstreamConfig, spec) {
+  if (!spec.removeAdBlocking) return
+  const adPolicy = '\ud83d\uded1 \u5e7f\u544a\u62e6\u622a'
+  const upstreamAdProviders = new Set()
+  const expectedUpstreamRules = (upstreamConfig.rules || []).filter(rule => {
+    if (ruleTarget(rule) !== adPolicy) return true
+    const parts = String(rule).split(',')
+    if (parts[0] === 'RULE-SET' && parts[1]) upstreamAdProviders.add(parts[1])
+    return false
+  })
+
+  assert(!(config['proxy-groups'] || []).some(group => group.name === adPolicy), 'Ad-blocking policy group was not removed')
+  assert(!(config.rules || []).some(rule => ruleTarget(rule) === adPolicy), 'Ad-blocking rule was not removed')
+  upstreamAdProviders.forEach(name => {
+    assert(!config['rule-providers']?.[name], `Ad-blocking provider was not removed: ${name}`)
+  })
+
+  const generatedUpstreamRules = (config.rules || []).slice(spec.preRules.length)
+  assert(
+    JSON.stringify(generatedUpstreamRules) === JSON.stringify(expectedUpstreamRules),
+    'A non-advertising upstream rule changed while removing ad blocking',
+  )
+}
+
 function assertReferences(config) {
   const groups = config['proxy-groups'] || []
   const groupNames = new Set(groups.map(group => group.name))
@@ -154,6 +183,7 @@ async function main() {
   const first = runOverride(output, fixtureConfig())
   const upstream = runOverride(output, fixtureConfig(), 'upstreamMain')
   assertRulePrefix(first, spec.preRules)
+  assertAdBlockingPreference(first, upstream, spec)
   assertReferences(first)
   assertSmartContract(first, upstream)
   assertDnsContract(first, spec.foreignDnsDomains)

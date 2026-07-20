@@ -4,6 +4,7 @@
 // Upstream SHA-256: 86ebaf350a576f95e44823c6d68c05d85a59ea229d111da8f6d901e4aa629b1b
 // Edit custom-overrides.js, then run: npm run check
 
+const CUSTOM_REMOVE_AD_BLOCKING = true
 const CUSTOM_PRE_RULES = [
   "PROCESS-NAME,QQ.exe,DIRECT",
   "DOMAIN-SUFFIX,ip.sb,🌐 国外网站",
@@ -833,6 +834,42 @@ function localApplyProxyGroupOverrides(config) {
   localApplyBusinessGroupOrder(config)
 }
 
+function localRuleTarget(rule) {
+  var parts = String(rule).split(',')
+  return parts[parts.length - 1] === 'no-resolve' ? parts[parts.length - 2] : parts[parts.length - 1]
+}
+
+function localRemoveAdBlocking(config) {
+  if (!CUSTOM_REMOVE_AD_BLOCKING) return
+  var adPolicy = typeof BIZ !== 'undefined' && BIZ.AD ? BIZ.AD : '🛑 广告拦截'
+  var removedProviders = new Set()
+
+  config.rules = (config.rules || []).filter(function(rule) {
+    if (localRuleTarget(rule) !== adPolicy) return true
+    var parts = String(rule).split(',')
+    if (parts[0] === 'RULE-SET' && parts[1]) removedProviders.add(parts[1])
+    return false
+  })
+
+  config['proxy-groups'] = (config['proxy-groups'] || []).filter(function(group) {
+    if (!group || group.name === adPolicy) return false
+    if (Array.isArray(group.proxies)) {
+      group.proxies = group.proxies.filter(function(target) { return target !== adPolicy })
+    }
+    return true
+  })
+
+  var referencedProviders = new Set()
+  config.rules.forEach(function(rule) {
+    var parts = String(rule).split(',')
+    if (parts[0] === 'RULE-SET' && parts[1]) referencedProviders.add(parts[1])
+  })
+  var providers = config['rule-providers'] || {}
+  removedProviders.forEach(function(name) {
+    if (!referencedProviders.has(name)) delete providers[name]
+  })
+}
+
 function localApplyDns(config) {
   if (!config.dns) config.dns = {}
   var domesticDoH = ['https://dns.alidns.com/dns-query', 'https://doh.pub/dns-query']
@@ -860,9 +897,10 @@ function applyLocalOverrides(config) {
   if (!config.profile || typeof config.profile !== 'object') config.profile = {}
   config.profile['store-selected'] = false
   localApplyProxyGroupOverrides(config)
+  localRemoveAdBlocking(config)
   localApplyDns(config)
   localPrependRules(config)
-  console.log('[local] Applied custom rules, proxy-group preferences, DNS policy and Hulu US preference')
+  console.log('[local] Applied ad-blocking preference, custom rules, proxy-group preferences, DNS policy and Hulu US preference')
   return config
 }
 

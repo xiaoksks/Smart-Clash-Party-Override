@@ -21,6 +21,7 @@ async function main() {
   console.log(`- Upstream SHA-256: \`${metadata.upstream.sha256}\``)
   console.log(`- Fused providers: ${summary.providers}`)
   console.log(`- Upstream rules: ${summary.upstreamRules}`)
+  console.log(`- Ad blocking removed: ${spec.removeAdBlocking ? 'yes' : 'no'}`)
   console.log(`- Custom priority rules: ${spec.preRules.length}`)
   console.log(`- Custom foreign-DNS domains: ${spec.foreignDnsDomains.length}`)
 }

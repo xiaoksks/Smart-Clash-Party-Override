@@ -25,9 +25,13 @@ export async function loadCustomSpec() {
   if (!spec || typeof spec !== 'object' || Array.isArray(spec)) {
     throw new Error('CUSTOM_OVERRIDE_SPEC must be an object')
   }
+  if (typeof spec.removeAdBlocking !== 'boolean') {
+    throw new Error('removeAdBlocking must be a boolean')
+  }
   assertUniqueStrings(spec.preRules, 'preRules')
   assertUniqueStrings(spec.foreignDnsDomains, 'foreignDnsDomains')
   return {
+    removeAdBlocking: spec.removeAdBlocking,
     preRules: Array.from(spec.preRules),
     foreignDnsDomains: Array.from(spec.foreignDnsDomains),
   }

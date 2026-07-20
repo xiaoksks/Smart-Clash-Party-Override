@@ -1,6 +1,9 @@
 // Single source of truth for local behavior layered on top of Smart-Config-Kit.
 // Rules are prepended in order; foreignDnsDomains are resolved with overseas DoH.
 const CUSTOM_OVERRIDE_SPEC = {
+  // Keep upstream routing intact, but omit its ad-blocking policy, rules and providers.
+  removeAdBlocking: true,
+
   preRules: [
     // QQ Favorites may call unlisted domains or direct IPs; keep the desktop client fully direct.
     'PROCESS-NAME,QQ.exe,DIRECT',
