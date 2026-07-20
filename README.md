@@ -11,7 +11,7 @@ https://github.com/IvanSolis1989/Smart-Config-Kit
 - Windows QQ 客户端进程直连，覆盖收藏详情、编辑等未公开接口和直接 IP 请求。
 - Clash Party「网络信息 / 当前 IP」常用查询域名：`ip.sb`、`ipify.org`、`ipinfo.io`、`ipapi.co`、`ip-api.com`、`ipwho.is`、`ident.me`、`icanhazip.com`、`ifconfig.me`。
 - Steam 下载/CDN 域名直连。
-- 国内邮件、办公、视频与核心游戏域名的高优先级直连。
+- 国内视频与核心游戏域名的高优先级直连；邮箱、办公和 `bbys.app` 已改为继承上游 v6.0.9 的同策略规则，避免重复。
 - Patreon 首方、隐私初始化、媒体、视频与聊天依赖链，以及对应的海外 DNS 策略。
 - Hulu 默认优先美国家宽/美国节点。
 

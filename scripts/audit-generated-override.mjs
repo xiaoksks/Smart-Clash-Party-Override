@@ -62,11 +62,32 @@ function assertReferences(config) {
   })
 
   const providers = config['rule-providers'] || {}
+  const referencedProviders = new Set()
+  const seenRules = new Set()
   ;(config.rules || []).forEach(rule => {
+    assert(!seenRules.has(rule), `Duplicate generated rule: ${rule}`)
+    seenRules.add(rule)
     const parts = rule.split(',')
-    if (parts[0] === 'RULE-SET') assert(Boolean(providers[parts[1]]), `Rule references missing provider: ${parts[1]}`)
+    if (parts[0] === 'RULE-SET') {
+      assert(Boolean(providers[parts[1]]), `Rule references missing provider: ${parts[1]}`)
+      referencedProviders.add(parts[1])
+    }
     const target = parts[parts.length - 1] === 'no-resolve' ? parts[parts.length - 2] : parts[parts.length - 1]
     assert(BUILTINS.has(target) || groupNames.has(target), `Rule references missing policy: ${target} (${rule})`)
+  })
+
+  const seenPaths = new Map()
+  const seenUrls = new Map()
+  Object.entries(providers).forEach(([name, provider]) => {
+    assert(referencedProviders.has(name), `Unused rule provider: ${name}`)
+    if (provider.path) {
+      assert(!seenPaths.has(provider.path), `Providers ${seenPaths.get(provider.path)} and ${name} share path: ${provider.path}`)
+      seenPaths.set(provider.path, name)
+    }
+    if (provider.url) {
+      assert(!seenUrls.has(provider.url), `Providers ${seenUrls.get(provider.url)} and ${name} share URL: ${provider.url}`)
+      seenUrls.set(provider.url, name)
+    }
   })
 }
 

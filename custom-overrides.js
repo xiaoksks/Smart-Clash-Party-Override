@@ -18,17 +18,6 @@ const CUSTOM_OVERRIDE_SPEC = {
     'DOMAIN,ip.cip.cc,DIRECT',
     'DOMAIN,myip.ipip.net,DIRECT',
 
-    // High-priority DIRECT guards that must precede broad mail/work/CN rules.
-    'DOMAIN-SUFFIX,mail.qq.com,DIRECT',
-    'DOMAIN-SUFFIX,mail.163.com,DIRECT',
-    'DOMAIN-SUFFIX,mail.126.com,DIRECT',
-    'DOMAIN-SUFFIX,mail.sina.com.cn,DIRECT',
-    'DOMAIN-SUFFIX,mail.aliyun.com,DIRECT',
-    'DOMAIN-SUFFIX,feishu.cn,DIRECT',
-    'DOMAIN-SUFFIX,dingtalk.com,DIRECT',
-    'DOMAIN-SUFFIX,welink.huaweicloud.com,DIRECT',
-    'DOMAIN-SUFFIX,bbys.app,DIRECT',
-
     // Patreon page bootstrap: first party, consent, media, video and chat CDNs.
     'DOMAIN-SUFFIX,patreon.com,🌐 国外网站',
     'DOMAIN-SUFFIX,patreonusercontent.com,🌐 国外网站',

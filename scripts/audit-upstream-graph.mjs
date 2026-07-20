@@ -50,13 +50,16 @@ async function main() {
   const exactMatches = spec.preRules.filter(rule => upstreamSet.has(rule))
   const covered = findCoveredCustomRules(spec.preRules)
 
+  if (exactMatches.length) {
+    throw new Error(`Custom rules already provided by upstream:\n${exactMatches.join('\n')}`)
+  }
+
   if (covered.length) {
     throw new Error(`Redundant custom rules detected:\n${covered.map(item => `${item.candidate}\n  covered by ${item.parent}`).join('\n')}`)
   }
 
   console.log(`Routing graph ${graph.version}: ${upstreamRules.length} inline rules`)
-  console.log(`Custom rules: ${spec.preRules.length}; exact upstream matches kept for priority: ${exactMatches.length}`)
-  exactMatches.forEach(rule => console.log(`PRIORITY\t${rule}`))
+  console.log(`Custom rules: ${spec.preRules.length}; exact upstream duplicates: 0`)
   console.log('Upstream graph audit passed (provider payload contents are intentionally outside this text-level audit)')
 }
 
