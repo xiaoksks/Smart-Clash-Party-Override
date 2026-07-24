@@ -5,6 +5,24 @@
 // Edit custom-overrides.js, then run: npm run check
 
 const CUSTOM_REMOVE_AD_BLOCKING = true
+const CUSTOM_PREVENT_WEBRTC_LEAK = true
+const CUSTOM_WEBRTC_BROWSER_PROCESSES = ["chrome.exe","msedge.exe","firefox.exe","brave.exe","opera.exe","vivaldi.exe","chromium.exe"]
+const CUSTOM_WEBRTC_PORTS = ["3478","3479","5349","19302","19305","19307"]
+const CUSTOM_WEBRTC_RULES = [
+  "AND,((PROCESS-NAME,chrome.exe),(NETWORK,UDP)),REJECT",
+  "AND,((PROCESS-NAME,msedge.exe),(NETWORK,UDP)),REJECT",
+  "AND,((PROCESS-NAME,firefox.exe),(NETWORK,UDP)),REJECT",
+  "AND,((PROCESS-NAME,brave.exe),(NETWORK,UDP)),REJECT",
+  "AND,((PROCESS-NAME,opera.exe),(NETWORK,UDP)),REJECT",
+  "AND,((PROCESS-NAME,vivaldi.exe),(NETWORK,UDP)),REJECT",
+  "AND,((PROCESS-NAME,chromium.exe),(NETWORK,UDP)),REJECT",
+  "DST-PORT,3478,REJECT",
+  "DST-PORT,3479,REJECT",
+  "DST-PORT,5349,REJECT",
+  "DST-PORT,19302,REJECT",
+  "DST-PORT,19305,REJECT",
+  "DST-PORT,19307,REJECT"
+]
 const CUSTOM_PRE_RULES = [
   "PROCESS-NAME,QQ.exe,DIRECT",
   "DOMAIN-SUFFIX,ip.sb,🌐 国外网站",
@@ -870,6 +888,34 @@ function localRemoveAdBlocking(config) {
   })
 }
 
+function localRuleUsesWebRtcPort(rule) {
+  var source = String(rule)
+  return CUSTOM_WEBRTC_PORTS.some(function(port) {
+    return source.indexOf('DST-PORT,' + port) !== -1
+  })
+}
+
+function localPreventWebRtcLeak(config) {
+  if (!CUSTOM_PREVENT_WEBRTC_LEAK) return
+
+  // Upstream currently sends common STUN/TURN ports DIRECT; remove future variants too.
+  config.rules = (config.rules || []).filter(function(rule) {
+    return !(localRuleTarget(rule) === 'DIRECT' && localRuleUsesWebRtcPort(rule))
+  })
+
+  if (!config.tun) config.tun = {}
+  config.tun.enable = true
+  config.tun['auto-route'] = true
+  config.tun['strict-route'] = true
+  config.tun['auto-detect-interface'] = true
+  if (Array.isArray(config.tun['exclude-process'])) {
+    var browsers = new Set(CUSTOM_WEBRTC_BROWSER_PROCESSES.map(function(name) { return name.toLowerCase() }))
+    config.tun['exclude-process'] = config.tun['exclude-process'].filter(function(name) {
+      return !browsers.has(String(name).toLowerCase())
+    })
+  }
+}
+
 function localApplyDns(config) {
   if (!config.dns) config.dns = {}
   var domesticDoH = ['https://dns.alidns.com/dns-query', 'https://doh.pub/dns-query']
@@ -887,8 +933,9 @@ function localApplyDns(config) {
 
 function localPrependRules(config) {
   if (!Array.isArray(config.rules)) config.rules = []
-  var custom = new Set(CUSTOM_PRE_RULES)
-  config.rules = CUSTOM_PRE_RULES.concat(config.rules.filter(function(rule) { return !custom.has(rule) }))
+  var priorityRules = CUSTOM_WEBRTC_RULES.concat(CUSTOM_PRE_RULES)
+  var custom = new Set(priorityRules)
+  config.rules = priorityRules.concat(config.rules.filter(function(rule) { return !custom.has(rule) }))
 }
 
 function applyLocalOverrides(config) {
@@ -898,9 +945,10 @@ function applyLocalOverrides(config) {
   config.profile['store-selected'] = false
   localApplyProxyGroupOverrides(config)
   localRemoveAdBlocking(config)
+  localPreventWebRtcLeak(config)
   localApplyDns(config)
   localPrependRules(config)
-  console.log('[local] Applied ad-blocking preference, custom rules, proxy-group preferences, DNS policy and Hulu US preference')
+  console.log('[local] Applied WebRTC leak protection, ad-blocking preference, custom rules, proxy-group preferences, DNS policy and Hulu US preference')
   return config
 }
 

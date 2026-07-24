@@ -1,7 +1,7 @@
 import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 import vm from 'node:vm'
-import { loadCustomSpec, ROOT } from './custom-spec.mjs'
+import { buildWebRtcProtectionRules, loadCustomSpec, ROOT } from './custom-spec.mjs'
 
 const OUTPUT_PATH = path.join(ROOT, 'dist', 'Smart-Override.js')
 const BUILTINS = new Set(['DIRECT', 'REJECT', 'REJECT-DROP', 'PASS'])
@@ -56,28 +56,56 @@ function ruleTarget(rule) {
   return parts[parts.length - 1] === 'no-resolve' ? parts[parts.length - 2] : parts[parts.length - 1]
 }
 
-function assertAdBlockingPreference(config, upstreamConfig, spec) {
-  if (!spec.removeAdBlocking) return
+function expectedFilteredUpstreamRules(upstreamConfig, spec) {
   const adPolicy = '\ud83d\uded1 \u5e7f\u544a\u62e6\u622a'
   const upstreamAdProviders = new Set()
-  const expectedUpstreamRules = (upstreamConfig.rules || []).filter(rule => {
-    if (ruleTarget(rule) !== adPolicy) return true
-    const parts = String(rule).split(',')
-    if (parts[0] === 'RULE-SET' && parts[1]) upstreamAdProviders.add(parts[1])
-    return false
+  const rules = (upstreamConfig.rules || []).filter(rule => {
+    if (spec.removeAdBlocking && ruleTarget(rule) === adPolicy) {
+      const parts = String(rule).split(',')
+      if (parts[0] === 'RULE-SET' && parts[1]) upstreamAdProviders.add(parts[1])
+      return false
+    }
+    if (spec.preventWebRtcLeak && ruleTarget(rule) === 'DIRECT') {
+      return !spec.webRtcPorts.some(port => String(rule).includes(`DST-PORT,${port}`))
+    }
+    return true
   })
+  return { rules, upstreamAdProviders }
+}
 
-  assert(!(config['proxy-groups'] || []).some(group => group.name === adPolicy), 'Ad-blocking policy group was not removed')
-  assert(!(config.rules || []).some(rule => ruleTarget(rule) === adPolicy), 'Ad-blocking rule was not removed')
-  upstreamAdProviders.forEach(name => {
-    assert(!config['rule-providers']?.[name], `Ad-blocking provider was not removed: ${name}`)
-  })
+function assertLocalFiltering(config, upstreamConfig, spec, priorityRuleCount) {
+  const adPolicy = '\ud83d\uded1 \u5e7f\u544a\u62e6\u622a'
+  const expected = expectedFilteredUpstreamRules(upstreamConfig, spec)
 
-  const generatedUpstreamRules = (config.rules || []).slice(spec.preRules.length)
+  if (spec.removeAdBlocking) {
+    assert(!(config['proxy-groups'] || []).some(group => group.name === adPolicy), 'Ad-blocking policy group was not removed')
+    assert(!(config.rules || []).some(rule => ruleTarget(rule) === adPolicy), 'Ad-blocking rule was not removed')
+    expected.upstreamAdProviders.forEach(name => {
+      assert(!config['rule-providers']?.[name], `Ad-blocking provider was not removed: ${name}`)
+    })
+  }
+
+  const generatedUpstreamRules = (config.rules || []).slice(priorityRuleCount)
   assert(
-    JSON.stringify(generatedUpstreamRules) === JSON.stringify(expectedUpstreamRules),
-    'A non-advertising upstream rule changed while removing ad blocking',
+    JSON.stringify(generatedUpstreamRules) === JSON.stringify(expected.rules),
+    'An upstream rule outside the configured local filters changed',
   )
+}
+
+function assertWebRtcProtection(config, spec, webRtcRules) {
+  if (!spec.preventWebRtcLeak) return
+  webRtcRules.forEach(rule => assert((config.rules || []).includes(rule), `Missing WebRTC protection rule: ${rule}`))
+  ;(config.rules || []).forEach(rule => {
+    if (ruleTarget(rule) !== 'DIRECT') return
+    spec.webRtcPorts.forEach(port => {
+      assert(!String(rule).includes(`DST-PORT,${port}`), `WebRTC port still forced DIRECT: ${rule}`)
+    })
+  })
+  assert(config.tun?.enable === true, 'TUN must be enabled for WebRTC leak protection')
+  assert(config.tun?.['auto-route'] === true, 'TUN auto-route must be enabled for WebRTC leak protection')
+  assert(config.tun?.['strict-route'] === true, 'TUN strict-route must be enabled for WebRTC leak protection')
+  const excluded = new Set((config.tun?.['exclude-process'] || []).map(name => String(name).toLowerCase()))
+  spec.webRtcBrowserProcesses.forEach(name => assert(!excluded.has(name.toLowerCase()), `Browser excluded from TUN: ${name}`))
 }
 
 function assertReferences(config) {
@@ -182,8 +210,11 @@ async function main() {
 
   const first = runOverride(output, fixtureConfig())
   const upstream = runOverride(output, fixtureConfig(), 'upstreamMain')
-  assertRulePrefix(first, spec.preRules)
-  assertAdBlockingPreference(first, upstream, spec)
+  const webRtcRules = buildWebRtcProtectionRules(spec)
+  const priorityRules = webRtcRules.concat(spec.preRules)
+  assertRulePrefix(first, priorityRules)
+  assertLocalFiltering(first, upstream, spec, priorityRules.length)
+  assertWebRtcProtection(first, spec, webRtcRules)
   assertReferences(first)
   assertSmartContract(first, upstream)
   assertDnsContract(first, spec.foreignDnsDomains)
@@ -194,7 +225,7 @@ async function main() {
   const second = runOverride(output, first)
   assert(JSON.stringify(second) === firstJson, 'Generated override is not idempotent')
 
-  console.log(`Generated override audit passed: ${spec.preRules.length} custom rules, ${first['proxy-groups'].length} groups, ${first.rules.length} rules, ${Object.keys(first['rule-providers']).length} providers`)
+  console.log(`Generated override audit passed: ${priorityRules.length} priority rules (${webRtcRules.length} WebRTC), ${first['proxy-groups'].length} groups, ${first.rules.length} rules, ${Object.keys(first['rule-providers']).length} providers`)
 }
 
 main().catch(error => {

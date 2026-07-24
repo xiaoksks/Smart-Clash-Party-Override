@@ -4,6 +4,19 @@ const CUSTOM_OVERRIDE_SPEC = {
   // Keep upstream routing intact, but omit its ad-blocking policy, rules and providers.
   removeAdBlocking: true,
 
+  // Capture browser traffic in TUN, reject browser UDP and block common STUN/TURN ports.
+  preventWebRtcLeak: true,
+  webRtcBrowserProcesses: [
+    'chrome.exe',
+    'msedge.exe',
+    'firefox.exe',
+    'brave.exe',
+    'opera.exe',
+    'vivaldi.exe',
+    'chromium.exe',
+  ],
+  webRtcPorts: ['3478', '3479', '5349', '19302', '19305', '19307'],
+
   preRules: [
     // QQ Favorites may call unlisted domains or direct IPs; keep the desktop client fully direct.
     'PROCESS-NAME,QQ.exe,DIRECT',

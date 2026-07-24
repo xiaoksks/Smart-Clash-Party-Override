@@ -1,7 +1,7 @@
 import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 import vm from 'node:vm'
-import { loadCustomSpec, ROOT } from './custom-spec.mjs'
+import { buildWebRtcProtectionRules, loadCustomSpec, ROOT } from './custom-spec.mjs'
 
 async function main() {
   const [output, metadata, spec] = await Promise.all([
@@ -22,6 +22,7 @@ async function main() {
   console.log(`- Fused providers: ${summary.providers}`)
   console.log(`- Upstream rules: ${summary.upstreamRules}`)
   console.log(`- Ad blocking removed: ${spec.removeAdBlocking ? 'yes' : 'no'}`)
+  console.log(`- WebRTC leak protection: ${spec.preventWebRtcLeak ? `yes (${buildWebRtcProtectionRules(spec).length} rules)` : 'no'}`)
   console.log(`- Custom priority rules: ${spec.preRules.length}`)
   console.log(`- Custom foreign-DNS domains: ${spec.foreignDnsDomains.length}`)
 }

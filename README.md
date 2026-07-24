@@ -9,6 +9,7 @@ https://github.com/IvanSolis1989/Smart-Config-Kit
 
 当前已补充：
 - 构建后自动移除上游广告拦截策略组、指向该策略的规则及其专用 provider；其他上游规则保持原样，包括非广告用途的 `REJECT` 规则。
+- WebRTC 防泄露：强制启用 TUN 严格路由、阻断常见浏览器的 UDP，并拒绝常见 STUN/TURN 端口，同时自动移除上游对这些端口的 `DIRECT` 规则。
 - Windows QQ 客户端进程直连，覆盖收藏详情、编辑等未公开接口和直接 IP 请求。
 - Clash Party「网络信息 / 当前 IP」常用查询域名：`ip.sb`、`ipify.org`、`ipinfo.io`、`ipapi.co`、`ip-api.com`、`ipwho.is`、`ident.me`、`icanhazip.com`、`ifconfig.me`。
 - Steam 下载/CDN 域名直连。
@@ -20,7 +21,7 @@ https://github.com/IvanSolis1989/Smart-Config-Kit
 
 ## 使用方法
 
-1. 修改 `custom-overrides.js`，维护广告拦截开关、前置规则和需要海外 DNS 的域名。`removeAdBlocking: true` 会在每次构建时关闭上游广告拦截。
+1. 修改 `custom-overrides.js`，维护广告拦截、WebRTC 防泄露、前置规则和需要海外 DNS 的域名。`removeAdBlocking: true` 会关闭上游广告拦截，`preventWebRtcLeak: true` 会启用失败关闭的 WebRTC 保护。
 2. 推送到 GitHub。
 3. 打开 GitHub 仓库的 `Actions`，手动运行一次 `Update Clash Party Override`。
 4. 在 Clash Party 覆写页面导入下面这个 Raw 地址：
@@ -53,7 +54,9 @@ dist/Smart-Override.js
 npm run check
 ```
 
-完整检查包含：上游与路由图版本一致性、防降级、重复规则检测、广告内容精准移除且其他上游规则不变、规则/策略组/provider 引用完整性、Smart 参数、DNS 合同、Hulu 区域偏好、运行幂等性和 JavaScript 语法。
+完整检查包含：上游与路由图版本一致性、防降级、重复规则检测、广告内容与 WebRTC 直连规则精准移除且其他上游规则不变、TUN/WebRTC 防泄露合同、规则/策略组/provider 引用完整性、Smart 参数、DNS 合同、Hulu 区域偏好、运行幂等性和 JavaScript 语法。
+
+WebRTC 防泄露采用隐私优先策略。浏览器的 HTTP/3 会回退到 TCP；网页语音、视频会议和 P2P 也可能改用 TCP/TURN，少数只支持 UDP 的服务可能无法使用。如确实需要浏览器 WebRTC，可在 `custom-overrides.js` 中将 `preventWebRtcLeak` 改为 `false` 后重新构建，但这会恢复真实公网 IP 暴露风险。
 
 构建脚本会优先拉取 GitHub Raw；如果网络偶发失败，会自动重试并尝试 jsDelivr 备用源。备用源版本低于当前生成文件时会拒绝降级。实际使用的上游源码、路由图及 SHA-256 元数据保存在本地 `.build/` 目录，便于排查自动更新失败。
 
