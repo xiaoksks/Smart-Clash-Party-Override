@@ -275,7 +275,7 @@ async function persistBuildSnapshot(upstream, graph) {
 async function mainBuild() {
   const [spec, currentVersion] = await Promise.all([loadCustomSpec(), readCurrentVersion()])
   const upstream = await fetchSmartSource({ minimumVersion: currentVersion || undefined })
-  const graph = await fetchRoutingGraph({ requiredVersion: upstream.version })
+  const graph = await fetchRoutingGraph({ requiredBaseVersion: upstream.version })
   const output = generateOutput(upstream, spec)
 
   await Promise.all([

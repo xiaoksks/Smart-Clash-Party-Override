@@ -82,6 +82,9 @@ async function fetchValidated(urls, label, getVersion, options = {}) {
         if (options.requiredVersion && version !== options.requiredVersion) {
           throw new Error(`version mismatch ${version} != ${options.requiredVersion}`)
         }
+        if (options.requiredBaseVersion && compareVersions(version, options.requiredBaseVersion) !== 0) {
+          throw new Error(`base version mismatch ${version} != ${options.requiredBaseVersion}`)
+        }
         return { url, body, version, sha256: sha256(body) }
       } catch (error) {
         errors.push(`${url} attempt ${attempt}: ${error.message}`)

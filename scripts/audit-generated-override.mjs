@@ -2,6 +2,7 @@ import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 import vm from 'node:vm'
 import { buildWebRtcProtectionRules, loadCustomSpec, ROOT } from './custom-spec.mjs'
+import { compareVersions } from './upstream-source.mjs'
 
 const OUTPUT_PATH = path.join(ROOT, 'dist', 'Smart-Override.js')
 const BUILTINS = new Set(['DIRECT', 'REJECT', 'REJECT-DROP', 'PASS'])
@@ -191,9 +192,11 @@ function assertProviderVersioning(config, version) {
   assert(providers.length > 0, 'Generated override produced no rule providers')
   providers.forEach(provider => {
     if (!String(provider.url || '').includes('/rulesets/generated/fused/')) return
-    assert(String(provider.url).includes(`scki=${version}`), `Provider URL is not versioned: ${provider.url}`)
+    const urlVersion = new URL(provider.url).searchParams.get('scki')
+    const pathVersion = String(provider.path || '').match(/\/(v?\d+\.\d+\.\d+(?:-[^/]+)?)\//)?.[1]
+    assert(urlVersion && compareVersions(urlVersion, version) === 0, `Provider URL has a mismatched base version: ${provider.url}`)
     assert(String(provider.path || '').includes(`/rule`), `Provider has no local path: ${provider.url}`)
-    assert(String(provider.path).includes(`/${version}/`), `Provider path is not versioned: ${provider.path}`)
+    assert(pathVersion && compareVersions(pathVersion, version) === 0, `Provider path has a mismatched base version: ${provider.path}`)
   })
 }
 
