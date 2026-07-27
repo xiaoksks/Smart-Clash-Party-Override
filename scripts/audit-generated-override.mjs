@@ -2,7 +2,7 @@ import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 import vm from 'node:vm'
 import { buildWebRtcProtectionRules, loadCustomSpec, ROOT } from './custom-spec.mjs'
-import { compareVersions } from './upstream-source.mjs'
+import { compareBaseVersions, compareVersions } from './upstream-source.mjs'
 
 const OUTPUT_PATH = path.join(ROOT, 'dist', 'Smart-Override.js')
 const BUILTINS = new Set(['DIRECT', 'REJECT', 'REJECT-DROP', 'PASS'])
@@ -175,8 +175,26 @@ function assertSmartContract(config, upstreamConfig) {
       `${group.name} Smart settings drifted from upstream`,
     )
   })
-  assert(!(config['proxy-groups'] || []).some(group => group.name === 'GLOBAL'), 'Legacy GLOBAL group was not removed')
   assert(config.profile?.['store-selected'] === false, 'store-selected must be disabled')
+}
+
+function assertGroupRoutingContract(config, upstreamConfig) {
+  const adPolicy = '\ud83d\uded1 \u5e7f\u544a\u62e6\u622a'
+  const huluPolicy = '\ud83d\udcfa Hulu'
+  const actualGroups = new Map((config['proxy-groups'] || []).map(group => [group.name, group]))
+  const expectedGroups = (upstreamConfig['proxy-groups'] || []).filter(group => group.name !== adPolicy)
+
+  assert(actualGroups.size === expectedGroups.length, 'A non-advertising proxy group was added or removed locally')
+  expectedGroups.forEach(upstreamGroup => {
+    const group = actualGroups.get(upstreamGroup.name)
+    assert(group, `Proxy group was removed locally: ${upstreamGroup.name}`)
+    if (group.name === huluPolicy) return
+    const expectedProxies = (upstreamGroup.proxies || []).filter(name => name !== adPolicy)
+    assert(
+      JSON.stringify(group.proxies || []) === JSON.stringify(expectedProxies),
+      `${group.name} proxy order drifted from upstream`,
+    )
+  })
 }
 
 function assertDnsContract(config, domains) {
@@ -194,9 +212,9 @@ function assertProviderVersioning(config, version) {
     if (!String(provider.url || '').includes('/rulesets/generated/fused/')) return
     const urlVersion = new URL(provider.url).searchParams.get('scki')
     const pathVersion = String(provider.path || '').match(/\/(v?\d+\.\d+\.\d+(?:-[^/]+)?)\//)?.[1]
-    assert(urlVersion && compareVersions(urlVersion, version) === 0, `Provider URL has a mismatched base version: ${provider.url}`)
+    assert(urlVersion && compareBaseVersions(urlVersion, version) === 0, `Provider URL has a mismatched base version: ${provider.url}`)
     assert(String(provider.path || '').includes(`/rule`), `Provider has no local path: ${provider.url}`)
-    assert(pathVersion && compareVersions(pathVersion, version) === 0, `Provider path has a mismatched base version: ${provider.path}`)
+    assert(pathVersion && compareBaseVersions(pathVersion, version) === 0, `Provider path has a mismatched base version: ${provider.path}`)
   })
 }
 
@@ -210,6 +228,9 @@ async function main() {
   const [output, spec] = await Promise.all([readFile(OUTPUT_PATH, 'utf8'), loadCustomSpec()])
   const version = output.match(/const VERSION = '([^']+)'/)?.[1]
   assert(version, 'Could not parse generated upstream version')
+  assert(compareBaseVersions('v6.0.9-dns.2', 'v6.0.9') === 0, 'DNS patch must share its routing base version')
+  assert(compareVersions('v6.0.9-dns.2', 'v6.0.9') > 0, 'DNS patch must be newer than its unsuffixed base')
+  assert(compareVersions('v6.0.9-dns.10', 'v6.0.9-dns.2') > 0, 'Version suffix numbers must compare numerically')
 
   const first = runOverride(output, fixtureConfig())
   const upstream = runOverride(output, fixtureConfig(), 'upstreamMain')
@@ -220,6 +241,7 @@ async function main() {
   assertWebRtcProtection(first, spec, webRtcRules)
   assertReferences(first)
   assertSmartContract(first, upstream)
+  assertGroupRoutingContract(first, upstream)
   assertDnsContract(first, spec.foreignDnsDomains)
   assertProviderVersioning(first, version)
   assertHuluPreference(first)

@@ -48,16 +48,44 @@ function fetchText(url, timeoutMs = DEFAULT_TIMEOUT_MS) {
 }
 
 function parseVersionParts(version) {
-  const match = String(version || '').match(/^v?(\d+)\.(\d+)\.(\d+)/)
-  return match ? match.slice(1).map(Number) : null
+  const match = String(version || '').match(/^v?(\d+)\.(\d+)\.(\d+)(?:-([0-9A-Za-z.-]+))?$/)
+  if (!match) return null
+  return {
+    base: match.slice(1, 4).map(Number),
+    suffix: match[4] ? match[4].split('.') : [],
+  }
 }
 
-export function compareVersions(left, right) {
+export function compareBaseVersions(left, right) {
   const a = parseVersionParts(left)
   const b = parseVersionParts(right)
   if (!a || !b) return String(left || '').localeCompare(String(right || ''))
   for (let index = 0; index < 3; index += 1) {
-    if (a[index] !== b[index]) return a[index] - b[index]
+    if (a.base[index] !== b.base[index]) return a.base[index] - b.base[index]
+  }
+  return 0
+}
+
+export function compareVersions(left, right) {
+  const baseComparison = compareBaseVersions(left, right)
+  if (baseComparison !== 0) return baseComparison
+
+  const a = parseVersionParts(left)
+  const b = parseVersionParts(right)
+  if (!a || !b) return 0
+  if (a.suffix.length === 0 || b.suffix.length === 0) return a.suffix.length - b.suffix.length
+
+  const length = Math.max(a.suffix.length, b.suffix.length)
+  for (let index = 0; index < length; index += 1) {
+    if (a.suffix[index] === undefined) return -1
+    if (b.suffix[index] === undefined) return 1
+    const leftPart = a.suffix[index]
+    const rightPart = b.suffix[index]
+    const leftNumber = /^\d+$/.test(leftPart) ? Number(leftPart) : null
+    const rightNumber = /^\d+$/.test(rightPart) ? Number(rightPart) : null
+    if (leftNumber !== null && rightNumber !== null && leftNumber !== rightNumber) return leftNumber - rightNumber
+    const partComparison = leftPart.localeCompare(rightPart)
+    if (partComparison !== 0) return partComparison
   }
   return 0
 }
@@ -65,6 +93,8 @@ export function compareVersions(left, right) {
 export function sha256(body) {
   return createHash('sha256').update(body).digest('hex')
 }
+
+class SourceValidationError extends Error {}
 
 async function fetchValidated(urls, label, getVersion, options = {}) {
   const retries = options.retries || DEFAULT_RETRIES
@@ -75,19 +105,17 @@ async function fetchValidated(urls, label, getVersion, options = {}) {
         if (attempt > 1) console.log(`Fetching ${label} from ${url} (attempt ${attempt}/${retries})`)
         const body = (await fetchText(url)).replace(/^\uFEFF/, '')
         const version = getVersion(body)
-        if (!version) throw new Error(`could not parse ${label} version`)
+        if (!version) throw new SourceValidationError(`could not parse ${label} version`)
         if (options.minimumVersion && compareVersions(version, options.minimumVersion) < 0) {
-          throw new Error(`refusing downgrade ${version} < ${options.minimumVersion}`)
+          throw new SourceValidationError(`refusing downgrade ${version} < ${options.minimumVersion}`)
         }
-        if (options.requiredVersion && version !== options.requiredVersion) {
-          throw new Error(`version mismatch ${version} != ${options.requiredVersion}`)
-        }
-        if (options.requiredBaseVersion && compareVersions(version, options.requiredBaseVersion) !== 0) {
-          throw new Error(`base version mismatch ${version} != ${options.requiredBaseVersion}`)
+        if (options.requiredBaseVersion && compareBaseVersions(version, options.requiredBaseVersion) !== 0) {
+          throw new SourceValidationError(`base version mismatch ${version} != ${options.requiredBaseVersion}`)
         }
         return { url, body, version, sha256: sha256(body) }
       } catch (error) {
         errors.push(`${url} attempt ${attempt}: ${error.message}`)
+        if (error instanceof SourceValidationError) break
         if (attempt < retries) await sleep(attempt * 1000)
       }
     }

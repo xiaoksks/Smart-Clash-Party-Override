@@ -1381,91 +1381,18 @@ function upstreamMain(config) {
 //  Local post-processing layer
 // ================================================================
 
-const LOCAL_REGION_ORDER = ['GLOBAL', 'HK', 'SG', 'TW', 'JPKR', 'APAC', 'US', 'EU', 'AMERICAS', 'OTHER', 'AFRICA']
-
-function localExistingProxyNames(config) {
-  var names = new Set(['DIRECT', 'REJECT'])
-  ;(config['proxy-groups'] || []).forEach(function(group) {
-    if (group && group.name) names.add(group.name)
+function localPreferHuluUs(config) {
+  var group = (config['proxy-groups'] || []).find(function(item) {
+    return item && item.name === BIZ.HULU
   })
-  return names
-}
+  if (!group || !Array.isArray(group.proxies)) return
 
-function localWithResidential(keys) {
-  var result = []
-  for (var i = 0; i < keys.length; i++) {
-    var key = keys[i]
-    var homeKey = typeof REGION_HOME_MAP !== 'undefined' ? REGION_HOME_MAP[key] : null
-    if (homeKey && SMART[homeKey]) result.push(SMART[homeKey])
-    if (SMART[key]) result.push(SMART[key])
-  }
-  return result
-}
-
-function localHomeFirst(keys) {
-  var homes = []
-  var full = []
-  for (var i = 0; i < keys.length; i++) {
-    var homeKey = typeof REGION_HOME_MAP !== 'undefined' ? REGION_HOME_MAP[keys[i]] : null
-    if (homeKey && SMART[homeKey]) homes.push(SMART[homeKey])
-    if (SMART[keys[i]]) full.push(SMART[keys[i]])
-  }
-  return homes.concat(full, ['DIRECT'])
-}
-
-function localFilterExisting(values, existing) {
-  var seen = new Set()
-  return values.filter(function(value) {
-    if (!existing.has(value) || seen.has(value)) return false
-    seen.add(value)
-    return true
-  })
-}
-
-function localSetGroupProxies(groupIndex, groupName, proxies, existing) {
-  var group = groupIndex.get(groupName)
-  if (group) group.proxies = localFilterExisting(proxies, existing)
-}
-
-function localApplyBusinessGroupOrder(config) {
-  var existing = localExistingProxyNames(config)
-  var groupIndex = new Map()
-  ;(config['proxy-groups'] || []).forEach(function(group) {
-    if (group && group.name) groupIndex.set(group.name, group)
-  })
-  var standard = localWithResidential(LOCAL_REGION_ORDER).concat('DIRECT')
-  var directFirst = ['DIRECT'].concat(localWithResidential(LOCAL_REGION_ORDER))
-  var ai = localHomeFirst(LOCAL_REGION_ORDER)
-  var tracker = ['REJECT', 'DIRECT'].concat(localWithResidential(['HK', 'SG', 'GLOBAL', 'APAC']))
-  function region(primary) {
-    return localWithResidential([primary].concat(LOCAL_REGION_ORDER.filter(function(key) { return key !== primary }))).concat('DIRECT')
-  }
-
-  ;[
-    BIZ.CRYPTO, BIZ.PAYMENTS, BIZ.IM, BIZ.SOCIAL, BIZ.WORK, BIZ.TOK,
-    BIZ.NFLX, BIZ.DSNP, BIZ.HBO, BIZ.PRIME, BIZ.YT, BIZ.MUSIC,
-    BIZ.STREAM_OTHER, BIZ.GAME_INTL, BIZ.GOOGLE, BIZ.TOOLS, BIZ.MS,
-    BIZ.DOWNLOAD, BIZ.GFW, BIZ.INTL_SITE, BIZ.FINAL,
-  ].forEach(function(name) { localSetGroupProxies(groupIndex, name, standard, existing) })
-
-  ;[BIZ.CNMEDIA, BIZ.GAME_CN, BIZ.APPLE, BIZ.CN_SITE].forEach(function(name) {
-    localSetGroupProxies(groupIndex, name, directFirst, existing)
-  })
-
-  localSetGroupProxies(groupIndex, BIZ.AI, ai, existing)
-  localSetGroupProxies(groupIndex, BIZ.HULU, region('US'), existing)
-  localSetGroupProxies(groupIndex, BIZ.STREAM_HK, region('HK'), existing)
-  localSetGroupProxies(groupIndex, BIZ.STREAM_TW, region('TW'), existing)
-  localSetGroupProxies(groupIndex, BIZ.STREAM_JP, region('JPKR'), existing)
-  localSetGroupProxies(groupIndex, BIZ.STREAM_EU, region('EU'), existing)
-  localSetGroupProxies(groupIndex, BIZ.TRACKER, tracker, existing)
-}
-
-function localApplyProxyGroupOverrides(config) {
-  config['proxy-groups'] = (config['proxy-groups'] || []).filter(function(group) {
-    return group && group.name !== 'GLOBAL'
-  })
-  localApplyBusinessGroupOrder(config)
+  var preferred = [SMART.US_HOME, SMART.US]
+  group.proxies = preferred.filter(function(name) {
+    return group.proxies.indexOf(name) !== -1
+  }).concat(group.proxies.filter(function(name) {
+    return preferred.indexOf(name) === -1
+  }))
 }
 
 function localRuleTarget(rule) {
@@ -1559,7 +1486,7 @@ function applyLocalOverrides(config) {
   if (!Array.isArray(config.proxies) || config.proxies.length === 0) return config
   if (!config.profile || typeof config.profile !== 'object') config.profile = {}
   config.profile['store-selected'] = false
-  localApplyProxyGroupOverrides(config)
+  localPreferHuluUs(config)
   localRemoveAdBlocking(config)
   localPreventWebRtcLeak(config)
   localApplyDns(config)
