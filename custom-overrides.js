@@ -68,6 +68,15 @@ const CUSTOM_OVERRIDE_SPEC = {
     'DOMAIN-SUFFIX,wmsjsteam.com,DIRECT',
     'DOMAIN-SUFFIX,xz.pphimalayanrt.com,DIRECT',
 
+    // DouYu pages, APIs and dedicated streaming CDNs must stay on mainland routes.
+    'DOMAIN-SUFFIX,douyu.com,DIRECT',
+    'DOMAIN-SUFFIX,douyu.tv,DIRECT',
+    'DOMAIN-SUFFIX,douyucdn.cn,DIRECT',
+    'DOMAIN-SUFFIX,douyucdn2.cn,DIRECT',
+    'DOMAIN-SUFFIX,douyuscdn.com,DIRECT',
+    'DOMAIN-SUFFIX,douyutv.com,DIRECT',
+    'DOMAIN-SUFFIX,edgesrv.com,DIRECT',
+
     // Core mainland game services are intentionally stricter than GAME_CN.
     'DOMAIN-SUFFIX,mihoyo.com,DIRECT',
     'DOMAIN-SUFFIX,miyoushe.com,DIRECT',
