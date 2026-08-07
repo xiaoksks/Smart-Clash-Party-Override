@@ -1,7 +1,7 @@
 import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 import vm from 'node:vm'
-import { buildWebRtcProtectionRules, loadCustomSpec, ROOT } from './custom-spec.mjs'
+import { buildRuleSetOverrideRules, buildWebRtcProtectionRules, loadCustomSpec, ROOT } from './custom-spec.mjs'
 import { compareBaseVersions, compareVersions } from './upstream-source.mjs'
 
 const OUTPUT_PATH = path.join(ROOT, 'dist', 'Smart-Override.js')
@@ -72,6 +72,26 @@ function expectedFilteredUpstreamRules(upstreamConfig, spec) {
     return true
   })
   return { rules, upstreamAdProviders }
+}
+
+function assertRuleSetTargetOverrides(config, upstreamConfig, spec, version) {
+  for (const [name, target] of Object.entries(spec.ruleSetTargetOverrides)) {
+    const providerName = `local-${name}`
+    assert(!upstreamConfig['rule-providers']?.[providerName], `Local provider collides with upstream: ${providerName}`)
+    const matches = (config.rules || []).filter(rule => {
+      const parts = String(rule).split(',')
+      return parts[0] === 'RULE-SET' && parts[1] === providerName
+    })
+    assert(matches.length === 1, `Expected exactly one generated RULE-SET for ${providerName}, found ${matches.length}`)
+    assert(ruleTarget(matches[0]) === target, `RULE-SET ${providerName} must target ${target}: ${matches[0]}`)
+
+    const provider = config['rule-providers']?.[providerName]
+    assert(provider?.type === 'http' && provider?.format === 'mrs', `Invalid local MRS provider: ${providerName}`)
+    assert(provider.behavior === 'domain', `Local provider must use domain behavior: ${providerName}`)
+    assert(String(provider.url).includes('/rulesets/generated/mihomo-mrs/'), `Unexpected local provider URL: ${provider.url}`)
+    assert(new URL(provider.url).searchParams.get('scki') === version, `Local provider URL version mismatch: ${provider.url}`)
+    assert(String(provider.path).includes(`/local/${version}/`), `Local provider path version mismatch: ${provider.path}`)
+  }
 }
 
 function assertLocalFiltering(config, upstreamConfig, spec, priorityRuleCount) {
@@ -235,9 +255,10 @@ async function main() {
   const first = runOverride(output, fixtureConfig())
   const upstream = runOverride(output, fixtureConfig(), 'upstreamMain')
   const webRtcRules = buildWebRtcProtectionRules(spec)
-  const priorityRules = webRtcRules.concat(spec.preRules)
+  const priorityRules = webRtcRules.concat(buildRuleSetOverrideRules(spec), spec.preRules)
   assertRulePrefix(first, priorityRules)
   assertLocalFiltering(first, upstream, spec, priorityRules.length)
+  assertRuleSetTargetOverrides(first, upstream, spec, version)
   assertWebRtcProtection(first, spec, webRtcRules)
   assertReferences(first)
   assertSmartContract(first, upstream)

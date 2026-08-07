@@ -1,6 +1,7 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
-import { buildWebRtcProtectionRules, loadCustomSpec, ROOT } from './custom-spec.mjs'
+import vm from 'node:vm'
+import { buildRuleSetOverrideRules, buildWebRtcProtectionRules, loadCustomSpec, ROOT } from './custom-spec.mjs'
 import { fetchRoutingGraph, fetchSmartSource, parseSmartVersion } from './upstream-source.mjs'
 
 const OUTPUT_PATH = path.join(ROOT, 'dist', 'Smart-Override.js')
@@ -14,7 +15,7 @@ async function readCurrentVersion() {
   }
 }
 
-function buildHeader(spec, upstream) {
+function buildHeader(spec, upstream, providerBundle) {
   return [
     '// This file is generated automatically. Do not edit dist output directly.',
     `// Upstream source: ${upstream.url}`,
@@ -27,6 +28,10 @@ function buildHeader(spec, upstream) {
     `const CUSTOM_WEBRTC_BROWSER_PROCESSES = ${JSON.stringify(spec.webRtcBrowserProcesses)}`,
     `const CUSTOM_WEBRTC_PORTS = ${JSON.stringify(spec.webRtcPorts)}`,
     `const CUSTOM_WEBRTC_RULES = ${JSON.stringify(buildWebRtcProtectionRules(spec), null, 2)}`,
+    `const CUSTOM_RULE_SET_TARGET_OVERRIDES = ${JSON.stringify(spec.ruleSetTargetOverrides, null, 2)}`,
+    `const CUSTOM_RULE_SET_RULES = ${JSON.stringify(buildRuleSetOverrideRules(spec), null, 2)}`,
+    `const CUSTOM_RULE_SET_PROVIDER_BASE = ${JSON.stringify(providerBundle.base)}`,
+    `const CUSTOM_RULE_SET_PROVIDER_SPECS = ${JSON.stringify(providerBundle.specs, null, 2)}`,
     `const CUSTOM_PRE_RULES = ${JSON.stringify(spec.preRules, null, 2)}`,
     `const CUSTOM_FOREIGN_DNS_DOMAINS = ${JSON.stringify(spec.foreignDnsDomains, null, 2)}`,
     '',
@@ -38,6 +43,25 @@ function renameUpstreamMain(upstream) {
   const count = upstream.split(marker).length - 1
   if (count !== 1) throw new Error(`Expected exactly one upstream main(config), found ${count}`)
   return upstream.replace(marker, 'function upstreamMain(config) {')
+}
+
+function readRuleSetProviderBundle(graph, spec) {
+  const module = { exports: {} }
+  const sandbox = { module, exports: module.exports, process: { env: {} }, console: { log() {} } }
+  const metadata = vm.runInNewContext(
+    `${graph.body}\n;({ base: MIHOMO_MRS_RULESET_BASE, providers: MIHOMO_MRS_PROVIDER_MAP })`,
+    sandbox,
+    { filename: 'routing-graph.js', timeout: 5000 },
+  )
+  const specs = {}
+  for (const name of Object.keys(spec.ruleSetTargetOverrides)) {
+    const provider = metadata.providers?.[name]
+    if (!provider?.file || !provider?.behavior) {
+      throw new Error(`Routing graph has no standalone Mihomo MRS provider: ${name}`)
+    }
+    specs[name] = { behavior: provider.behavior, file: provider.file }
+  }
+  return { base: metadata.base, specs }
 }
 
 function stripDeprecatedSmartStrategy(upstream) {
@@ -102,6 +126,31 @@ function localRemoveAdBlocking(config) {
   })
 }
 
+function localInstallRuleSetTargetOverrides(config) {
+  var names = Object.keys(CUSTOM_RULE_SET_TARGET_OVERRIDES)
+  names.forEach(function(name) {
+    if (!CUSTOM_RULE_SET_PROVIDER_SPECS[name] || !CUSTOM_RULE_SET_PROVIDER_SPECS[name].file) {
+      throw new Error('Upstream MRS provider is unavailable: ' + name)
+    }
+  })
+
+  var providers = config['rule-providers'] || {}
+  names.forEach(function(name) {
+    var providerName = 'local-' + name
+    var spec = CUSTOM_RULE_SET_PROVIDER_SPECS[name]
+    providers[providerName] = {
+      type: 'http',
+      behavior: spec.behavior,
+      format: 'mrs',
+      url: CUSTOM_RULE_SET_PROVIDER_BASE + '/' + spec.file + '?scki=' + encodeURIComponent(VERSION),
+      path: './ruleset/local/' + VERSION + '/' + spec.file,
+      interval: 86400,
+      proxy: BIZ.GFW,
+    }
+  })
+  config['rule-providers'] = providers
+}
+
 function localRuleUsesWebRtcPort(rule) {
   var source = String(rule)
   return CUSTOM_WEBRTC_PORTS.some(function(port) {
@@ -147,7 +196,7 @@ function localApplyDns(config) {
 
 function localPrependRules(config) {
   if (!Array.isArray(config.rules)) config.rules = []
-  var priorityRules = CUSTOM_WEBRTC_RULES.concat(CUSTOM_PRE_RULES)
+  var priorityRules = CUSTOM_WEBRTC_RULES.concat(CUSTOM_RULE_SET_RULES, CUSTOM_PRE_RULES)
   var custom = new Set(priorityRules)
   config.rules = priorityRules.concat(config.rules.filter(function(rule) { return !custom.has(rule) }))
 }
@@ -159,10 +208,11 @@ function applyLocalOverrides(config) {
   config.profile['store-selected'] = false
   localPreferHuluUs(config)
   localRemoveAdBlocking(config)
+  localInstallRuleSetTargetOverrides(config)
   localPreventWebRtcLeak(config)
   localApplyDns(config)
   localPrependRules(config)
-  console.log('[local] Applied WebRTC leak protection, ad-blocking preference, custom rules, proxy-group preferences, DNS policy and Hulu US preference')
+  console.log('[local] Applied WebRTC leak protection, ad-blocking preference, rule-set targets, custom rules, proxy-group preferences, DNS policy and Hulu US preference')
   return config
 }
 
@@ -178,12 +228,13 @@ function main(config) {
 `
 }
 
-function generateOutput(upstream, spec) {
+function generateOutput(upstream, spec, graph) {
   const source = stripDeprecatedSmartStrategy(upstream.body.replace(/^\uFEFF/, ''))
   if (!source.includes('function applyMihomoFusedRuleSets(config) {')) {
     throw new Error('Upstream no longer exposes the fused Mihomo ruleset contract')
   }
-  return buildHeader(spec, upstream) + renameUpstreamMain(source) + buildLocalRuntime()
+  const providerBundle = readRuleSetProviderBundle(graph, spec)
+  return buildHeader(spec, upstream, providerBundle) + renameUpstreamMain(source) + buildLocalRuntime()
 }
 
 async function persistBuildSnapshot(upstream, graph) {
@@ -203,7 +254,7 @@ async function mainBuild() {
   const [spec, currentVersion] = await Promise.all([loadCustomSpec(), readCurrentVersion()])
   const upstream = await fetchSmartSource({ minimumVersion: currentVersion || undefined })
   const graph = await fetchRoutingGraph({ requiredBaseVersion: upstream.version })
-  const output = generateOutput(upstream, spec)
+  const output = generateOutput(upstream, spec, graph)
 
   await Promise.all([
     mkdir(path.dirname(OUTPUT_PATH), { recursive: true }),

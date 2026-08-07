@@ -13,15 +13,15 @@ https://github.com/IvanSolis1989/Smart-Config-Kit
 - Windows QQ 客户端进程直连，覆盖收藏详情、编辑等未公开接口和直接 IP 请求。
 - Clash Party「网络信息 / 当前 IP」常用查询域名：`ip.sb`、`ipify.org`、`ipinfo.io`、`ipapi.co`、`ip-api.com`、`ipwho.is`、`ident.me`、`icanhazip.com`、`ifconfig.me`。
 - Steam 下载/CDN 域名直连。
-- 国内视频与核心游戏域名的高优先级直连；邮箱、办公和 `bbys.app` 已改为继承上游 v6.0.9 的同策略规则，避免重复。
+- 斗鱼复用上游完整 `douyu` provider 并整体直连；核心游戏域名保留高优先级直连。邮箱、办公和 `bbys.app` 继承上游同策略规则，避免重复。
 - Patreon 首方、隐私初始化、媒体、视频与聊天依赖链，以及对应的海外 DNS 策略。
 - Hulu 默认优先美国家宽/美国节点。
 
-本项目不再用大量正则改写上游函数内部实现。上游 `main()` 完成后，本地后处理层只移除广告拦截、调整 Hulu 美国优先级，并应用 WebRTC、DNS 和前置规则；其余业务组顺序和 Smart 参数保持上游默认值，仅移除新内核已废弃的 `strategy` 字段，降低补丁漂移风险。
+本项目不再用大量正则改写上游函数内部实现。上游 `main()` 完成后，本地后处理层只移除广告拦截、调整指定 rule-set 的目标和 Hulu 美国优先级，并应用 WebRTC、DNS 和前置规则；其余业务组顺序和 Smart 参数保持上游默认值，仅移除新内核已废弃的 `strategy` 字段，降低补丁漂移风险。
 
 ## 使用方法
 
-1. 修改 `custom-overrides.js`，维护广告拦截、WebRTC 防泄露、前置规则和需要海外 DNS 的域名。`removeAdBlocking: true` 会关闭上游广告拦截，`preventWebRtcLeak: true` 会启用失败关闭的 WebRTC 保护。
+1. 修改 `custom-overrides.js`，维护广告拦截、WebRTC 防泄露、rule-set 目标覆写、前置规则和需要海外 DNS 的域名。`removeAdBlocking: true` 会关闭上游广告拦截，`preventWebRtcLeak: true` 会启用失败关闭的 WebRTC 保护。
 2. 推送到 GitHub。
 3. 打开 GitHub 仓库的 `Actions`，手动运行一次 `Update Clash Party Override`。
 4. 在 Clash Party 覆写页面导入下面这个 Raw 地址：

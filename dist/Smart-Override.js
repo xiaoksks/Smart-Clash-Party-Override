@@ -23,6 +23,19 @@ const CUSTOM_WEBRTC_RULES = [
   "DST-PORT,19305,REJECT",
   "DST-PORT,19307,REJECT"
 ]
+const CUSTOM_RULE_SET_TARGET_OVERRIDES = {
+  "douyu": "DIRECT"
+}
+const CUSTOM_RULE_SET_RULES = [
+  "RULE-SET,local-douyu,DIRECT"
+]
+const CUSTOM_RULE_SET_PROVIDER_BASE = "https://fastly.jsdelivr.net/gh/IvanSolis1989/Smart-Config-Kit@main/rulesets/generated/mihomo-mrs"
+const CUSTOM_RULE_SET_PROVIDER_SPECS = {
+  "douyu": {
+    "behavior": "domain",
+    "file": "douyu.mrs"
+  }
+}
 const CUSTOM_PRE_RULES = [
   "PROCESS-NAME,QQ.exe,DIRECT",
   "DOMAIN-SUFFIX,ip.sb,🌐 国外网站",
@@ -66,13 +79,6 @@ const CUSTOM_PRE_RULES = [
   "DOMAIN-SUFFIX,steamstatic.com.8686c.com,DIRECT",
   "DOMAIN-SUFFIX,wmsjsteam.com,DIRECT",
   "DOMAIN-SUFFIX,xz.pphimalayanrt.com,DIRECT",
-  "DOMAIN-SUFFIX,douyu.com,DIRECT",
-  "DOMAIN-SUFFIX,douyu.tv,DIRECT",
-  "DOMAIN-SUFFIX,douyucdn.cn,DIRECT",
-  "DOMAIN-SUFFIX,douyucdn2.cn,DIRECT",
-  "DOMAIN-SUFFIX,douyuscdn.com,DIRECT",
-  "DOMAIN-SUFFIX,douyutv.com,DIRECT",
-  "DOMAIN-SUFFIX,edgesrv.com,DIRECT",
   "DOMAIN-SUFFIX,mihoyo.com,DIRECT",
   "DOMAIN-SUFFIX,miyoushe.com,DIRECT",
   "DOMAIN-SUFFIX,yuanshen.com,DIRECT",
@@ -1450,6 +1456,31 @@ function localRemoveAdBlocking(config) {
   })
 }
 
+function localInstallRuleSetTargetOverrides(config) {
+  var names = Object.keys(CUSTOM_RULE_SET_TARGET_OVERRIDES)
+  names.forEach(function(name) {
+    if (!CUSTOM_RULE_SET_PROVIDER_SPECS[name] || !CUSTOM_RULE_SET_PROVIDER_SPECS[name].file) {
+      throw new Error('Upstream MRS provider is unavailable: ' + name)
+    }
+  })
+
+  var providers = config['rule-providers'] || {}
+  names.forEach(function(name) {
+    var providerName = 'local-' + name
+    var spec = CUSTOM_RULE_SET_PROVIDER_SPECS[name]
+    providers[providerName] = {
+      type: 'http',
+      behavior: spec.behavior,
+      format: 'mrs',
+      url: CUSTOM_RULE_SET_PROVIDER_BASE + '/' + spec.file + '?scki=' + encodeURIComponent(VERSION),
+      path: './ruleset/local/' + VERSION + '/' + spec.file,
+      interval: 86400,
+      proxy: BIZ.GFW,
+    }
+  })
+  config['rule-providers'] = providers
+}
+
 function localRuleUsesWebRtcPort(rule) {
   var source = String(rule)
   return CUSTOM_WEBRTC_PORTS.some(function(port) {
@@ -1495,7 +1526,7 @@ function localApplyDns(config) {
 
 function localPrependRules(config) {
   if (!Array.isArray(config.rules)) config.rules = []
-  var priorityRules = CUSTOM_WEBRTC_RULES.concat(CUSTOM_PRE_RULES)
+  var priorityRules = CUSTOM_WEBRTC_RULES.concat(CUSTOM_RULE_SET_RULES, CUSTOM_PRE_RULES)
   var custom = new Set(priorityRules)
   config.rules = priorityRules.concat(config.rules.filter(function(rule) { return !custom.has(rule) }))
 }
@@ -1507,10 +1538,11 @@ function applyLocalOverrides(config) {
   config.profile['store-selected'] = false
   localPreferHuluUs(config)
   localRemoveAdBlocking(config)
+  localInstallRuleSetTargetOverrides(config)
   localPreventWebRtcLeak(config)
   localApplyDns(config)
   localPrependRules(config)
-  console.log('[local] Applied WebRTC leak protection, ad-blocking preference, custom rules, proxy-group preferences, DNS policy and Hulu US preference')
+  console.log('[local] Applied WebRTC leak protection, ad-blocking preference, rule-set targets, custom rules, proxy-group preferences, DNS policy and Hulu US preference')
   return config
 }
 

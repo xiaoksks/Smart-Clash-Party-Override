@@ -17,6 +17,12 @@ const CUSTOM_OVERRIDE_SPEC = {
   ],
   webRtcPorts: ['3478', '3479', '5349', '19302', '19305', '19307'],
 
+  // Reuse complete upstream providers and only change their routing target.
+  // This stays current when upstream adds domains and avoids duplicate inline rules.
+  ruleSetTargetOverrides: {
+    douyu: 'DIRECT',
+  },
+
   preRules: [
     // QQ Favorites may call unlisted domains or direct IPs; keep the desktop client fully direct.
     'PROCESS-NAME,QQ.exe,DIRECT',
@@ -67,15 +73,6 @@ const CUSTOM_OVERRIDE_SPEC = {
     'DOMAIN-SUFFIX,steamstatic.com.8686c.com,DIRECT',
     'DOMAIN-SUFFIX,wmsjsteam.com,DIRECT',
     'DOMAIN-SUFFIX,xz.pphimalayanrt.com,DIRECT',
-
-    // DouYu pages, APIs and dedicated streaming CDNs must stay on mainland routes.
-    'DOMAIN-SUFFIX,douyu.com,DIRECT',
-    'DOMAIN-SUFFIX,douyu.tv,DIRECT',
-    'DOMAIN-SUFFIX,douyucdn.cn,DIRECT',
-    'DOMAIN-SUFFIX,douyucdn2.cn,DIRECT',
-    'DOMAIN-SUFFIX,douyuscdn.com,DIRECT',
-    'DOMAIN-SUFFIX,douyutv.com,DIRECT',
-    'DOMAIN-SUFFIX,edgesrv.com,DIRECT',
 
     // Core mainland game services are intentionally stricter than GAME_CN.
     'DOMAIN-SUFFIX,mihoyo.com,DIRECT',

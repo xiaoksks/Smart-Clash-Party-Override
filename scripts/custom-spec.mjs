@@ -16,12 +16,33 @@ function assertUniqueStrings(values, label) {
   }
 }
 
+function normalizeStringMap(value, label) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    throw new Error(`${label} must be an object`)
+  }
+  const normalized = {}
+  for (const [key, target] of Object.entries(value)) {
+    if (!key.trim() || typeof target !== 'string' || !target.trim()) {
+      throw new Error(`${label} entries must map non-empty names to non-empty targets`)
+    }
+    if (['__proto__', 'constructor', 'prototype'].includes(key)) {
+      throw new Error(`Invalid ${label} key: ${key}`)
+    }
+    normalized[key] = target
+  }
+  return normalized
+}
+
 export function buildWebRtcProtectionRules(spec) {
   if (!spec.preventWebRtcLeak) return []
   return [
     ...spec.webRtcBrowserProcesses.map(process => `AND,((PROCESS-NAME,${process}),(NETWORK,UDP)),REJECT`),
     ...spec.webRtcPorts.map(port => `DST-PORT,${port},REJECT`),
   ]
+}
+
+export function buildRuleSetOverrideRules(spec) {
+  return Object.entries(spec.ruleSetTargetOverrides).map(([name, target]) => `RULE-SET,local-${name},${target}`)
 }
 
 export async function loadCustomSpec() {
@@ -47,6 +68,7 @@ export async function loadCustomSpec() {
       throw new Error(`Invalid webRtcPorts entry: ${port}`)
     }
   })
+  const ruleSetTargetOverrides = normalizeStringMap(spec.ruleSetTargetOverrides, 'ruleSetTargetOverrides')
   assertUniqueStrings(spec.preRules, 'preRules')
   assertUniqueStrings(spec.foreignDnsDomains, 'foreignDnsDomains')
   return {
@@ -54,6 +76,7 @@ export async function loadCustomSpec() {
     preventWebRtcLeak: spec.preventWebRtcLeak,
     webRtcBrowserProcesses: Array.from(spec.webRtcBrowserProcesses),
     webRtcPorts: Array.from(spec.webRtcPorts),
+    ruleSetTargetOverrides,
     preRules: Array.from(spec.preRules),
     foreignDnsDomains: Array.from(spec.foreignDnsDomains),
   }

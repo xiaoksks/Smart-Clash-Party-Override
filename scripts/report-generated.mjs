@@ -23,6 +23,7 @@ async function main() {
   console.log(`- Upstream rules: ${summary.upstreamRules}`)
   console.log(`- Ad blocking removed: ${spec.removeAdBlocking ? 'yes' : 'no'}`)
   console.log(`- WebRTC leak protection: ${spec.preventWebRtcLeak ? `yes (${buildWebRtcProtectionRules(spec).length} rules)` : 'no'}`)
+  console.log(`- Rule-set target overrides: ${Object.keys(spec.ruleSetTargetOverrides).length}`)
   console.log(`- Custom priority rules: ${spec.preRules.length}`)
   console.log(`- Custom foreign-DNS domains: ${spec.foreignDnsDomains.length}`)
 }
