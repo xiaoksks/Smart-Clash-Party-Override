@@ -24,6 +24,7 @@ function buildHeader(spec, upstream, providerBundle) {
     '// Edit custom-overrides.js, then run: npm run check',
     '',
     `const CUSTOM_REMOVE_AD_BLOCKING = ${JSON.stringify(spec.removeAdBlocking)}`,
+    `const CUSTOM_FORCE_CHINA_IP_DIRECT = ${JSON.stringify(spec.forceChinaIpDirect)}`,
     `const CUSTOM_PREVENT_WEBRTC_LEAK = ${JSON.stringify(spec.preventWebRtcLeak)}`,
     `const CUSTOM_WEBRTC_BROWSER_PROCESSES = ${JSON.stringify(spec.webRtcBrowserProcesses)}`,
     `const CUSTOM_WEBRTC_PORTS = ${JSON.stringify(spec.webRtcPorts)}`,
@@ -93,6 +94,30 @@ function localPreferHuluUs(config) {
 function localRuleTarget(rule) {
   var parts = String(rule).split(',')
   return parts[parts.length - 1] === 'no-resolve' ? parts[parts.length - 2] : parts[parts.length - 1]
+}
+
+function localIsChinaIpProvider(provider) {
+  return provider && provider.behavior === 'ipcidr' && /-cn-site-ipcidr(?:-no-resolve)?\\.mrs(?:\\?|$)/.test(String(provider.url || ''))
+}
+
+function localPromoteChinaIpDirect(config) {
+  if (!CUSTOM_FORCE_CHINA_IP_DIRECT) return []
+  var providers = config['rule-providers'] || {}
+  var matches = []
+
+  config.rules = (config.rules || []).filter(function(rule) {
+    var parts = String(rule).split(',')
+    if (parts[0] !== 'RULE-SET' || !localIsChinaIpProvider(providers[parts[1]])) return true
+    parts[2] = 'DIRECT'
+    if (parts.indexOf('no-resolve') === -1) parts.push('no-resolve')
+    matches.push(parts.join(','))
+    return false
+  })
+
+  if (matches.length !== 1) {
+    throw new Error('Expected exactly one authoritative China IP rule, found ' + matches.length)
+  }
+  return matches
 }
 
 function localRemoveAdBlocking(config) {
@@ -194,9 +219,9 @@ function localApplyDns(config) {
   })
 }
 
-function localPrependRules(config) {
+function localPrependRules(config, chinaIpRules) {
   if (!Array.isArray(config.rules)) config.rules = []
-  var priorityRules = CUSTOM_WEBRTC_RULES.concat(CUSTOM_RULE_SET_RULES, CUSTOM_PRE_RULES)
+  var priorityRules = CUSTOM_WEBRTC_RULES.concat(CUSTOM_RULE_SET_RULES, CUSTOM_PRE_RULES, chinaIpRules)
   var custom = new Set(priorityRules)
   config.rules = priorityRules.concat(config.rules.filter(function(rule) { return !custom.has(rule) }))
 }
@@ -211,8 +236,9 @@ function applyLocalOverrides(config) {
   localInstallRuleSetTargetOverrides(config)
   localPreventWebRtcLeak(config)
   localApplyDns(config)
-  localPrependRules(config)
-  console.log('[local] Applied WebRTC leak protection, ad-blocking preference, rule-set targets, custom rules, proxy-group preferences, DNS policy and Hulu US preference')
+  var chinaIpRules = localPromoteChinaIpDirect(config)
+  localPrependRules(config, chinaIpRules)
+  console.log('[local] Applied China IP direct routing, WebRTC leak protection, ad-blocking preference, rule-set targets, custom rules, proxy-group preferences, DNS policy and Hulu US preference')
   return config
 }
 

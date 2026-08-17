@@ -11,6 +11,7 @@ https://github.com/IvanSolis1989/Smart-Config-Kit
 - 构建后自动移除上游广告拦截策略组、指向该策略的规则及其专用 provider；其他上游规则保持原样，包括非广告用途的 `REJECT` 规则。
 - WebRTC 防泄露：强制启用 TUN 严格路由、阻断常见浏览器的 UDP，并拒绝常见 STUN/TURN 端口，同时自动移除上游对这些端口的 `DIRECT` 规则。
 - Windows QQ 客户端进程直连，覆盖收藏详情、编辑等未公开接口和直接 IP 请求。
+- 中国大陆权威 IP 集合强制直连，并前置于国外业务 IP 集合；保留 `no-resolve`，避免仅为匹配规则额外解析域名。
 - Clash Party「网络信息 / 当前 IP」常用查询域名：`ip.sb`、`ipify.org`、`ipinfo.io`、`ipapi.co`、`ip-api.com`、`ipwho.is`、`ident.me`、`icanhazip.com`、`ifconfig.me`。
 - Steam 下载/CDN 域名直连。
 - 斗鱼复用上游完整 `douyu` provider 并整体直连；核心游戏域名保留高优先级直连。邮箱、办公和 `bbys.app` 继承上游同策略规则，避免重复。

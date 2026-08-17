@@ -4,6 +4,10 @@ const CUSTOM_OVERRIDE_SPEC = {
   // Keep upstream routing intact, but omit its ad-blocking policy, rules and providers.
   removeAdBlocking: true,
 
+  // Route authoritative mainland China IP ranges directly before service-specific IP rules.
+  // no-resolve is preserved so domain-based routing does not trigger an extra DNS lookup.
+  forceChinaIpDirect: true,
+
   // Capture browser traffic in TUN, reject browser UDP and block common STUN/TURN ports.
   preventWebRtcLeak: true,
   webRtcBrowserProcesses: [

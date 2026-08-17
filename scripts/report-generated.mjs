@@ -22,6 +22,7 @@ async function main() {
   console.log(`- Fused providers: ${summary.providers}`)
   console.log(`- Upstream rules: ${summary.upstreamRules}`)
   console.log(`- Ad blocking removed: ${spec.removeAdBlocking ? 'yes' : 'no'}`)
+  console.log(`- China IP forced direct: ${spec.forceChinaIpDirect ? 'yes' : 'no'}`)
   console.log(`- WebRTC leak protection: ${spec.preventWebRtcLeak ? `yes (${buildWebRtcProtectionRules(spec).length} rules)` : 'no'}`)
   console.log(`- Rule-set target overrides: ${Object.keys(spec.ruleSetTargetOverrides).length}`)
   console.log(`- Custom priority rules: ${spec.preRules.length}`)

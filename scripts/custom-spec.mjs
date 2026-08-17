@@ -58,6 +58,9 @@ export async function loadCustomSpec() {
   if (typeof spec.removeAdBlocking !== 'boolean') {
     throw new Error('removeAdBlocking must be a boolean')
   }
+  if (typeof spec.forceChinaIpDirect !== 'boolean') {
+    throw new Error('forceChinaIpDirect must be a boolean')
+  }
   if (typeof spec.preventWebRtcLeak !== 'boolean') {
     throw new Error('preventWebRtcLeak must be a boolean')
   }
@@ -73,6 +76,7 @@ export async function loadCustomSpec() {
   assertUniqueStrings(spec.foreignDnsDomains, 'foreignDnsDomains')
   return {
     removeAdBlocking: spec.removeAdBlocking,
+    forceChinaIpDirect: spec.forceChinaIpDirect,
     preventWebRtcLeak: spec.preventWebRtcLeak,
     webRtcBrowserProcesses: Array.from(spec.webRtcBrowserProcesses),
     webRtcPorts: Array.from(spec.webRtcPorts),

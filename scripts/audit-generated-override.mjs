@@ -57,10 +57,31 @@ function ruleTarget(rule) {
   return parts[parts.length - 1] === 'no-resolve' ? parts[parts.length - 2] : parts[parts.length - 1]
 }
 
+function isChinaIpRule(config, rule) {
+  const parts = String(rule).split(',')
+  if (parts[0] !== 'RULE-SET') return false
+  const provider = config['rule-providers']?.[parts[1]]
+  return provider?.behavior === 'ipcidr'
+    && /-cn-site-ipcidr(?:-no-resolve)?\.mrs(?:\?|$)/.test(String(provider.url || ''))
+}
+
+function promotedChinaIpRules(upstreamConfig, spec) {
+  if (!spec.forceChinaIpDirect) return []
+  const matches = (upstreamConfig.rules || []).filter(rule => isChinaIpRule(upstreamConfig, rule))
+  assert(matches.length === 1, `Expected exactly one upstream China IP rule, found ${matches.length}`)
+  return matches.map(rule => {
+    const parts = String(rule).split(',')
+    parts[2] = 'DIRECT'
+    if (!parts.includes('no-resolve')) parts.push('no-resolve')
+    return parts.join(',')
+  })
+}
+
 function expectedFilteredUpstreamRules(upstreamConfig, spec) {
   const adPolicy = '\ud83d\uded1 \u5e7f\u544a\u62e6\u622a'
   const upstreamAdProviders = new Set()
   const rules = (upstreamConfig.rules || []).filter(rule => {
+    if (spec.forceChinaIpDirect && isChinaIpRule(upstreamConfig, rule)) return false
     if (spec.removeAdBlocking && ruleTarget(rule) === adPolicy) {
       const parts = String(rule).split(',')
       if (parts[0] === 'RULE-SET' && parts[1]) upstreamAdProviders.add(parts[1])
@@ -72,6 +93,20 @@ function expectedFilteredUpstreamRules(upstreamConfig, spec) {
     return true
   })
   return { rules, upstreamAdProviders }
+}
+
+function assertChinaIpDirect(config, upstreamConfig, spec, expectedIndex) {
+  const actual = (config.rules || []).filter(rule => isChinaIpRule(config, rule))
+  if (!spec.forceChinaIpDirect) {
+    const expected = (upstreamConfig.rules || []).filter(rule => isChinaIpRule(upstreamConfig, rule))
+    assert(JSON.stringify(actual) === JSON.stringify(expected), 'China IP routing changed while forceChinaIpDirect is disabled')
+    return
+  }
+  const expected = promotedChinaIpRules(upstreamConfig, spec)
+  assert(actual.length === 1, `Expected exactly one generated China IP rule, found ${actual.length}`)
+  assert(actual[0] === expected[0], `China IP rule was not promoted to DIRECT: ${actual[0]}`)
+  assert(config.rules.indexOf(actual[0]) === expectedIndex, 'China IP DIRECT rule lost its priority position')
+  assert(ruleTarget(actual[0]) === 'DIRECT' && actual[0].endsWith(',no-resolve'), `Invalid China IP DIRECT rule: ${actual[0]}`)
 }
 
 function assertRuleSetTargetOverrides(config, upstreamConfig, spec, version) {
@@ -255,10 +290,13 @@ async function main() {
   const first = runOverride(output, fixtureConfig())
   const upstream = runOverride(output, fixtureConfig(), 'upstreamMain')
   const webRtcRules = buildWebRtcProtectionRules(spec)
-  const priorityRules = webRtcRules.concat(buildRuleSetOverrideRules(spec), spec.preRules)
+  const staticPriorityRules = webRtcRules.concat(buildRuleSetOverrideRules(spec), spec.preRules)
+  const chinaIpRules = promotedChinaIpRules(upstream, spec)
+  const priorityRules = staticPriorityRules.concat(chinaIpRules)
   assertRulePrefix(first, priorityRules)
   assertLocalFiltering(first, upstream, spec, priorityRules.length)
   assertRuleSetTargetOverrides(first, upstream, spec, version)
+  assertChinaIpDirect(first, upstream, spec, staticPriorityRules.length)
   assertWebRtcProtection(first, spec, webRtcRules)
   assertReferences(first)
   assertSmartContract(first, upstream)
