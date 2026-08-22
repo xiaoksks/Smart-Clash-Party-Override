@@ -110,6 +110,11 @@ function assertChinaIpDirect(config, upstreamConfig, spec, expectedIndex) {
 }
 
 function assertRuleSetTargetOverrides(config, upstreamConfig, spec, version) {
+  const webRtcRuleIndexes = buildWebRtcProtectionRules(spec)
+    .map(rule => config.rules.indexOf(rule))
+    .filter(index => index >= 0)
+  const firstWebRtcRuleIndex = webRtcRuleIndexes.length ? Math.min(...webRtcRuleIndexes) : -1
+
   for (const [name, target] of Object.entries(spec.ruleSetTargetOverrides)) {
     const providerName = `local-${name}`
     assert(!upstreamConfig['rule-providers']?.[providerName], `Local provider collides with upstream: ${providerName}`)
@@ -119,6 +124,12 @@ function assertRuleSetTargetOverrides(config, upstreamConfig, spec, version) {
     })
     assert(matches.length === 1, `Expected exactly one generated RULE-SET for ${providerName}, found ${matches.length}`)
     assert(ruleTarget(matches[0]) === target, `RULE-SET ${providerName} must target ${target}: ${matches[0]}`)
+    if (firstWebRtcRuleIndex >= 0) {
+      assert(
+        config.rules.indexOf(matches[0]) < firstWebRtcRuleIndex,
+        `RULE-SET ${providerName} must take priority over generic WebRTC blocking`,
+      )
+    }
 
     const provider = config['rule-providers']?.[providerName]
     assert(provider?.type === 'http' && provider?.format === 'mrs', `Invalid local MRS provider: ${providerName}`)
@@ -290,7 +301,7 @@ async function main() {
   const first = runOverride(output, fixtureConfig())
   const upstream = runOverride(output, fixtureConfig(), 'upstreamMain')
   const webRtcRules = buildWebRtcProtectionRules(spec)
-  const staticPriorityRules = webRtcRules.concat(buildRuleSetOverrideRules(spec), spec.preRules)
+  const staticPriorityRules = buildRuleSetOverrideRules(spec).concat(webRtcRules, spec.preRules)
   const chinaIpRules = promotedChinaIpRules(upstream, spec)
   const priorityRules = staticPriorityRules.concat(chinaIpRules)
   assertRulePrefix(first, priorityRules)

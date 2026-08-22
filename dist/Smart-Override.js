@@ -1551,7 +1551,8 @@ function localApplyDns(config) {
 
 function localPrependRules(config, chinaIpRules) {
   if (!Array.isArray(config.rules)) config.rules = []
-  var priorityRules = CUSTOM_WEBRTC_RULES.concat(CUSTOM_RULE_SET_RULES, CUSTOM_PRE_RULES, chinaIpRules)
+  // Explicit service overrides must win over generic browser UDP blocking.
+  var priorityRules = CUSTOM_RULE_SET_RULES.concat(CUSTOM_WEBRTC_RULES, CUSTOM_PRE_RULES, chinaIpRules)
   var custom = new Set(priorityRules)
   config.rules = priorityRules.concat(config.rules.filter(function(rule) { return !custom.has(rule) }))
 }
