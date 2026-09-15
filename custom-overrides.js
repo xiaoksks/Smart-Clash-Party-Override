@@ -102,6 +102,9 @@ const CUSTOM_OVERRIDE_SPEC = {
     'DOMAIN-SUFFIX,hypergryph.com,DIRECT',
     'DOMAIN-SUFFIX,gryphline.com,DIRECT',
     'DOMAIN-SUFFIX,lilith.com,DIRECT',
+
+    // Mainland code hosting service.
+    'DOMAIN-SUFFIX,gitee.com,DIRECT',
   ],
 
   foreignDnsDomains: [

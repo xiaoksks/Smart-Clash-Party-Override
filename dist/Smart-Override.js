@@ -101,7 +101,8 @@ const CUSTOM_PRE_RULES = [
   "DOMAIN-SUFFIX,papegames.com,DIRECT",
   "DOMAIN-SUFFIX,hypergryph.com,DIRECT",
   "DOMAIN-SUFFIX,gryphline.com,DIRECT",
-  "DOMAIN-SUFFIX,lilith.com,DIRECT"
+  "DOMAIN-SUFFIX,lilith.com,DIRECT",
+  "DOMAIN-SUFFIX,gitee.com,DIRECT"
 ]
 const CUSTOM_FOREIGN_DNS_DOMAINS = [
   "+.patreon.com",
