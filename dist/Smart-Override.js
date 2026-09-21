@@ -1561,19 +1561,42 @@ function localApplyDns(config) {
   var domesticPlain = ['223.5.5.5', '223.6.6.6', '119.29.29.29']
   var foreignDoH = ['https://cloudflare-dns.com/dns-query', 'https://dns.google/dns-query']
 
-  config.dns.nameserver = domesticDoH.concat(['223.5.5.5'])
+  config.dns.nameserver = ['223.5.5.5'].concat(domesticDoH)
 
-  // Bootstrap DNS: Plain IP first to eliminate cold-start TLS handshake timeout.
-  config.dns['default-nameserver'] = ['223.5.5.5', '119.29.29.29', '223.6.6.6', 'https://223.5.5.5/dns-query']
+  // Bootstrap DNS: Plain IP UDP 53 first to eliminate cold-start TLS handshake timeout.
+  config.dns['default-nameserver'] = ['223.5.5.5', '223.6.6.6', '119.29.29.29']
 
-  // Node server domain resolution: Domestic DoH and plain IP first so airport nodes resolve instantly on cold start before proxy is established.
-  config.dns['proxy-server-nameserver'] = domesticDoH.concat(domesticPlain, foreignDoH)
+  // Node server domain resolution: Domestic plain IP first so airport nodes resolve instantly in 2ms on cold start before proxy is established.
+  config.dns['proxy-server-nameserver'] = ['223.5.5.5', '223.6.6.6'].concat(domesticDoH, foreignDoH)
 
-  config.dns['direct-nameserver'] = domesticDoH.concat(domesticPlain)
+  config.dns['direct-nameserver'] = ['223.5.5.5', '223.6.6.6', '119.29.29.29'].concat(domesticDoH)
   config.dns['direct-nameserver-follow-policy'] = false
   if (!config.dns['nameserver-policy'] || typeof config.dns['nameserver-policy'] !== 'object' || Array.isArray(config.dns['nameserver-policy'])) {
     config.dns['nameserver-policy'] = {}
   }
+
+  // Strip unreachable doh.pub from all upstream nameserver-policy entries (e.g. geosite:cn)
+  Object.keys(config.dns['nameserver-policy']).forEach(function(key) {
+    var val = config.dns['nameserver-policy'][key]
+    if (Array.isArray(val)) {
+      config.dns['nameserver-policy'][key] = val.filter(function(server) {
+        return String(server).indexOf('doh.pub') === -1
+      })
+      if (config.dns['nameserver-policy'][key].length === 0) {
+        config.dns['nameserver-policy'][key] = ['223.5.5.5'].concat(domesticDoH)
+      }
+    }
+  })
+
+  // Purge dead doh.pub (119.29.29.29:443) from hosts mapping
+  if (config.hosts && typeof config.hosts === 'object') {
+    delete config.hosts['doh.pub']
+  }
+
+  // Windows NCSI probes must resolve immediately via domestic DNS on cold start so Windows marks internet active
+  config.dns['nameserver-policy']['+.msftconnecttest.com'] = ['223.5.5.5'].concat(domesticDoH)
+  config.dns['nameserver-policy']['+.msftncsi.com'] = ['223.5.5.5'].concat(domesticDoH)
+
   CUSTOM_FOREIGN_DNS_DOMAINS.forEach(function(host) {
     config.dns['nameserver-policy'][host] = foreignDoH.slice()
   })
@@ -1592,6 +1615,8 @@ function applyLocalOverrides(config) {
   if (!Array.isArray(config.proxies) || config.proxies.length === 0) return config
   if (!config.profile || typeof config.profile !== 'object') config.profile = {}
   config.profile['store-selected'] = false
+  // Persist Fake-IP mapping to disk so restarts don't drop browser cached 198.18.x.x IPs
+  config.profile['store-fake-ip'] = true
   localPreferHuluUs(config)
   localRemoveAdBlocking(config)
   localInstallRuleSetTargetOverrides(config)
