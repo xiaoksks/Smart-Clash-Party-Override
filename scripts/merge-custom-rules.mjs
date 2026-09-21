@@ -196,6 +196,7 @@ function localPreventWebRtcLeak(config) {
   config.tun['auto-route'] = true
   config.tun['strict-route'] = true
   config.tun['auto-detect-interface'] = true
+  config.tun['dns-hijack'] = ['tcp://any:53', 'udp://any:53']
   if (Array.isArray(config.tun['exclude-process'])) {
     var browsers = new Set(CUSTOM_WEBRTC_BROWSER_PROCESSES.map(function(name) { return name.toLowerCase() }))
     config.tun['exclude-process'] = config.tun['exclude-process'].filter(function(name) {
@@ -206,12 +207,13 @@ function localPreventWebRtcLeak(config) {
 
 function localApplyDns(config) {
   if (!config.dns) config.dns = {}
+  config.dns['use-hosts'] = true
   // Remove doh.pub (119.29.29.29:443) which causes 20s connectex timeouts on many broadband lines
   var domesticDoH = ['https://dns.alidns.com/dns-query']
   var domesticPlain = ['223.5.5.5', '223.6.6.6', '119.29.29.29']
   var foreignDoH = ['https://cloudflare-dns.com/dns-query', 'https://dns.google/dns-query']
 
-  config.dns.nameserver = domesticDoH.slice()
+  config.dns.nameserver = domesticDoH.concat(['223.5.5.5'])
 
   // Bootstrap DNS: Plain IP first to eliminate cold-start TLS handshake timeout.
   config.dns['default-nameserver'] = ['223.5.5.5', '119.29.29.29', '223.6.6.6', 'https://223.5.5.5/dns-query']
