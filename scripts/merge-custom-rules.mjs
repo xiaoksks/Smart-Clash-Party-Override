@@ -333,7 +333,7 @@ function applyLocalOverrides(config) {
   localApplyDns(config)
   var chinaIpRules = localPromoteChinaIpDirect(config)
   localPrependRules(config, chinaIpRules)
-  localAutoReloadOnColdStart()
+  // localAutoReloadOnColdStart()
   console.log('[local] Applied China IP direct routing, WebRTC leak protection, ad-blocking preference, rule-set targets, custom rules, proxy-group preferences, DNS policy and Hulu US preference')
   return config
 }
