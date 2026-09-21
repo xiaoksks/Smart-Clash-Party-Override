@@ -18,6 +18,7 @@ https://github.com/IvanSolis1989/Smart-Config-Kit
 - 斗鱼复用上游完整 `douyu` provider 并整体直连；核心游戏域名保留高优先级直连。邮箱、办公和 `bbys.app` 继承上游同策略规则，避免重复。
 - Patreon 首方、隐私初始化、媒体、视频与聊天依赖链，以及对应的海外 DNS 策略。
 - Hulu 默认优先美国家宽/美国节点。
+- 优化冷启动 Bootstrap DNS（引导 DNS）与节点域名解析策略（国内纯净 DoH/IP 优先），避免重启软件时因海外 DoH 超时导致的节点解析死锁与启动断网。
 
 本项目不再用大量正则改写上游函数内部实现。上游 `main()` 完成后，本地后处理层只移除广告拦截、调整指定 rule-set 的目标和 Hulu 美国优先级，并应用 WebRTC、DNS 和前置规则；其余业务组顺序和 Smart 参数保持上游默认值，仅移除新内核已废弃的 `strategy` 字段，降低补丁漂移风险。
 

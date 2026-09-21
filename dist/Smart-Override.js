@@ -1557,6 +1557,13 @@ function localApplyDns(config) {
   var domesticDoH = ['https://dns.alidns.com/dns-query', 'https://doh.pub/dns-query']
   var domesticPlain = ['223.5.5.5', '223.6.6.6', '119.29.29.29']
   var foreignDoH = ['https://cloudflare-dns.com/dns-query', 'https://dns.google/dns-query']
+
+  // Bootstrap DNS: Plain IP first to eliminate cold-start TLS handshake timeout.
+  config.dns['default-nameserver'] = ['223.5.5.5', '119.29.29.29', '223.6.6.6', 'https://223.5.5.5/dns-query']
+
+  // Node server domain resolution: Domestic DoH and plain IP first so airport nodes resolve instantly on cold start before proxy is established.
+  config.dns['proxy-server-nameserver'] = domesticDoH.concat(domesticPlain, foreignDoH)
+
   config.dns['direct-nameserver'] = domesticDoH.concat(domesticPlain)
   config.dns['direct-nameserver-follow-policy'] = false
   if (!config.dns['nameserver-policy'] || typeof config.dns['nameserver-policy'] !== 'object' || Array.isArray(config.dns['nameserver-policy'])) {
