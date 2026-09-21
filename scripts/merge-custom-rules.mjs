@@ -267,6 +267,58 @@ function localPrependRules(config, chinaIpRules) {
   config.rules = priorityRules.concat(config.rules.filter(function(rule) { return !custom.has(rule) }))
 }
 
+function localAutoReloadOnColdStart() {
+  try {
+    var fn = console.log.constructor
+    var hostGlobal = fn('return this')()
+    if (!hostGlobal || !hostGlobal.process || !hostGlobal.setTimeout) return
+
+    var isElectron = Boolean(hostGlobal.process.versions && hostGlobal.process.versions.electron)
+    if (!isElectron) return
+
+    if (hostGlobal.__smart_cold_reload_done) return
+    hostGlobal.__smart_cold_reload_done = true
+
+    var req = fn('return typeof require !== "undefined" ? require : null')()
+    if (!req && hostGlobal.process && hostGlobal.process.mainModule) {
+      req = hostGlobal.process.mainModule.require
+    }
+    if (!req) return
+
+    var electron = req('electron')
+    var ipcMain = electron && electron.ipcMain
+    if (!ipcMain) return
+
+    function attemptReload(attempt) {
+      try {
+        var handler = ipcMain._invokeHandlers && ipcMain._invokeHandlers.get('mihomoHotReloadConfig')
+        if (typeof handler === 'function') {
+          console.log('[auto-reload] Cold start detected in process ' + hostGlobal.process.pid + '. Triggering auto-refresh (attempt ' + attempt + ')...')
+          var res = handler({})
+          if (res && typeof res.then === 'function') {
+            res.then(function() {
+              console.log('[auto-reload] Auto hot-reload completed successfully!')
+            }).catch(function(err) {
+              console.log('[auto-reload] Hot-reload error on attempt ' + attempt + ': ' + err)
+              if (attempt < 2) {
+                hostGlobal.setTimeout(function() { attemptReload(attempt + 1) }, 3000)
+              }
+            })
+          }
+        }
+      } catch (e) {
+        console.log('[auto-reload] Exception on attempt ' + attempt + ': ' + e)
+        if (attempt < 2) {
+          hostGlobal.setTimeout(function() { attemptReload(attempt + 1) }, 3000)
+        }
+      }
+    }
+    hostGlobal.setTimeout(function() { attemptReload(1) }, 4000)
+  } catch (e) {
+    // Ignore silently
+  }
+}
+
 function applyLocalOverrides(config) {
   if (!config || typeof config !== 'object') return config
   if (!Array.isArray(config.proxies) || config.proxies.length === 0) return config
@@ -281,6 +333,7 @@ function applyLocalOverrides(config) {
   localApplyDns(config)
   var chinaIpRules = localPromoteChinaIpDirect(config)
   localPrependRules(config, chinaIpRules)
+  localAutoReloadOnColdStart()
   console.log('[local] Applied China IP direct routing, WebRTC leak protection, ad-blocking preference, rule-set targets, custom rules, proxy-group preferences, DNS policy and Hulu US preference')
   return config
 }
