@@ -1,7 +1,7 @@
 // This file is generated automatically. Do not edit dist output directly.
 // Upstream source: https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/main/Clash%20Party/ClashParty(mihomo-smart).js
-// Upstream version: v6.0.13-dns.6
-// Upstream SHA-256: cdf278e73aca02baf598bfa171f46f042583903772fea223ca0c0c02a03c66f4
+// Upstream version: v6.0.13-dns.7
+// Upstream SHA-256: ca0e7d6834259a058aae465b2cfe42cb72b812b4f66d6f33788def27c30c8f7d
 // Edit custom-overrides.js, then run: npm run check
 
 const CUSTOM_REMOVE_AD_BLOCKING = true
@@ -116,17 +116,17 @@ const CUSTOM_FOREIGN_DNS_DOMAINS = [
   "+.stream-io-video.com"
 ]
 // Clash Smart 内核覆写脚本 - SUB-STORE 多机场精细分流版
-// 版本：v6.0.13-dns.6 (2026-09-03)
+// 版本：v6.0.13-dns.7 (2026-09-21)
 // 架构：SUB-STORE 多机场融合 + 22 Smart 区域组（11 全部 + 11 家宽）+ 33 业务策略组 + 132 融合 rule-providers / 151 rules
 // 规则源：rulesets/source/routing-graph.js v6.0.13（514 providers / 973 rules -> fused 132 / 151；同策略规范化与语义去重）
-// v6.0.13-dns.6：LINUX DO 大陆备用域名 linuxdo.org 前置归入国内网站；主站 linux.do 保持受限网站
+// v6.0.13-dns.7：修复 #182：清理订阅遗留的 fake-ip-filter 规则模式/悬空 rule-set 引用
 // 变更历史：见 `Clash Party/CHANGELOG.md`
 
 // ================================================================
 //  版本常量
 // ================================================================
 
-const VERSION = 'v6.0.13-dns.6'
+const VERSION = 'v6.0.13-dns.7'
 
 // 受信任的本地订阅适配模式：off | policy | adaptive。
 // 不从机场订阅读取；三档均不会改变 55 组、规则或仓库 DNS 基线。
@@ -1149,8 +1149,11 @@ function overwriteGeneral(config, nodeDnsHints) {
   config.dns['fallback-filter'].geosite = ['gfw', 'geolocation-!cn']
   config.dns['fallback-filter'].ipcidr = ['240.0.0.0/4', '0.0.0.0/32', '127.0.0.0/8', '10.0.0.0/8', '192.168.0.0/16']
   if (!Array.isArray(config.dns['fallback-filter'].domain)) config.dns['fallback-filter'].domain = []
-  // v5.4.1 P0: fake-ip-filter 扩展（Smart 内核不支持 fake-ip-filter-mode: rule，使用传统域名列表）
-  var currentFakeIpFilter = Array.isArray(config.dns['fake-ip-filter']) ? config.dns['fake-ip-filter'] : []
+  // FIX#182：本覆写使用传统 blacklist 域名列表。Clash Party / 订阅可能带入
+  // fake-ip-filter-mode: rule 或 `rule-set:cn domain` 这类旧项；同时 cleanupSubscription()
+  // 会重建 rule-providers，继续保留源 rule-set 会留下悬空引用并阻断新内核校验。
+  config.dns['fake-ip-filter-mode'] = 'blacklist'
+  var currentFakeIpFilter = sanitizeFakeIpFilterEntries(config.dns['fake-ip-filter'])
   config.dns['fake-ip-filter'] = uniqList(currentFakeIpFilter.concat([
     '+.lan',
     '+.local',
@@ -1252,6 +1255,20 @@ function uniqList(list) {
   return list.filter(function(item) {
     if (!item || seen[item]) return false
     seen[item] = true
+    return true
+  })
+}
+
+function sanitizeFakeIpFilterEntries(list) {
+  if (!Array.isArray(list)) return []
+  return list.map(function(item) {
+    return typeof item === 'string' ? item.trim() : ''
+  }).filter(function(item) {
+    if (!item || /\s/.test(item)) return false
+    // cleanupSubscription() replaces all source rule-providers with the fused set.
+    if (/^rule-set:/i.test(item)) return false
+    // Rule-mode entries are incompatible with the blacklist list we emit here.
+    if (/^(?:RULE-SET|GEOSITE|DOMAIN(?:-SUFFIX|-KEYWORD|-REGEX)?|IP-CIDR6?|MATCH),/i.test(item)) return false
     return true
   })
 }
