@@ -8,17 +8,19 @@ https://github.com/IvanSolis1989/Smart-Config-Kit
 当前本仓库的自定义层主要用于关闭广告拦截，以及补强上游尚未覆盖、或个人环境需要强制优先的规则。注意：`custom-overrides.js` 的前置规则会先于 AI、游戏、国内直连等所有上游规则命中，因此只建议放少量“确定必须优先”的精准规则。
 
 当前已补充：
-- 构建后自动移除上游广告拦截策略组、指向该策略的规则及其专用 provider；其他上游规则保持原样，包括非广告用途的 `REJECT` 规则。
-- WebRTC 防泄露：强制启用 TUN 严格路由、阻断常见浏览器的 UDP，并拒绝常见 STUN/TURN 端口，同时自动移除上游对这些端口的 `DIRECT` 规则；`ruleSetTargetOverrides` 中明确配置的业务规则集优先于这层通用拦截。
+- **开机冷启动自动静默刷新**：内置自适应进程检测，开机或重启客户端后自动延时触发一次静默热重载，彻底解决 Windows 下 TUN 虚拟网卡冷启动无法接管流量、必须手动点击刷新的问题。
+- **构建后自动移除广告拦截**：自动移除上游广告拦截策略组、指向该策略的规则及其专用 provider；其他上游规则保持原样，包括非广告用途的 `REJECT` 规则。
+- **WebRTC 防泄露优化**：阻断常见浏览器的 UDP，并拒绝常见 STUN/TURN 端口，同时自动移除上游对这些端口的 `DIRECT` 规则；移除了 Windows 下引发冷启动网络黑洞的 `strict-route`，兼顾隐私安全与系统网络稳定性。
+- **Windows NCSI 联网探针秒级直连**：将微软系统连通性检测（`msftconnecttest.com`、`msftncsi.com`）前置强制直连，开机 5ms 即可获取连通响应，立即标记网络正常。
+- **国内权威 IP 与域名秒解**：中国大陆权威 IP 集合强制直连并前置（保留 `no-resolve`）；国内域名（`geosite:cn`）与引导 DNS 采用纯 UDP `223.5.5.5`（阿里 DNS），彻底移除容易超时的 `doh.pub`。
+- **Fake-IP 缓存持久化**：开启 Fake-IP 缓存持久化（`store-fake-ip`），防止重启客户端后浏览器缓存的虚拟 IP 映射丢失。
 - Windows QQ 客户端进程直连，覆盖收藏详情、编辑等未公开接口和直接 IP 请求。
-- 中国大陆权威 IP 集合强制直连，并前置于国外业务 IP 集合；保留 `no-resolve`，避免仅为匹配规则额外解析域名。
 - Clash Party「网络信息 / 当前 IP」常用查询域名：`ip.sb`、`ipify.org`、`ipinfo.io`、`ipapi.co`、`ip-api.com`、`ipwho.is`、`ident.me`、`icanhazip.com`、`ifconfig.me`。
 - Steam 下载/CDN 域名直连。
 - Gitee（`gitee.com`）强制直连，避免被上游下载更新规则误分流至代理。
 - 斗鱼复用上游完整 `douyu` provider 并整体直连；核心游戏域名保留高优先级直连。邮箱、办公和 `bbys.app` 继承上游同策略规则，避免重复。
 - Patreon 首方、隐私初始化、媒体、视频与聊天依赖链，以及对应的海外 DNS 策略。
 - Hulu 默认优先美国家宽/美国节点。
-- 优化冷启动 Bootstrap DNS（引导 DNS）与节点域名解析策略（国内纯净 DoH/IP 优先），避免重启软件时因海外 DoH 超时导致的节点解析死锁与启动断网。
 
 本项目不再用大量正则改写上游函数内部实现。上游 `main()` 完成后，本地后处理层只移除广告拦截、调整指定 rule-set 的目标和 Hulu 美国优先级，并应用 WebRTC、DNS 和前置规则；其余业务组顺序和 Smart 参数保持上游默认值，仅移除新内核已废弃的 `strategy` 字段，降低补丁漂移风险。
 
@@ -26,7 +28,7 @@ https://github.com/IvanSolis1989/Smart-Config-Kit
 
 1. 修改 `custom-overrides.js`，维护广告拦截、WebRTC 防泄露、rule-set 目标覆写、前置规则和需要海外 DNS 的域名。`removeAdBlocking: true` 会关闭上游广告拦截，`preventWebRtcLeak: true` 会启用失败关闭的 WebRTC 保护。
 2. 推送到 GitHub。
-3. 打开 GitHub 仓库的 `Actions`，手动运行一次 `Update Clash Party Override`。
+3. 打开 GitHub 仓库的 `Actions`，手动运行一次 `Update Clash Party Override`（或等待定时自动运行）。
 4. 在 Clash Party 覆写页面导入下面这个 Raw 地址：
 
 ```text
@@ -73,7 +75,7 @@ GitHub Actions 默认每天北京时间 01:00 自动拉取上游并重新生成�
 
 ### Clash Party 获取当前 IP 失败
 
-如果「网络信息」里的 IPSB 或其他 IP 查询源显示获取失败，通常是查询域名被上游规则分到不合适的策略、DNS 覆写链路异常，或查询源在当前网络下不可达。
+如果「网络信息」里的 IPSB 或其他 IP 查询源显示获取失败，通常是查询域名被上游规则分到不合适的策略、DNS 链路异常，或查询源在当前网络下不可达。
 
 本项目已在 `custom-overrides.js` 前置处理常见 IP 查询域名：
 - 国外查询源走 `🌐 国外网站`，用于显示代理出口 IP。
@@ -165,13 +167,18 @@ npm run check
 
 ---
 
-## 四、粘贴 UI 补充配置
+## 四、关于客户端设置
 
-脚本会写入 **proxies / proxy-groups / rules / DNS** 主体配置；但不同 GUI 仍可能用 UI Mixin 覆盖 DNS / Sniffer / GeoX URL。为避免客户端侧覆盖掉 v5.4.17 DNS 合同，建议把下方内容同步粘贴到客户端的 **外部数据、DNS、嗅探覆写中**：
+`Smart-Override.js` 已经完整接管了分流、DNS、嗅探与自适应路由配置，因此：
 
-GeoX URL：
-
-<img width="823" height="1032" alt="image" src="https://github.com/user-attachments/assets/51c8d844-3f66-4996-a271-6167db99f66a" />
+1. **无需在 UI 开启「DNS 覆写」**：
+   脚本内部已写入完整的 Fake-IP、国内纯 UDP 极速解析（阿里 DNS `223.5.5.5`）与海外 DoH 防污染策略。Clash Party 检测到订阅自带自定义 DNS 时也会自动优先采用，保持客户端 UI 的「DNS 覆写」为关闭即可。
+2. **无需在 UI 配置「嗅探覆写」**：
+   脚本已内置对 TLS/QUIC (HTTP/3) 的 SNI 嗅探以及 Telegram/Apple Push 排除白名单，保证复杂规则集的命中率。
+3. **无需开机手动刷新**：
+   脚本内置开机冷启动自动热重载，冷启动 4 秒后自动在后台触发一次静默刷新，开机即可直接上网。
+4. **外部数据（GeoX URL，可选）**：
+   如需自定义 GeoX 规则数据库源，可在客户端「设置 → 外部资源」中按需配置：
 
 ```yaml
 geox-url:
@@ -181,93 +188,3 @@ geox-url:
   geosite: https://fastly.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geosite.dat
 geo-auto-update: true
 ```
-
-DNS：
-
-<img width="811" height="698" alt="image" src="https://github.com/user-attachments/assets/c6ad3051-17c3-43e2-8dfa-e9721bd305f8" />
-<img width="811" height="698" alt="image" src="https://github.com/user-attachments/assets/d2cbbbb3-ed2c-45d7-86cc-832edfbdb365" />
-
-```yaml
-dns:
-  use-hosts: false
-  use-system-hosts: false
-  respect-rules: true
-  prefer-h3: false
-  default-nameserver:
-    - 223.5.5.5
-    - 119.29.29.29
-    - 1.1.1.1
-    - 8.8.8.8
-  nameserver:
-    - https://dns.alidns.com/dns-query
-    - https://doh.pub/dns-query
-  proxy-server-nameserver:
-    - https://cloudflare-dns.com/dns-query
-    - https://dns.google/dns-query
-    - https://dns.alidns.com/dns-query
-    - https://doh.pub/dns-query
-  direct-nameserver:
-    - https://dns.alidns.com/dns-query
-    - https://doh.pub/dns-query
-    - 223.5.5.5
-    - 223.6.6.6
-    - 119.29.29.29
-  direct-nameserver-follow-policy: false
-  nameserver-policy:
-    "+.patreon.com": &foreign-dns
-      - https://cloudflare-dns.com/dns-query
-      - https://dns.google/dns-query
-    "+.patreonusercontent.com": *foreign-dns
-    "+.patreoncommunity.com": *foreign-dns
-    "+.transcend-cdn.com": *foreign-dns
-    "+.transcend.io": *foreign-dns
-    "patreon-media.s3-accelerate.amazonaws.com": *foreign-dns
-    "+.mux.com": *foreign-dns
-    "+.stream-io-api.com": *foreign-dns
-    "+.stream-io-video.com": *foreign-dns
-  fallback:
-    - https://cloudflare-dns.com/dns-query
-    - https://dns.google/dns-query
-  fallback-filter:
-    geoip: true
-    geoip-code: CN
-    geosite:
-      - gfw
-      - geolocation-!cn
-    ipcidr:
-      - 240.0.0.0/4
-      - 0.0.0.0/32
-      - 127.0.0.0/8
-      - 10.0.0.0/8
-      - 192.168.0.0/16
-    domain: []
-```
-
-Sniffer：
-
-<img width="811" height="698" alt="image" src="https://github.com/user-attachments/assets/76bb6490-3dee-43f5-a863-96bc99546b52" />
-
-```yaml
-sniffer:
-  enable: true
-  parse-pure-ip: true
-  force-dns-mapping: true
-  override-destination: true
-  sniff:
-    HTTP:
-      ports:
-        - "80"
-        - 8080-8880
-      override-destination: true
-    TLS:
-      ports:
-        - "443"
-        - "8443"
-    QUIC:
-      ports:
-        - "443"
-        - "8443"
-        - "4433"
-```
-
----
