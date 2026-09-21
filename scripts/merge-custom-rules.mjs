@@ -194,9 +194,9 @@ function localPreventWebRtcLeak(config) {
   if (!config.tun) config.tun = {}
   config.tun.enable = true
   config.tun['auto-route'] = true
-  config.tun['strict-route'] = true
+  config.tun['strict-route'] = false
   config.tun['auto-detect-interface'] = true
-  config.tun['dns-hijack'] = ['tcp://any:53', 'udp://any:53']
+  config.tun['dns-hijack'] = ['any:53', 'tcp://any:53']
   if (Array.isArray(config.tun['exclude-process'])) {
     var browsers = new Set(CUSTOM_WEBRTC_BROWSER_PROCESSES.map(function(name) { return name.toLowerCase() }))
     config.tun['exclude-process'] = config.tun['exclude-process'].filter(function(name) {
@@ -239,6 +239,11 @@ function localApplyDns(config) {
       }
     }
   })
+
+  // Ensure geosite:cn always includes plain UDP 223.5.5.5 for instant cold-start resolution
+  if (config.dns['nameserver-policy']['geosite:cn']) {
+    config.dns['nameserver-policy']['geosite:cn'] = ['223.5.5.5'].concat(domesticDoH)
+  }
 
   // Purge dead doh.pub (119.29.29.29:443) from hosts mapping
   if (config.hosts && typeof config.hosts === 'object') {

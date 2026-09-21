@@ -33,6 +33,8 @@ const CUSTOM_OVERRIDE_SPEC = {
     'PROCESS-NAME,QQ.exe,DIRECT',
 
     // Clash Party network info / current IP lookup.
+    'DOMAIN-SUFFIX,msftconnecttest.com,DIRECT',
+    'DOMAIN-SUFFIX,msftncsi.com,DIRECT',
     'DOMAIN-SUFFIX,ip.sb,🌐 国外网站',
     'DOMAIN-SUFFIX,ipify.org,🌐 国外网站',
     'DOMAIN-SUFFIX,ipinfo.io,🌐 国外网站',

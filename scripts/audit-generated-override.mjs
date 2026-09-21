@@ -170,7 +170,7 @@ function assertWebRtcProtection(config, spec, webRtcRules) {
   })
   assert(config.tun?.enable === true, 'TUN must be enabled for WebRTC leak protection')
   assert(config.tun?.['auto-route'] === true, 'TUN auto-route must be enabled for WebRTC leak protection')
-  assert(config.tun?.['strict-route'] === true, 'TUN strict-route must be enabled for WebRTC leak protection')
+  assert(config.tun?.['strict-route'] === false, 'TUN strict-route must be disabled to avoid Windows cold-start blackhole')
   const excluded = new Set((config.tun?.['exclude-process'] || []).map(name => String(name).toLowerCase()))
   spec.webRtcBrowserProcesses.forEach(name => assert(!excluded.has(name.toLowerCase()), `Browser excluded from TUN: ${name}`))
 }
