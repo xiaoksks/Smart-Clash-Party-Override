@@ -1489,7 +1489,6 @@ function localPreventWebRtcLeak(config) {
   config.tun['auto-route'] = true
   config.tun['strict-route'] = false
   config.tun['auto-detect-interface'] = true
-  config.tun['dns-hijack'] = ['any:53', 'tcp://any:53']
   if (Array.isArray(config.tun['exclude-process'])) {
     var browsers = new Set(CUSTOM_WEBRTC_BROWSER_PROCESSES.map(function(name) { return name.toLowerCase() }))
     config.tun['exclude-process'] = config.tun['exclude-process'].filter(function(name) {
