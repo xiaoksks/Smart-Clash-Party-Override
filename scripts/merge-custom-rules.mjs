@@ -2,14 +2,39 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import vm from 'node:vm'
 import { buildRuleSetOverrideRules, buildWebRtcProtectionRules, loadCustomSpec, ROOT } from './custom-spec.mjs'
-import { fetchRoutingGraph, fetchSmartSource, parseSmartVersion } from './upstream-source.mjs'
+import {
+  fetchNormalSource,
+  fetchRoutingGraph,
+  fetchSmartSource,
+  parseNormalVersion,
+  parseSmartVersion,
+} from './upstream-source.mjs'
 
-const OUTPUT_PATH = path.join(ROOT, 'dist', 'Smart-Override.js')
+const DIST_DIR = path.join(ROOT, 'dist')
 const BUILD_DIR = path.join(ROOT, '.build')
 
-async function readCurrentVersion() {
+const TARGETS = [
+  {
+    id: 'smart',
+    name: 'Smart override',
+    outputFile: 'Smart-Override.js',
+    snapshotFile: 'upstream-smart.js',
+    fetchSource: fetchSmartSource,
+    parseVersion: parseSmartVersion,
+  },
+  {
+    id: 'normal',
+    name: 'Normal override',
+    outputFile: 'Normal-Override.js',
+    snapshotFile: 'upstream-normal.js',
+    fetchSource: fetchNormalSource,
+    parseVersion: parseNormalVersion,
+  },
+]
+
+async function readCurrentVersion(target) {
   try {
-    return parseSmartVersion(await readFile(OUTPUT_PATH, 'utf8'))
+    return target.parseVersion(await readFile(path.join(DIST_DIR, target.outputFile), 'utf8'))
   } catch {
     return null
   }
@@ -306,31 +331,52 @@ function generateOutput(upstream, spec, graph) {
   return buildHeader(spec, upstream, providerBundle) + renameUpstreamMain(source) + buildLocalRuntime()
 }
 
-async function persistBuildSnapshot(upstream, graph) {
+async function persistBuildSnapshot(smartUpstream, normalUpstream, graph) {
   await mkdir(BUILD_DIR, { recursive: true })
   await Promise.all([
-    writeFile(path.join(BUILD_DIR, 'upstream-smart.js'), upstream.body, 'utf8'),
+    writeFile(path.join(BUILD_DIR, 'upstream-smart.js'), smartUpstream.body, 'utf8'),
+    writeFile(path.join(BUILD_DIR, 'upstream-normal.js'), normalUpstream.body, 'utf8'),
     writeFile(path.join(BUILD_DIR, 'routing-graph.js'), graph.body, 'utf8'),
     writeFile(path.join(BUILD_DIR, 'metadata.json'), `${JSON.stringify({
       generatedAt: new Date().toISOString(),
-      upstream: { url: upstream.url, version: upstream.version, sha256: upstream.sha256 },
+      upstream: { url: smartUpstream.url, version: smartUpstream.version, sha256: smartUpstream.sha256 },
+      smart: { url: smartUpstream.url, version: smartUpstream.version, sha256: smartUpstream.sha256 },
+      normal: { url: normalUpstream.url, version: normalUpstream.version, sha256: normalUpstream.sha256 },
       routingGraph: { url: graph.url, version: graph.version, sha256: graph.sha256 },
     }, null, 2)}\n`, 'utf8'),
   ])
 }
 
 async function mainBuild() {
-  const [spec, currentVersion] = await Promise.all([loadCustomSpec(), readCurrentVersion()])
-  const upstream = await fetchSmartSource({ minimumVersion: currentVersion || undefined })
-  const graph = await fetchRoutingGraph({ requiredBaseVersion: upstream.version })
-  const output = generateOutput(upstream, spec, graph)
+  const [spec, smartCurrentVersion, normalCurrentVersion] = await Promise.all([
+    loadCustomSpec(),
+    readCurrentVersion(TARGETS[0]),
+    readCurrentVersion(TARGETS[1]),
+  ])
+  const [smartUpstream, normalUpstream] = await Promise.all([
+    TARGETS[0].fetchSource({ minimumVersion: smartCurrentVersion || undefined }),
+    TARGETS[1].fetchSource({ minimumVersion: normalCurrentVersion || undefined }),
+  ])
+  const graph = await fetchRoutingGraph({ requiredBaseVersion: smartUpstream.version })
+
+  const smartOutput = generateOutput(smartUpstream, spec, graph)
+  const normalOutput = generateOutput(normalUpstream, spec, graph)
 
   await Promise.all([
-    mkdir(path.dirname(OUTPUT_PATH), { recursive: true }),
-    persistBuildSnapshot(upstream, graph),
+    mkdir(DIST_DIR, { recursive: true }),
+    persistBuildSnapshot(smartUpstream, normalUpstream, graph),
   ])
-  await writeFile(OUTPUT_PATH, output, 'utf8')
-  console.log(`Generated ${path.relative(ROOT, OUTPUT_PATH)} from ${upstream.version} (${upstream.sha256.slice(0, 12)})`)
+
+  const smartPath = path.join(DIST_DIR, TARGETS[0].outputFile)
+  const normalPath = path.join(DIST_DIR, TARGETS[1].outputFile)
+
+  await Promise.all([
+    writeFile(smartPath, smartOutput, 'utf8'),
+    writeFile(normalPath, normalOutput, 'utf8'),
+  ])
+
+  console.log(`Generated ${path.relative(ROOT, smartPath)} from ${smartUpstream.version} (${smartUpstream.sha256.slice(0, 12)})`)
+  console.log(`Generated ${path.relative(ROOT, normalPath)} from ${normalUpstream.version} (${normalUpstream.sha256.slice(0, 12)})`)
 }
 
 mainBuild().catch(error => {

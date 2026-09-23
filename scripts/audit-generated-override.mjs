@@ -4,7 +4,6 @@ import vm from 'node:vm'
 import { buildRuleSetOverrideRules, buildWebRtcProtectionRules, loadCustomSpec, ROOT } from './custom-spec.mjs'
 import { compareBaseVersions, compareVersions } from './upstream-source.mjs'
 
-const OUTPUT_PATH = path.join(ROOT, 'dist', 'Smart-Override.js')
 const BUILTINS = new Set(['DIRECT', 'REJECT', 'REJECT-DROP', 'PASS'])
 
 function fixtureConfig() {
@@ -225,6 +224,8 @@ function comparableSmartSettings(group) {
 
 function assertSmartContract(config, upstreamConfig) {
   const smartGroups = (config['proxy-groups'] || []).filter(group => group.type === 'smart')
+  const urlTestGroups = (config['proxy-groups'] || []).filter(group => group.type === 'url-test')
+  assert(urlTestGroups.length === 0, 'Smart override must not produce url-test regional groups')
   const upstreamGroups = new Map(
     (upstreamConfig['proxy-groups'] || [])
       .filter(group => group.type === 'smart')
@@ -239,6 +240,31 @@ function assertSmartContract(config, upstreamConfig) {
     assert(
       JSON.stringify(comparableSmartSettings(group)) === JSON.stringify(comparableSmartSettings(upstreamGroup)),
       `${group.name} Smart settings drifted from upstream`,
+    )
+  })
+  assert(config.profile?.['store-selected'] === false, 'store-selected must be disabled')
+}
+
+function assertNormalContract(config, upstreamConfig) {
+  const urlTestGroups = (config['proxy-groups'] || []).filter(group => group.type === 'url-test')
+  const smartGroups = (config['proxy-groups'] || []).filter(group => group.type === 'smart')
+  assert(smartGroups.length === 0, 'Normal override must not produce smart groups')
+  const upstreamGroups = new Map(
+    (upstreamConfig['proxy-groups'] || [])
+      .filter(group => group.type === 'url-test')
+      .map(group => [group.name, group]),
+  )
+  assert(urlTestGroups.length > 0, 'Generated Normal override produced no url-test groups')
+  urlTestGroups.forEach(group => {
+    const upstreamGroup = upstreamGroups.get(group.name)
+    assert(upstreamGroup, `Generated url-test group is missing upstream counterpart: ${group.name}`)
+    assert(group.url === 'https://www.gstatic.com/generate_204', `${group.name} url mismatch`)
+    assert(group.interval === 300, `${group.name} interval mismatch`)
+    assert(group.tolerance === 10, `${group.name} tolerance mismatch`)
+    assert(group.lazy === false, `${group.name} lazy mismatch`)
+    assert(
+      JSON.stringify(group.proxies || []) === JSON.stringify(upstreamGroup.proxies || []),
+      `${group.name} url-test proxies drifted from upstream`,
     )
   })
   assert(config.profile?.['store-selected'] === false, 'store-selected must be disabled')
@@ -290,13 +316,11 @@ function assertHuluPreference(config) {
   assert(hulu.proxies[0] === '\ud83c\udfe1 \u7f8e\u56fd\u5bb6\u5bbd', `Hulu must prefer US residential group, got ${hulu.proxies[0]}`)
 }
 
-async function main() {
-  const [output, spec] = await Promise.all([readFile(OUTPUT_PATH, 'utf8'), loadCustomSpec()])
+async function auditTarget(target, spec) {
+  const filePath = path.join(ROOT, 'dist', target.file)
+  const output = await readFile(filePath, 'utf8')
   const version = output.match(/const VERSION = '([^']+)'/)?.[1]
-  assert(version, 'Could not parse generated upstream version')
-  assert(compareBaseVersions('v6.0.9-dns.2', 'v6.0.9') === 0, 'DNS patch must share its routing base version')
-  assert(compareVersions('v6.0.9-dns.2', 'v6.0.9') > 0, 'DNS patch must be newer than its unsuffixed base')
-  assert(compareVersions('v6.0.9-dns.10', 'v6.0.9-dns.2') > 0, 'Version suffix numbers must compare numerically')
+  assert(version, `Could not parse generated upstream version from ${target.file}`)
 
   const first = runOverride(output, fixtureConfig())
   const upstream = runOverride(output, fixtureConfig(), 'upstreamMain')
@@ -310,7 +334,11 @@ async function main() {
   assertChinaIpDirect(first, upstream, spec, staticPriorityRules.length)
   assertWebRtcProtection(first, spec, webRtcRules)
   assertReferences(first)
-  assertSmartContract(first, upstream)
+  if (target.type === 'smart') {
+    assertSmartContract(first, upstream)
+  } else if (target.type === 'normal') {
+    assertNormalContract(first, upstream)
+  }
   assertGroupRoutingContract(first, upstream)
   assertDnsContract(first, spec.foreignDnsDomains)
   assertProviderVersioning(first, version)
@@ -318,9 +346,26 @@ async function main() {
 
   const firstJson = JSON.stringify(first)
   const second = runOverride(output, first)
-  assert(JSON.stringify(second) === firstJson, 'Generated override is not idempotent')
+  assert(JSON.stringify(second) === firstJson, `Generated override ${target.file} is not idempotent`)
 
-  console.log(`Generated override audit passed: ${priorityRules.length} priority rules (${webRtcRules.length} WebRTC), ${first['proxy-groups'].length} groups, ${first.rules.length} rules, ${Object.keys(first['rule-providers']).length} providers`)
+  console.log(`Generated override audit passed (${target.name} - ${target.file}): ${priorityRules.length} priority rules (${webRtcRules.length} WebRTC), ${first['proxy-groups'].length} groups, ${first.rules.length} rules, ${Object.keys(first['rule-providers']).length} providers`)
+}
+
+async function main() {
+  assert(compareBaseVersions('v6.0.9-dns.2', 'v6.0.9') === 0, 'DNS patch must share its routing base version')
+  assert(compareVersions('v6.0.9-dns.2', 'v6.0.9') > 0, 'DNS patch must be newer than its unsuffixed base')
+  assert(compareVersions('v6.0.9-dns.10', 'v6.0.9-dns.2') > 0, 'Version suffix numbers must compare numerically')
+  assert(compareBaseVersions('v6.0.13-normal.9', 'v6.0.13') === 0, 'Normal patch must share its routing base version')
+  assert(compareVersions('v6.0.13-normal.9', 'v6.0.13-normal.8') > 0, 'Normal version suffix numbers must compare numerically')
+
+  const spec = await loadCustomSpec()
+  const targets = [
+    { name: 'Smart', file: 'Smart-Override.js', type: 'smart' },
+    { name: 'Normal', file: 'Normal-Override.js', type: 'normal' },
+  ]
+  for (const target of targets) {
+    await auditTarget(target, spec)
+  }
 }
 
 main().catch(error => {

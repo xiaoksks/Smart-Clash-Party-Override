@@ -3,180 +3,116 @@ https://github.com/IvanSolis1989/Smart-Config-Kit
 
 # Clash Party Custom Override
 
-这个仓库会定时拉取上游 `ClashParty(mihomo-smart).js`，执行上游配置后再应用 `custom-overrides.js` 中的本地规则、DNS 和策略偏好，最后生成 Clash Party 可导入的 JS 覆写文件。
+这个仓库会定时拉取上游 [Smart-Config-Kit](https://github.com/IvanSolis1989/Smart-Config-Kit) 的规则配置，**同步构建并生成两款覆写文件**（Smart 内核版与 Normal 普通版），在完整执行上游路由配置后，自动应用 `custom-overrides.js` 中的本地规则、DNS 和策略偏好：
 
-当前本仓库的自定义层主要用于关闭广告拦截，以及补强上游尚未覆盖、或个人环境需要强制优先的规则。注意：`custom-overrides.js` 的前置规则会先于 AI、游戏、国内直连等所有上游规则命中，因此只建议放少量“确定必须优先”的精准规则。
+- **Smart 内核版 (`dist/Smart-Override.js`)**：基于上游 `ClashParty(mihomo-smart).js`，区域组采用 Mihomo 专属的 **Smart 机器学习算法**（基于 LightGBM 决策树，结合 RTT、历史可用率、丢包与权重综合评估优选节点）。需要客户端支持 Smart 内核（如 Mihomo Party 内置，或 Clash Verge Rev 开启 Alpha 内核）。
+- **Normal 普通版 (`dist/Normal-Override.js`)**：基于上游 `ClashParty(mihomo).js`，区域组采用标准的 **`url-test` 延迟测速选路**（测试地址 `gstatic.com/generate_204`，检测间隔 300s，容差 10ms），**不依赖 Smart 特殊内核**，兼容所有主流 Mihomo / Clash.Meta / Clash Verge / Mihomo Party 客户端。
 
-当前已补充：
-- **构建后自动移除广告拦截**：自动移除上游广告拦截策略组、指向该策略的规则及其专用 provider；其他上游规则保持原样，包括非广告用途的 `REJECT` 规则。
+两个版本**完全共享相同的本地定制层与优化**，规则集、分流业务组、前置直连与 DNS 防护等特性 100% 保持一致。
+
+---
+
+## 核心特性与定制
+
+- **双版本同步构建与持续交付**：一套规则源同时产出 Smart 与 Normal 双版本，自动化流程包含上游版本追踪、降级拦截与全量结构契约审计。
+- **构建后自动移除广告拦截**：自动移除上游广告拦截策略组、指向该策略的规则及其专用 provider，避免误杀正常页面资源；其他非广告用途的 `REJECT` 规则保持原样。
 - **WebRTC 防泄露优化**：阻断常见浏览器的 UDP，并拒绝常见 STUN/TURN 端口，同时自动移除上游对这些端口的 `DIRECT` 规则；移除了 Windows 下引发冷启动网络黑洞的 `strict-route`，兼顾隐私安全与系统网络稳定性。
 - **Windows NCSI 联网探针秒级直连**：将微软系统连通性检测（`msftconnecttest.com`、`msftncsi.com`）前置强制直连，开机 5ms 即可获取连通响应，立即标记网络正常。
 - **国内权威 IP 与域名秒解**：中国大陆权威 IP 集合强制直连并前置（保留 `no-resolve`）；国内域名（`geosite:cn`）与引导 DNS 采用纯 UDP `223.5.5.5`（阿里 DNS），彻底移除容易超时的 `doh.pub`。
 - **Fake-IP 缓存持久化**：开启 Fake-IP 缓存持久化（`store-fake-ip`），防止重启客户端后浏览器缓存的虚拟 IP 映射丢失。
-- Windows QQ 客户端进程直连，覆盖收藏详情、编辑等未公开接口和直接 IP 请求。
-- Clash Party「网络信息 / 当前 IP」常用查询域名：`ip.sb`、`ipify.org`、`ipinfo.io`、`ipapi.co`、`ip-api.com`、`ipwho.is`、`ident.me`、`icanhazip.com`、`ifconfig.me`。
-- Steam 下载/CDN 域名直连。
-- Gitee（`gitee.com`）强制直连，避免被上游下载更新规则误分流至代理。
-- 斗鱼复用上游完整 `douyu` provider 并整体直连；核心游戏域名保留高优先级直连。邮箱、办公和 `bbys.app` 继承上游同策略规则，避免重复。
-- Patreon 首方、隐私初始化、媒体、视频与聊天依赖链，以及对应的海外 DNS 策略。
-- Hulu 默认优先美国家宽/美国节点。
+- **冷启动无需手动刷新**：原生支持开机/冷启动联网，彻底解决旧版配置可能因悬空引用导致的冷启动 DNS 报错，开机自启无需任何多余操作。
+- **高优先级前置规则补强**：
+  - Windows QQ 客户端进程直连，覆盖收藏详情、编辑等未公开接口和直接 IP 请求。
+  - 常用 IP 查询源（IPSB 等走代理出口，国内兜底走直连）。
+  - Steam 下载/CDN 域名直连。
+  - Gitee（`gitee.com`）强制直连，避免被上游下载更新规则误分流至代理。
+  - 斗鱼复用上游完整 `douyu` provider 并整体直连。
+  - Patreon 媒体、视频与聊天依赖链及专属海外 DNS 策略。
+  - Hulu 默认优先美国家宽/美国节点。
 
-本项目不再用大量正则改写上游函数内部实现。上游 `main()` 完成后，本地后处理层只移除广告拦截、调整指定 rule-set 的目标和 Hulu 美国优先级，并应用 WebRTC、DNS 和前置规则；其余业务组顺序和 Smart 参数保持上游默认值，仅移除新内核已废弃的 `strategy` 字段，降低补丁漂移风险。
+---
 
-## 使用方法
+## 版本选型与导入链接
 
-1. 修改 `custom-overrides.js`，维护广告拦截、WebRTC 防泄露、rule-set 目标覆写、前置规则和需要海外 DNS 的域名。`removeAdBlocking: true` 会关闭上游广告拦截，`preventWebRtcLeak: true` 会启用失败关闭的 WebRTC 保护。
-2. 推送到 GitHub。
-3. 打开 GitHub 仓库的 `Actions`，手动运行一次 `Update Clash Party Override`（或等待定时自动运行）。
-4. 在 Clash Party 覆写页面导入下面这个 Raw 地址：
+> ⚠️ **二选一使用**：请根据你的客户端内核支持情况与个人偏好**选择其中一个版本导入**即可，**请勿在客户端中同时勾选两份覆写**！
 
-```text
-https://raw.githubusercontent.com/xiaoksks/Smart-Clash-Party-Override/main/dist/Smart-Override.js
-```
+### 1. Smart 内核版（推荐配合 Mihomo Party 使用）
+适合追求智能选路、使用 Mihomo Party 或已开启 Mihomo Alpha 内核的用户。
+- **GitHub Raw**：
+  ```text
+  https://raw.githubusercontent.com/xiaoksks/Smart-Clash-Party-Override/main/dist/Smart-Override.js
+  ```
+- **jsDelivr CDN**：
+  ```text
+  https://cdn.jsdelivr.net/gh/xiaoksks/Smart-Clash-Party-Override@main/dist/Smart-Override.js
+  ```
 
-也可以使用 jsDelivr：
+### 2. Normal 普通版（标准 url-test 版）
+适合标准 Mihomo/Clash.Meta 内核、Clash Verge Rev 正式版，或偏好经典低延迟自动测速选路的用户。
+- **GitHub Raw**：
+  ```text
+  https://raw.githubusercontent.com/xiaoksks/Smart-Clash-Party-Override/main/dist/Normal-Override.js
+  ```
+- **jsDelivr CDN**：
+  ```text
+  https://cdn.jsdelivr.net/gh/xiaoksks/Smart-Clash-Party-Override@main/dist/Normal-Override.js
+  ```
 
-```text
-https://cdn.jsdelivr.net/gh/xiaoksks/Smart-Clash-Party-Override@main/dist/Smart-Override.js
-```
+---
 
-## 本地生成
+## 本地构建与审计
 
 ```bash
+# 构建 Smart 与 Normal 两款产物
 npm run build
-```
 
-生成文件：
-
-```text
-dist/Smart-Override.js
-```
-
-构建并执行完整检查：
-
-```bash
+# 执行全量自动化合规检查与语法校验
 npm run check
+
+# 查看当前生成的构建版本与规则概要
+npm run report
 ```
 
-完整检查包含：上游与路由图基础版本一致性、包含 DNS 补丁后缀的完整版本防降级、重复规则检测、广告内容与 WebRTC 直连规则精准移除且其他上游规则不变、TUN/WebRTC 防泄露合同、规则/策略组/provider 引用完整性、Smart 参数、DNS 合同、Hulu 区域偏好、运行幂等性和 JavaScript 语法。
-
-WebRTC 防泄露采用隐私优先策略。浏览器的 HTTP/3 会回退到 TCP；网页语音、视频会议和 P2P 也可能改用 TCP/TURN，少数只支持 UDP 的服务可能无法使用。如确实需要浏览器 WebRTC，可在 `custom-overrides.js` 中将 `preventWebRtcLeak` 改为 `false` 后重新构建，但这会恢复真实公网 IP 暴露风险。
-
-构建脚本会优先拉取 GitHub Raw；如果网络偶发失败，会自动重试并尝试 jsDelivr 备用源，格式或版本不匹配等确定性错误会直接切换备用源。备用源完整版本低于当前生成文件时会拒绝降级。实际使用的上游源码、路由图及 SHA-256 元数据保存在本地 `.build/` 目录，便于排查自动更新失败。
-
-## 更新频率
-
-GitHub Actions 默认每天北京时间 01:00 自动拉取上游并重新生成。如果上游没有变化，Action 不会产生新提交。任务带并发锁和超时控制，失败时会上传构建快照与诊断文件。
-
-![alt text](image.png)
-
-## 常见问题
-
-### Clash Party 获取当前 IP 失败
-
-如果「网络信息」里的 IPSB 或其他 IP 查询源显示获取失败，通常是查询域名被上游规则分到不合适的策略、DNS 链路异常，或查询源在当前网络下不可达。
-
-本项目已在 `custom-overrides.js` 前置处理常见 IP 查询域名：
-- 国外查询源走 `🌐 国外网站`，用于显示代理出口 IP。
-- 国内兜底查询源 `ip.cip.cc`、`myip.ipip.net` 走 `DIRECT`。
-
-修改后运行：
-
-```bash
-npm run check
-```
-
-然后重新导入或等待 Actions 更新 `dist/Smart-Override.js`。
-
-### country code id not found in geoip.dat
-
-如果 Clash Party 导入覆写时报：
-
-```text
-[GeoIP] failed to decode geodata file: geoip.dat, base error: country code id not found in geoip.dat
-```
-
-说明当前客户端使用的 `geoip.dat` 不包含上游脚本里的印尼 GeoIP 国家码规则。本项目会在生成阶段自动移除这条不兼容兜底规则，保留前面已有的印尼域名规则，避免整份覆写加载失败。
-
-## 一、安装客户端
-
-### Mihomo Party（推荐）
-- 开源地址：https://github.com/mihomo-party-org/mihomo-party/releases
-- 支持 Windows / macOS (Intel + Apple Silicon) / Linux (deb/rpm/AppImage)
-- 特性：**内置 Smart 内核**，默认开启 TUN，UI 中直接支持 JS 覆写。
-
-### Clash Verge Rev
-- 开源地址：https://github.com/clash-verge-rev/clash-verge-rev/releases
-- 需要在「设置 → Clash 内核」中切换到 **Mihomo Alpha**（Smart 内核当前仍在 Alpha 分支）。
+`npm run check` 包含严密的双版本质量守卫：
+- 上游与路由图基础版本一致性校验、完整版本防降级检测
+- 重复规则检测、广告内容与 WebRTC 直连规则精准移除断言
+- Smart 契约校验（机器学习参数合法、无废弃 `strategy` 字段、禁用数据收集）
+- Normal 契约校验（精准识别并生成区域 `url-test` 组，严禁引入 smart 类型组）
+- 规则 / 策略组 / provider 交叉引用完整性
+- DNS 契约、Hulu 区域偏好、运行幂等性及 JavaScript 语法检查
 
 ---
 
-## 二、准备订阅
-
-### 场景 A：单机场订阅
-直接在客户端「订阅（Subscriptions / Profiles）」中添加机场链接即可，脚本会自动识别并分类节点。
-
-### 场景 B：多机场融合（推荐，脚本原生针对此优化）
-本脚本**针对 Sub-Store 环境做了大量优化**，强烈建议搭配使用：
-
-1. 自建或使用公共 **Sub-Store**（https://github.com/sub-store-org/Sub-Store）。
-2. 在 Sub-Store 中添加 2–N 个机场作为「单条订阅」。
-3. 新建一个「**组合订阅**」或「**远程订阅**」，聚合所有机场。
-4. 生成一个 **Clash (Mihomo)** 格式的订阅 URL。
-5. 将该 URL 粘贴到客户端的订阅中。
-
-脚本会自动为所有节点：
-- 剔除信息类节点（导航/流量/到期/官网…）
-- 剔除高倍率节点（10x/20x/100x）
-- 按地区/城市/IATA 代码/ISO 代码**多维度分类**到 22 区域组（11 全部 + 11 家宽）
-
-### 场景 C：在线订阅转换站（备选方案）
-
-如果你同时买了多家机场，也可以用**在线订阅转换站**把多个链接合并成一个 URL，无需安装任何工具。
-
-1. 打开 https://acl4ssr-sub.github.io （或 https://sub.v1.mk）
-2. 把多家机场订阅链接粘贴进去（一行一个或用 `|` 分隔）
-3. 后端选 **Mihomo（Clash.Meta）**
-4. 生成新 URL → 填入客户端「订阅」输入框
-
-> ⚠️ **隐私提醒**：转换站能看到你提交的订阅链接（含 token）。不要提交含专线 IP 等敏感信息的订阅链接。
->
-> **Clash Party 的 Sub-Store 是内置方案**：Clash Party / Clash Verge Rev / Mihomo Party 原生集成了 Sub-Store 插件（方式 B），无需额外安装。**优先用场景 B（Sub-Store）**，转换站仅作为没有 Sub-Store 环境时的备选。
-
----
-
-## 三、导入覆写脚本（核心步骤）
+## 客户端导入指南
 
 ### Mihomo Party
 
 1. 左侧菜单 → **覆写（Override）** → 右上角 ➕。
 2. 类型选择 **JavaScript（.js）**。
-3. 名称建议：`Smart-Override`。
-4. 内容：使用本仓库生成的 Raw 地址，或复制 `dist/Smart-Override.js` 的全文粘贴进去。
+3. 名称建议：`Smart-Override`（或 `Normal-Override`）。
+4. 内容：填入对应版本的 Raw 或 jsDelivr 地址，或者复制对应文件的全文粘贴进去。
 5. 保存。
-6. 返回「订阅」页面，右键你的订阅 → **编辑** → **启用覆写** → 勾选刚才的脚本 → 保存（**只勾一份**，不要同时启用）。
+6. 返回「订阅」页面，右键你的订阅 → **编辑** → **启用覆写** → 勾选刚才添加的脚本 → 保存（**仅勾选一份**）。
 7. 切换到该订阅，点击「**连接**」。
 
 ### Clash Verge Rev
 
-1. 左侧 → **脚本（Scripts）** → ➕ **新建脚本** → **本地脚本**。
-2. 粘贴 `.js` 全部内容，保存。
+1. 左侧 → **脚本（Scripts）** → ➕ **新建脚本** → **在线脚本**（或本地脚本）。
+2. 填入上方对应的 `.js` 订阅链接，保存。
 3. **订阅（Profiles）** → 右上角 ⋯ → **扩展管理（Extensions）** → 勾选刚才的脚本。
 4. 重启内核（Ctrl/Cmd + R）。
 
 ---
 
-## 四、关于客户端设置
+## 关于客户端设置
 
-`Smart-Override.js` 已经完整接管了分流、DNS、嗅探与自适应路由配置，因此：
+无论使用 `Smart-Override.js` 还是 `Normal-Override.js`，脚本均已接管了分流、DNS、嗅探与自适应路由配置，因此：
 
 1. **无需在 UI 开启「DNS 覆写」**：
-   脚本内部已写入完整的 Fake-IP、国内纯 UDP 极速解析（阿里 DNS `223.5.5.5`）与海外 DoH 防污染策略。Clash Party 检测到订阅自带自定义 DNS 时也会自动优先采用，保持客户端 UI 的「DNS 覆写」为关闭即可。
+   脚本内部已写入完整的 Fake-IP、国内纯 UDP 极速解析（阿里 DNS `223.5.5.5`）与海外 DoH 防污染策略。保持客户端 UI 的「DNS 覆写」为关闭即可。
 2. **无需在 UI 配置「嗅探覆写」**：
    脚本已内置对 TLS/QUIC (HTTP/3) 的 SNI 嗅探以及 Telegram/Apple Push 排除白名单，保证复杂规则集的命中率。
-3. **原生支持冷启动联网**：
-   依靠纯 UDP 极速引导 DNS（`223.5.5.5`）与经过清洗的纯净 DNS 基线，彻底解决了旧版配置中 `fake-ip-filter` 悬空引用导致的冷启动 DNS 报错，开机无需任何手动刷新即可直接联网。
-4. **外部数据（GeoX URL，可选）**：
+3. **外部数据（GeoX URL，可选）**：
    如需自定义 GeoX 规则数据库源，可在客户端「设置 → 外部资源」中按需配置：
 
 ```yaml
@@ -187,3 +123,13 @@ geox-url:
   geosite: https://fastly.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geosite.dat
 geo-auto-update: true
 ```
+
+---
+
+## 常见问题
+
+### Clash Party 获取当前 IP 失败
+若「网络信息」里的 IPSB 等查询源显示获取失败，通常是查询域名被误分流或 DNS 超时。本项目已在 `custom-overrides.js` 前置处理常见 IP 查询域名：国外查询源走 `🌐 国外网站`，国内兜底查询源走 `DIRECT`。
+
+### country code id not found in geoip.dat
+如果客户端报 `[GeoIP] failed to decode geodata file: geoip.dat, base error: country code id not found in geoip.dat`，说明当前客户端使用的 `geoip.dat` 不包含上游脚本里的印尼 GeoIP 国家码规则。本项目会在生成阶段自动移除该不兼容兜底规则，保留前面已有的印尼域名规则，避免整份覆写加载失败。
