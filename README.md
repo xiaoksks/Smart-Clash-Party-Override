@@ -16,7 +16,7 @@ https://github.com/IvanSolis1989/Smart-Config-Kit
 
 - **双版本同步构建与持续交付**：一套规则源同时产出 Smart 与 Normal 双版本，自动化流程包含上游版本追踪、降级拦截与全量结构契约审计。
 - **构建后自动移除广告拦截**：自动移除上游广告拦截策略组、指向该策略的规则及其专用 provider，避免误杀正常页面资源；其他非广告用途的 `REJECT` 规则保持原样。
-- **WebRTC 防泄露优化**：阻断常见浏览器的 UDP，并拒绝常见 STUN/TURN 端口，同时自动移除上游对这些端口的 `DIRECT` 规则；移除了 Windows 下引发冷启动网络黑洞的 `strict-route`，兼顾隐私安全与系统网络稳定性。
+- **WebRTC 防泄露优化（国内直连放行，仅境外访问防泄漏）**：智能区分境内外流量。国内域名（`geosite:cn`）、国内权威 IP 及自定义直连规则全面放行 UDP，Bilibili、抖音等国内音视频和网页 HTTP/3 (QUIC) / WebRTC 享受原生极速直连；仅针对境外非直连的浏览器 UDP 连接进行阻断（无缝降级 TCP 走代理隧道），并全局拒绝常见 STUN/TURN 探测端口，既杜绝了向境外暴露真实公网 IP，又完全保留了国内网络的极速体验。移除了 Windows 下引发冷启动网络黑洞的 `strict-route`，兼顾隐私安全与系统网络稳定性。
 - **Windows NCSI 联网探针秒级直连**：将微软系统连通性检测（`msftconnecttest.com`、`msftncsi.com`）前置强制直连，开机 5ms 即可获取连通响应，立即标记网络正常。
 - **国内权威 IP 与域名秒解**：中国大陆权威 IP 集合强制直连并前置（保留 `no-resolve`）；国内域名（`geosite:cn`）与引导 DNS 采用纯 UDP `223.5.5.5`（阿里 DNS），彻底移除容易超时的 `doh.pub`。
 - **Fake-IP 缓存持久化**：开启 Fake-IP 缓存持久化（`store-fake-ip`），防止重启客户端后浏览器缓存的虚拟 IP 映射丢失。

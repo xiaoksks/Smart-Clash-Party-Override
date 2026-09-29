@@ -326,13 +326,20 @@ async function auditTarget(target, spec) {
   const first = runOverride(output, fixtureConfig())
   const upstream = runOverride(output, fixtureConfig(), 'upstreamMain')
   const webRtcRules = buildWebRtcProtectionRules(spec)
-  const staticPriorityRules = buildRuleSetOverrideRules(spec).concat(webRtcRules, spec.preRules)
+  const directPreRules = spec.preRules.filter(rule => ruleTarget(rule) === 'DIRECT')
+  const nonDirectPreRules = spec.preRules.filter(rule => ruleTarget(rule) !== 'DIRECT')
   const chinaIpRules = promotedChinaIpRules(upstream, spec)
-  const priorityRules = staticPriorityRules.concat(chinaIpRules)
+  const chinaIpIndex = buildRuleSetOverrideRules(spec).length + directPreRules.length
+  const priorityRules = buildRuleSetOverrideRules(spec).concat(
+    directPreRules,
+    chinaIpRules,
+    webRtcRules,
+    nonDirectPreRules,
+  )
   assertRulePrefix(first, priorityRules)
   assertLocalFiltering(first, upstream, spec, priorityRules.length)
   assertRuleSetTargetOverrides(first, upstream, spec, version)
-  assertChinaIpDirect(first, upstream, spec, staticPriorityRules.length)
+  assertChinaIpDirect(first, upstream, spec, chinaIpIndex)
   assertWebRtcProtection(first, spec, webRtcRules)
   assertReferences(first)
   if (target.type === 'smart') {

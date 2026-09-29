@@ -285,8 +285,18 @@ function localApplyDns(config) {
 
 function localPrependRules(config, chinaIpRules) {
   if (!Array.isArray(config.rules)) config.rules = []
-  // Explicit service overrides must win over generic browser UDP blocking.
-  var priorityRules = CUSTOM_RULE_SET_RULES.concat(CUSTOM_WEBRTC_RULES, CUSTOM_PRE_RULES, chinaIpRules)
+  var directPreRules = CUSTOM_PRE_RULES.filter(function(rule) {
+    return localRuleTarget(rule) === 'DIRECT'
+  })
+  var nonDirectPreRules = CUSTOM_PRE_RULES.filter(function(rule) {
+    return localRuleTarget(rule) !== 'DIRECT'
+  })
+  var priorityRules = CUSTOM_RULE_SET_RULES.concat(
+    directPreRules,
+    chinaIpRules,
+    CUSTOM_WEBRTC_RULES,
+    nonDirectPreRules
+  )
   var custom = new Set(priorityRules)
   config.rules = priorityRules.concat(config.rules.filter(function(rule) { return !custom.has(rule) }))
 }

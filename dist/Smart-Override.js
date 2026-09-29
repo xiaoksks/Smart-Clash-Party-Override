@@ -10,13 +10,13 @@ const CUSTOM_PREVENT_WEBRTC_LEAK = true
 const CUSTOM_WEBRTC_BROWSER_PROCESSES = ["chrome.exe","msedge.exe","firefox.exe","brave.exe","opera.exe","vivaldi.exe","chromium.exe"]
 const CUSTOM_WEBRTC_PORTS = ["3478","3479","5349","19302","19305","19307"]
 const CUSTOM_WEBRTC_RULES = [
-  "AND,((PROCESS-NAME,chrome.exe),(NETWORK,UDP)),REJECT",
-  "AND,((PROCESS-NAME,msedge.exe),(NETWORK,UDP)),REJECT",
-  "AND,((PROCESS-NAME,firefox.exe),(NETWORK,UDP)),REJECT",
-  "AND,((PROCESS-NAME,brave.exe),(NETWORK,UDP)),REJECT",
-  "AND,((PROCESS-NAME,opera.exe),(NETWORK,UDP)),REJECT",
-  "AND,((PROCESS-NAME,vivaldi.exe),(NETWORK,UDP)),REJECT",
-  "AND,((PROCESS-NAME,chromium.exe),(NETWORK,UDP)),REJECT",
+  "AND,((PROCESS-NAME,chrome.exe),(NETWORK,UDP),(NOT,((GEOSITE,cn)))),REJECT",
+  "AND,((PROCESS-NAME,msedge.exe),(NETWORK,UDP),(NOT,((GEOSITE,cn)))),REJECT",
+  "AND,((PROCESS-NAME,firefox.exe),(NETWORK,UDP),(NOT,((GEOSITE,cn)))),REJECT",
+  "AND,((PROCESS-NAME,brave.exe),(NETWORK,UDP),(NOT,((GEOSITE,cn)))),REJECT",
+  "AND,((PROCESS-NAME,opera.exe),(NETWORK,UDP),(NOT,((GEOSITE,cn)))),REJECT",
+  "AND,((PROCESS-NAME,vivaldi.exe),(NETWORK,UDP),(NOT,((GEOSITE,cn)))),REJECT",
+  "AND,((PROCESS-NAME,chromium.exe),(NETWORK,UDP),(NOT,((GEOSITE,cn)))),REJECT",
   "DST-PORT,3478,REJECT",
   "DST-PORT,3479,REJECT",
   "DST-PORT,5349,REJECT",
@@ -1630,8 +1630,18 @@ function localApplyDns(config) {
 
 function localPrependRules(config, chinaIpRules) {
   if (!Array.isArray(config.rules)) config.rules = []
-  // Explicit service overrides must win over generic browser UDP blocking.
-  var priorityRules = CUSTOM_RULE_SET_RULES.concat(CUSTOM_WEBRTC_RULES, CUSTOM_PRE_RULES, chinaIpRules)
+  var directPreRules = CUSTOM_PRE_RULES.filter(function(rule) {
+    return localRuleTarget(rule) === 'DIRECT'
+  })
+  var nonDirectPreRules = CUSTOM_PRE_RULES.filter(function(rule) {
+    return localRuleTarget(rule) !== 'DIRECT'
+  })
+  var priorityRules = CUSTOM_RULE_SET_RULES.concat(
+    directPreRules,
+    chinaIpRules,
+    CUSTOM_WEBRTC_RULES,
+    nonDirectPreRules
+  )
   var custom = new Set(priorityRules)
   config.rules = priorityRules.concat(config.rules.filter(function(rule) { return !custom.has(rule) }))
 }

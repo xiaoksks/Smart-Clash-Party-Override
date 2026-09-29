@@ -36,7 +36,7 @@ function normalizeStringMap(value, label) {
 export function buildWebRtcProtectionRules(spec) {
   if (!spec.preventWebRtcLeak) return []
   return [
-    ...spec.webRtcBrowserProcesses.map(process => `AND,((PROCESS-NAME,${process}),(NETWORK,UDP)),REJECT`),
+    ...spec.webRtcBrowserProcesses.map(process => `AND,((PROCESS-NAME,${process}),(NETWORK,UDP),(NOT,((GEOSITE,cn)))),REJECT`),
     ...spec.webRtcPorts.map(port => `DST-PORT,${port},REJECT`),
   ]
 }

@@ -8,7 +8,7 @@ const CUSTOM_OVERRIDE_SPEC = {
   // no-resolve is preserved so domain-based routing does not trigger an extra DNS lookup.
   forceChinaIpDirect: true,
 
-  // Capture browser traffic in TUN, reject browser UDP and block common STUN/TURN ports.
+  // Capture browser traffic in TUN, reject overseas browser UDP (non-cn) and block common STUN/TURN ports while allowing domestic DIRECT traffic.
   preventWebRtcLeak: true,
   webRtcBrowserProcesses: [
     'chrome.exe',
