@@ -1,7 +1,7 @@
 // This file is generated automatically. Do not edit dist output directly.
 // Upstream source: https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/main/Clash%20Party/ClashParty(mihomo).js
-// Upstream version: v6.0.14-normal.10
-// Upstream SHA-256: c28a441e4e11e1fbb15a8d821c83ce605eaa55b7ee79bb89b10f1ab09a4ec445
+// Upstream version: v6.0.14-normal.12
+// Upstream SHA-256: 2b7d9b506aee9de63f56685adab4691797a34b8004708b2eea8198d9471c1b55
 // Edit custom-overrides.js, then run: npm run check
 
 const CUSTOM_REMOVE_AD_BLOCKING = true
@@ -118,10 +118,9 @@ const CUSTOM_FOREIGN_DNS_DOMAINS = [
   "+.stream-io-video.com"
 ]
 // Clash 覆写脚本 - SUB-STORE 多机场精细分流版
-// 版本：v6.0.14-normal.10 (2026-09-29)
+// 版本：v6.0.14-normal.12 (2026-09-30)
 // 架构：22 url-test 区域组（11 全部 + 11 家宽）+ 33 业务策略组 + 132 融合 rule-providers / 151 rules
 // 规则源：rulesets/source/routing-graph.js v6.0.14（与 Smart 版规则 100% 等价，仅区域组从 smart 改为 url-test）
-// v6.0.14-normal.10：为微信 HTTPDNS 两个精确域名增加前置直连例外，避免 BlockHttpDNS 规则拦截微信图片模块
 // 适用：Mihomo / Clash.Meta 稳定版内核、不支持 smart + LightGBM 的分支；也适用于想完全关闭 ML 评估的用户
 // 变更历史：见 `Clash Party/CHANGELOG.md`
 
@@ -129,22 +128,173 @@ const CUSTOM_FOREIGN_DNS_DOMAINS = [
 //  版本常量
 // ================================================================
 
-const VERSION = 'v6.0.14-normal.10'
+const VERSION = 'v6.0.14-normal.12'
 
 // 受信任的本地订阅适配模式：off | policy | adaptive。
 // 不从机场订阅读取；三档均不会改变 55 组、规则或仓库 DNS 基线。
 const SCKI_SUBSCRIPTION_ADAPTER_PROFILE = 'adaptive'
+// 仅本地可调；null 关闭倍率筛选，正数才按“倍率 > 阈值”剔除。
+const SCKI_MAX_NODE_MULTIPLIER = null
+
+// >>> SCKI SUBSCRIPTION NODE FILTER: BEGIN — generated from tools/runtime/subscription-node-filter.js; edit runtime then synchronize.
+// Shared browser-safe runtime. Embedded verbatim in the three JS overwrite adapters.
+var SckiSubscriptionNodeFilter = (function() {
+  'use strict'
+
+  var INFO_TEXT = ['导航网址', '距离下次重置', '剩余流量', '套餐到期', '网址导航', '官网', '订阅', '到期', '剩余', '重置', '免费', '试用', '应急', '已用流量', '到期时间', '下次重置']
+  var INFO_RE = /\b(?:USE|USED|TOTAL|EXPIRE|EMAIL|Panel|Channel|Author|Sign|Login|Register|Help|FAQ)\b/i
+  var DIALER_BUILTIN = ['DIRECT', 'REJECT', 'REJECT-DROP', 'PASS', 'COMPATIBLE']
+  var RESERVED_BUILTIN = DIALER_BUILTIN.concat(['GLOBAL', 'PASS-RULE'])
+  var NUMBER = '(?:[0-9]+(?:\\.[0-9]+)?)'
+  var LEFT = '(^|[\\s|/\\(\\)\\[\\]{}【】（）,，;；:_·｜])'
+  var RIGHT = '(?=$|[\\s|/\\(\\)\\[\\]{}【】（）,，;；:_·｜])'
+  // The delimiter excludes dots and hyphens so IPs, ports and negative values cannot look like rates.
+  var RATE_RE = new RegExp(LEFT + '(?:[xX×]\\s*(' + NUMBER + ')|(' + NUMBER + ')\\s*[xX×倍]|倍率\\s*(' + NUMBER + '))' + RIGHT, 'g')
+  var UNKNOWN_RATE_RE = new RegExp(LEFT + '(?:[xX×]\\s*(?:\\?|未知|unknown|nan|∞)|\\?\\s*[xX×倍]|倍率\\s*(?:\\?|未知|unknown|nan|∞))' + RIGHT, 'i')
+
+  function isInfoNode(name) {
+    if (typeof name !== 'string') return false
+    for (var i = 0; i < INFO_TEXT.length; i++) if (name.indexOf(INFO_TEXT[i]) !== -1) return true
+    return INFO_RE.test(name)
+  }
+
+  // Keep named direct outbounds for interface/dialer settings, but never auto-select them as remote nodes.
+  function isSelectableProxy(proxy) {
+    var type = proxy.type.toLowerCase()
+    return type !== 'direct' && type !== 'reject'
+  }
+
+  function multiplier(name) {
+    if (UNKNOWN_RATE_RE.test(name)) return null
+    RATE_RE.lastIndex = 0
+    var values = []
+    var match
+    while ((match = RATE_RE.exec(name)) !== null) {
+      var value = Number(match[2] || match[3] || match[4])
+      if (!Number.isFinite(value) || value <= 0) return null
+      values.push(value)
+    }
+    if (!values.length) return null
+    for (var i = 1; i < values.length; i++) if (values[i] !== values[0]) return null
+    return values[0]
+  }
+
+  function canonical(value, stack, depth) {
+    if (depth > 32) throw new Error('invalid-node-shape')
+    if (value === null || typeof value === 'string' || typeof value === 'boolean') return JSON.stringify(value)
+    if (typeof value === 'number' && Number.isFinite(value)) return JSON.stringify(value)
+    if (!value || typeof value !== 'object' || stack.indexOf(value) !== -1) throw new Error('invalid-node-shape')
+    stack.push(value)
+    var result
+    if (Array.isArray(value)) {
+      result = '[' + value.map(function(item) { return canonical(item, stack, depth + 1) }).join(',') + ']'
+    } else {
+      if (Object.prototype.toString.call(value) !== '[object Object]') throw new Error('invalid-node-shape')
+      var keys = Object.keys(value).sort()
+      result = '{' + keys.map(function(key) { return JSON.stringify(key) + ':' + canonical(value[key], stack, depth + 1) }).join(',') + '}'
+    }
+    stack.pop()
+    return result
+  }
+
+  function preflight(config, reservedNames, maxMultiplier) {
+    try {
+      var providers = config['proxy-providers']
+      var providerNames = []
+      var inlineNodes = []
+      if (providers !== undefined && providers !== null) {
+        if (Object.prototype.toString.call(providers) !== '[object Object]') return { ok: false, reason: 'provider-input' }
+        providerNames = Object.keys(providers)
+        for (var pi = 0; pi < providerNames.length; pi++) {
+          var provider = providers[providerNames[pi]]
+          // Flatten only literal payloads. Filters, overrides and remote refresh semantics require a separate adapter.
+          if (!provider || Object.prototype.toString.call(provider) !== '[object Object]' ||
+              provider.type !== 'inline' || !Array.isArray(provider.payload) ||
+              Object.keys(provider).some(function(key) { return key !== 'type' && key !== 'payload' })) {
+            return { ok: false, reason: 'provider-input' }
+          }
+          for (var pn = 0; pn < provider.payload.length; pn++) inlineNodes.push(provider.payload[pn])
+        }
+      }
+      if (maxMultiplier !== null && (typeof maxMultiplier !== 'number' || !Number.isFinite(maxMultiplier) || maxMultiplier <= 0)) {
+        return { ok: false, reason: 'invalid-multiplier-limit' }
+      }
+      var explicit = config.proxies
+      if (explicit === undefined && providerNames.length) explicit = []
+      if (!Array.isArray(explicit)) return { ok: false, reason: 'no-explicit-nodes' }
+      var source = explicit.concat(inlineNodes)
+      var reserved = Object.create(null)
+      RESERVED_BUILTIN.concat(reservedNames).forEach(function(name) { reserved[name] = true })
+      var seen = Object.create(null)
+      var unique = []
+      var duplicates = 0
+      for (var i = 0; i < source.length; i++) {
+        var proxy = source[i]
+        if (!proxy || Object.prototype.toString.call(proxy) !== '[object Object]' ||
+            typeof proxy.name !== 'string' || !proxy.name.trim() ||
+            typeof proxy.type !== 'string' || !proxy.type.trim() ||
+            (proxy.flow !== undefined && typeof proxy.flow !== 'string')) return { ok: false, reason: 'invalid-node-shape' }
+        if (reserved[proxy.name]) return { ok: false, reason: 'reserved-name' }
+        var fingerprint = canonical(proxy, [], 0)
+        if (Object.prototype.hasOwnProperty.call(seen, proxy.name)) {
+          if (seen[proxy.name] !== fingerprint) return { ok: false, reason: 'duplicate-name-conflict' }
+          duplicates++
+          continue
+        }
+        seen[proxy.name] = fingerprint
+        // Payloads can be shared with another provider or a YAML alias; subsequent fingerprint injection owns this copy.
+        unique.push(i < explicit.length ? proxy : JSON.parse(fingerprint))
+      }
+      var limit = maxMultiplier
+      var kept = []
+      var removedInfo = 0
+      var removedRate = 0
+      for (var j = 0; j < unique.length; j++) {
+        var item = unique[j]
+        if (isInfoNode(item.name)) { removedInfo++; continue }
+        var rate = limit === null ? null : multiplier(item.name)
+        if (rate !== null && rate > limit) { removedRate++; continue }
+        kept.push(item)
+      }
+      var keptNames = Object.create(null)
+      kept.forEach(function(item) { keptNames[item.name] = true })
+      DIALER_BUILTIN.forEach(function(name) { keptNames[name] = true })
+      var dialerTargets = Object.create(null)
+      for (var k = 0; k < kept.length; k++) {
+        var dialer = kept[k]['dialer-proxy']
+        if (dialer !== undefined && (typeof dialer !== 'string' || !keptNames[dialer])) return { ok: false, reason: 'dialer-dependency' }
+        if (dialer !== undefined) dialerTargets[kept[k].name] = dialer
+      }
+      // Each node is marked once; iterative traversal avoids recursion limits on large subscriptions.
+      var dialerState = Object.create(null)
+      for (var n = 0; n < kept.length; n++) {
+        var cursor = kept[n].name
+        var path = []
+        while (cursor && dialerState[cursor] !== 2) {
+          if (dialerState[cursor] === 1) return { ok: false, reason: 'dialer-cycle' }
+          dialerState[cursor] = 1
+          path.push(cursor)
+          cursor = dialerTargets[cursor]
+        }
+        for (var p = 0; p < path.length; p++) dialerState[path[p]] = 2
+      }
+      return { ok: true, proxies: kept, duplicates: duplicates, removedInfo: removedInfo, removedRate: removedRate,
+        sourceCount: source.length, flattenedProviders: providerNames.length, flattenedNodes: inlineNodes.length }
+    } catch (_) {
+      return { ok: false, reason: 'invalid-node-shape' }
+    }
+  }
+
+  return { isInfoNode: isInfoNode, isSelectableProxy: isSelectableProxy, multiplier: multiplier, preflight: preflight }
+})()
+// <<< SCKI SUBSCRIPTION NODE FILTER: END
 
 // ================================================================
 //  模块 A：节点过滤 / 家宽识别
 // ================================================================
 
 function isInfoNode(name) {
-  // v5.4.20 #6 借鉴 Proxy-override：补充 junk 关键词（免费/试用/应急 中文子串；Sign/Login/Register/Help/FAQ 英文用 \b 词边界，避免误伤 Signal 等合法节点）。不加「更新/地址」（误伤风险高）。
-  const infoPatterns = ['导航网址', '距离下次重置', '剩余流量', '套餐到期', '网址导航', '官网', '订阅', '到期', '剩余', '重置', '免费', '试用', '应急']
-  const infoRes = [/\b(?:USE|USED|TOTAL|EXPIRE|EMAIL)\b/i, /Panel|Channel|Author|剩余流量|已用流量|到期时间|下次重置/i, /\b(?:Sign|Login|Register|Help|FAQ)\b/i]
-  const s = String(name || '')
-  return infoPatterns.some(p => s.includes(p)) || infoRes.some(re => re.test(s))
+  return SckiSubscriptionNodeFilter.isInfoNode(name)
 }
 
 const RESIDENTIAL_PATTERNS = [
@@ -258,6 +408,7 @@ function classifyAllNodes(proxies) {
   for (var i = 0; i < proxies.length; i++) {
     var p = proxies[i]
     if (!p || typeof p !== 'object' || !p.name) continue
+    if (!SckiSubscriptionNodeFilter.isSelectableProxy(p)) continue
     if (isInfoNode(p.name)) continue
     var name = String(p.name)
     var isHome = isResidentialNode(name)
@@ -1067,7 +1218,7 @@ function collectActiveSubscriptionNodeServers(proxies) {
   if (!Array.isArray(proxies)) return []
   var servers = []
   proxies.forEach(function(proxy) {
-    if (!proxy || typeof proxy !== 'object' || isInfoNode(proxy.name)) return
+    if (!proxy || typeof proxy !== 'object' || !SckiSubscriptionNodeFilter.isSelectableProxy(proxy) || isInfoNode(proxy.name)) return
     if (typeof proxy.server === 'string') servers.push(proxy.server)
   })
   return servers
@@ -1304,7 +1455,28 @@ function sortProxyGroups(config) {
 function upstreamMain(config) {
   try {
     if (!config || typeof config !== 'object') return config
-    if (!Array.isArray(config.proxies) || config.proxies.length === 0) return config
+    var nodePlan = SckiSubscriptionNodeFilter.preflight(config, Object.values(SMART).concat(Object.values(BIZ)), SCKI_MAX_NODE_MULTIPLIER)
+    if (!nodePlan.ok) {
+      console.log(`[${VERSION}] Node preflight rejected: ${nodePlan.reason}${nodePlan.reason === 'provider-input' ? '; flatten in SubStore for provider subscriptions' : ''}`)
+      return config
+    }
+    if (nodePlan.sourceCount === 0 && nodePlan.flattenedProviders === 0) return config
+    // These source structures are used by overwriteGeneral; reject malformed shapes before any write.
+    if (config.listeners && (!Array.isArray(config.listeners) || config.listeners.some(function(item) { return !item || Object.prototype.toString.call(item) !== '[object Object]' }))) {
+      console.log(`[${VERSION}] Node preflight rejected: invalid-listeners-shape`)
+      return config
+    }
+    if (config.tun && (Object.prototype.toString.call(config.tun) !== '[object Object]' ||
+        (config.tun['exclude-process'] && (!Array.isArray(config.tun['exclude-process']) || config.tun['exclude-process'].some(function(item) { return typeof item !== 'string' }))))) {
+      console.log(`[${VERSION}] Node preflight rejected: invalid-tun-shape`)
+      return config
+    }
+    // Preflight is side-effect free; commit its plan before DNS capture and subscription cleanup.
+    if (!Array.isArray(config.proxies)) config.proxies = []
+    else config.proxies.splice(0, config.proxies.length)
+    for (var np = 0; np < nodePlan.proxies.length; np++) config.proxies.push(nodePlan.proxies[np])
+    if (nodePlan.flattenedProviders > 0) delete config['proxy-providers']
+    console.log(`[${VERSION}] Node filter kept=${nodePlan.proxies.length} inline=${nodePlan.flattenedNodes} providers=${nodePlan.flattenedProviders} info=${nodePlan.removedInfo} multiplier=${nodePlan.removedRate} duplicate=${nodePlan.duplicates}`)
     console.log(`[${VERSION}] Start processing, ${config.proxies.length} proxies`)
     if (!Array.isArray(config['proxy-groups'])) config['proxy-groups'] = []
     if (!Array.isArray(config.rules)) config.rules = []
@@ -1324,7 +1496,8 @@ function upstreamMain(config) {
     var homeJpkrNodes = c.HOME_JP.concat(c.HOME_KR)
     var homeApacNodes = c.HOME_HK.concat(c.HOME_TW, c.HOME_CN, c.HOME_JP, c.HOME_KR, c.HOME_SG, c.HOME_APAC_OTHER)
     var homeAmericasNodes = c.HOME_US.concat(c.HOME_AM)
-    upsertUrlTestGroup(config, SMART.GLOBAL, c.ALL)
+    if (c.ALL.length) upsertUrlTestGroup(config, SMART.GLOBAL, c.ALL)
+    else config['proxy-groups'].push({ name: SMART.GLOBAL, type: 'select', proxies: ['REJECT'] })
     if (c.HOME_ALL.length > 0) upsertUrlTestGroup(config, SMART.GLOBAL_HOME, c.HOME_ALL)
     // v5.2.8-normal.2: 全部/家宽区域统一空组不创建，避免静默回退污染家宽或地区语义
     //   （与 Smart 版同步修复。SMART.GLOBAL 始终存在兜底）
@@ -1352,6 +1525,7 @@ function upstreamMain(config) {
     // 收集实际创建的区域组名（按 SMART 常量名匹配），过滤业务组的 proxy 引用
     var activeSmartNames = new Set(config['proxy-groups'].filter(function(g) { return g && g.type === 'url-test' }).map(function(g) { return g.name }))
     activeSmartNames.add('DIRECT'); activeSmartNames.add('REJECT')
+    activeSmartNames.add(SMART.GLOBAL)
     console.log(`[${VERSION}] Active url-test region groups: ${[...activeSmartNames].filter(function(n) { return n !== 'DIRECT' && n !== 'REJECT' }).join(', ')}`)
 
     injectBusinessGroups(config, activeSmartNames)
