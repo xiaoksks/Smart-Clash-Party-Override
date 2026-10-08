@@ -2,9 +2,10 @@ import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 import vm from 'node:vm'
 import { loadCustomSpec, ROOT } from './custom-spec.mjs'
-import { fetchRoutingGraph } from './upstream-source.mjs'
+import { createGraphSandbox, fetchRoutingGraph } from './upstream-source.mjs'
 
 const SNAPSHOT_PATH = path.join(ROOT, '.build', 'routing-graph.js')
+const TRAFFIC_OPTIONS_SNAPSHOT_PATH = path.join(ROOT, '.build', 'traffic-options.json')
 
 async function readGraphSource() {
   try {
@@ -14,14 +15,21 @@ async function readGraphSource() {
   }
 }
 
-function evaluateRoutingGraph(source) {
-  const module = { exports: {} }
-  const sandbox = { module, exports: module.exports, process: { env: {} }, console: { log() {} } }
+async function readTrafficOptionsSource() {
+  try {
+    return await readFile(TRAFFIC_OPTIONS_SNAPSHOT_PATH, 'utf8')
+  } catch {
+    return null
+  }
+}
+
+function evaluateRoutingGraph(source, trafficOptions) {
+  const sandbox = createGraphSandbox({}, trafficOptions)
   vm.runInNewContext(source, sandbox, { filename: SNAPSHOT_PATH, timeout: 5000 })
-  if (typeof module.exports.getRawRoutingGraph !== 'function') {
+  if (typeof sandbox.module.exports.getRawRoutingGraph !== 'function') {
     throw new Error('Routing graph does not export getRawRoutingGraph()')
   }
-  return module.exports.getRawRoutingGraph()
+  return sandbox.module.exports.getRawRoutingGraph()
 }
 
 function findCoveredCustomRules(rules) {
@@ -68,8 +76,12 @@ function assertRuleSetTargetOverrides(graph, overrides) {
 }
 
 async function main() {
-  const [spec, graphSource] = await Promise.all([loadCustomSpec(), readGraphSource()])
-  const graph = evaluateRoutingGraph(graphSource)
+  const [spec, graphSource, trafficOptionsSource] = await Promise.all([
+    loadCustomSpec(),
+    readGraphSource(),
+    readTrafficOptionsSource(),
+  ])
+  const graph = evaluateRoutingGraph(graphSource, trafficOptionsSource)
   const upstreamRules = Array.from(graph.rules || [])
   const upstreamSet = new Set(upstreamRules)
   const exactMatches = spec.preRules.filter(rule => upstreamSet.has(rule))

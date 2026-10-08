@@ -3,9 +3,11 @@ import path from 'node:path'
 import vm from 'node:vm'
 import { buildRuleSetOverrideRules, buildWebRtcProtectionRules, loadCustomSpec, ROOT } from './custom-spec.mjs'
 import {
+  createGraphSandbox,
   fetchNormalSource,
   fetchRoutingGraph,
   fetchSmartSource,
+  fetchTrafficOptions,
   parseNormalVersion,
   parseSmartVersion,
 } from './upstream-source.mjs'
@@ -71,9 +73,8 @@ function renameUpstreamMain(upstream) {
   return upstream.replace(marker, 'function upstreamMain(config) {')
 }
 
-function readRuleSetProviderBundle(graph, spec) {
-  const module = { exports: {} }
-  const sandbox = { module, exports: module.exports, process: { env: {} }, console: { log() {} } }
+function readRuleSetProviderBundle(graph, spec, trafficOptions) {
+  const sandbox = createGraphSandbox({}, trafficOptions?.body)
   const metadata = vm.runInNewContext(
     `${graph.body}\n;({ base: MIHOMO_MRS_RULESET_BASE, providers: MIHOMO_MRS_PROVIDER_MAP })`,
     sandbox,
@@ -331,27 +332,29 @@ function main(config) {
 `
 }
 
-function generateOutput(upstream, spec, graph) {
+function generateOutput(upstream, spec, graph, trafficOptions) {
   const source = stripDeprecatedSmartStrategy(upstream.body.replace(/^\uFEFF/, ''))
   if (!source.includes('function applyMihomoFusedRuleSets(config) {')) {
     throw new Error('Upstream no longer exposes the fused Mihomo ruleset contract')
   }
-  const providerBundle = readRuleSetProviderBundle(graph, spec)
+  const providerBundle = readRuleSetProviderBundle(graph, spec, trafficOptions)
   return buildHeader(spec, upstream, providerBundle) + renameUpstreamMain(source) + buildLocalRuntime()
 }
 
-async function persistBuildSnapshot(smartUpstream, normalUpstream, graph) {
+async function persistBuildSnapshot(smartUpstream, normalUpstream, graph, trafficOptions) {
   await mkdir(BUILD_DIR, { recursive: true })
   await Promise.all([
     writeFile(path.join(BUILD_DIR, 'upstream-smart.js'), smartUpstream.body, 'utf8'),
     writeFile(path.join(BUILD_DIR, 'upstream-normal.js'), normalUpstream.body, 'utf8'),
     writeFile(path.join(BUILD_DIR, 'routing-graph.js'), graph.body, 'utf8'),
+    writeFile(path.join(BUILD_DIR, 'traffic-options.json'), trafficOptions.body, 'utf8'),
     writeFile(path.join(BUILD_DIR, 'metadata.json'), `${JSON.stringify({
       generatedAt: new Date().toISOString(),
       upstream: { url: smartUpstream.url, version: smartUpstream.version, sha256: smartUpstream.sha256 },
       smart: { url: smartUpstream.url, version: smartUpstream.version, sha256: smartUpstream.sha256 },
       normal: { url: normalUpstream.url, version: normalUpstream.version, sha256: normalUpstream.sha256 },
       routingGraph: { url: graph.url, version: graph.version, sha256: graph.sha256 },
+      trafficOptions: { url: trafficOptions.url, version: trafficOptions.version, sha256: trafficOptions.sha256 },
     }, null, 2)}\n`, 'utf8'),
   ])
 }
@@ -362,18 +365,19 @@ async function mainBuild() {
     readCurrentVersion(TARGETS[0]),
     readCurrentVersion(TARGETS[1]),
   ])
-  const [smartUpstream, normalUpstream] = await Promise.all([
+  const [smartUpstream, normalUpstream, trafficOptions] = await Promise.all([
     TARGETS[0].fetchSource({ minimumVersion: smartCurrentVersion || undefined }),
     TARGETS[1].fetchSource({ minimumVersion: normalCurrentVersion || undefined }),
+    fetchTrafficOptions(),
   ])
   const graph = await fetchRoutingGraph({ requiredBaseVersion: smartUpstream.version })
 
-  const smartOutput = generateOutput(smartUpstream, spec, graph)
-  const normalOutput = generateOutput(normalUpstream, spec, graph)
+  const smartOutput = generateOutput(smartUpstream, spec, graph, trafficOptions)
+  const normalOutput = generateOutput(normalUpstream, spec, graph, trafficOptions)
 
   await Promise.all([
     mkdir(DIST_DIR, { recursive: true }),
-    persistBuildSnapshot(smartUpstream, normalUpstream, graph),
+    persistBuildSnapshot(smartUpstream, normalUpstream, graph, trafficOptions),
   ])
 
   const smartPath = path.join(DIST_DIR, TARGETS[0].outputFile)

@@ -7,6 +7,7 @@ const DEFAULT_TIMEOUT_MS = Number(process.env.FETCH_TIMEOUT_MS || 30000)
 const SMART_PATH = 'Clash%20Party/ClashParty(mihomo-smart).js'
 const NORMAL_PATH = 'Clash%20Party/ClashParty(mihomo).js'
 const GRAPH_PATH = 'rulesets/source/routing-graph.js'
+const TRAFFIC_OPTIONS_PATH = 'rulesets/source/traffic-options.json'
 
 const SMART_URLS = (process.env.UPSTREAM_SMART_URLS || process.env.UPSTREAM_URLS || process.env.UPSTREAM_URL || [
   `https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/main/${SMART_PATH}`,
@@ -23,6 +24,12 @@ const NORMAL_URLS = (process.env.UPSTREAM_NORMAL_URLS || [
 const GRAPH_URLS = (process.env.UPSTREAM_GRAPH_URLS || [
   `https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/main/${GRAPH_PATH}`,
   `https://cdn.jsdelivr.net/gh/IvanSolis1989/Smart-Config-Kit@main/${GRAPH_PATH}`,
+].join(','))
+  .split(',').map(value => value.trim()).filter(Boolean)
+
+const TRAFFIC_OPTIONS_URLS = (process.env.UPSTREAM_TRAFFIC_OPTIONS_URLS || [
+  `https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/main/${TRAFFIC_OPTIONS_PATH}`,
+  `https://cdn.jsdelivr.net/gh/IvanSolis1989/Smart-Config-Kit@main/${TRAFFIC_OPTIONS_PATH}`,
 ].join(','))
   .split(',').map(value => value.trim()).filter(Boolean)
 
@@ -152,4 +159,52 @@ export function fetchNormalSource(options = {}) {
 
 export function fetchRoutingGraph(options = {}) {
   return fetchValidated(GRAPH_URLS, 'routing graph', parseGraphVersion, options)
+}
+
+export function parseTrafficOptions(body) {
+  try {
+    const data = JSON.parse(body)
+    if (data && typeof data === 'object' && data.healthCheckProfile && data.quicPolicy) {
+      return 'valid'
+    }
+  } catch {}
+  return null
+}
+
+export async function fetchTrafficOptions(options = {}) {
+  try {
+    return await fetchValidated(TRAFFIC_OPTIONS_URLS, 'traffic options', parseTrafficOptions, options)
+  } catch {
+    const fallbackBody = JSON.stringify({ healthCheckProfile: 'standard', quicPolicy: 'block-foreign' }, null, 2)
+    return {
+      url: TRAFFIC_OPTIONS_URLS[0],
+      body: fallbackBody,
+      version: 'default',
+      sha256: sha256(fallbackBody),
+    }
+  }
+}
+
+export function createGraphSandbox(context = {}, trafficOptions = null) {
+  let options = trafficOptions
+  if (typeof options === 'string') {
+    try { options = JSON.parse(options) } catch { options = null }
+  }
+  if (!options || typeof options !== 'object') {
+    options = { healthCheckProfile: 'standard', quicPolicy: 'block-foreign' }
+  }
+  const module = { exports: {} }
+  return {
+    module,
+    exports: module.exports,
+    require(id) {
+      if (id === './traffic-options.json' || id.endsWith('traffic-options.json')) {
+        return options
+      }
+      throw new Error(`Cannot find module '${id}' in routing graph sandbox`)
+    },
+    process: { env: {} },
+    console: { log() {} },
+    ...context,
+  }
 }

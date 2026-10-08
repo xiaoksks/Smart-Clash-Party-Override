@@ -259,10 +259,10 @@ function assertNormalContract(config, upstreamConfig) {
   urlTestGroups.forEach(group => {
     const upstreamGroup = upstreamGroups.get(group.name)
     assert(upstreamGroup, `Generated url-test group is missing upstream counterpart: ${group.name}`)
-    assert(group.url === 'https://www.gstatic.com/generate_204', `${group.name} url mismatch`)
-    assert(group.interval === 300, `${group.name} interval mismatch`)
-    assert(group.tolerance === 10, `${group.name} tolerance mismatch`)
-    assert(group.lazy === false, `${group.name} lazy mismatch`)
+    assert(group.url === upstreamGroup.url, `${group.name} url mismatch`)
+    assert(group.interval === upstreamGroup.interval, `${group.name} interval mismatch`)
+    assert(group.tolerance === upstreamGroup.tolerance, `${group.name} tolerance mismatch`)
+    assert(group.lazy === upstreamGroup.lazy, `${group.name} lazy mismatch`)
     assert(
       JSON.stringify(group.proxies || []) === JSON.stringify(upstreamGroup.proxies || []),
       `${group.name} url-test proxies drifted from upstream`,
