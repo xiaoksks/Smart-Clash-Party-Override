@@ -29,8 +29,15 @@ const CUSTOM_OVERRIDE_SPEC = {
   },
 
   preRules: [
-    // QQ Favorites may call unlisted domains or direct IPs; keep the desktop client fully direct.
+    // Desktop clients that may call unlisted domains or direct IPs; keep fully direct.
     'PROCESS-NAME,QQ.exe,DIRECT',
+    'PROCESS-NAME,Thunder.exe,DIRECT',
+    'PROCESS-NAME,ThunderPlatform.exe,DIRECT',
+    'PROCESS-NAME,DownloadService.exe,DIRECT',
+    'PROCESS-NAME,XLServicePlatform.exe,DIRECT',
+    'PROCESS-NAME,xllite.exe,DIRECT',
+    'PROCESS-NAME,DownloadSDKServer.exe,DIRECT',
+    'PROCESS-NAME,Thunder,DIRECT',
 
     // Clash Party network info / current IP lookup.
     'DOMAIN-SUFFIX,msftconnecttest.com,DIRECT',
@@ -107,6 +114,33 @@ const CUSTOM_OVERRIDE_SPEC = {
 
     // Mainland code hosting service.
     'DOMAIN-SUFFIX,gitee.com,DIRECT',
+
+    // Xunlei / Thunder services, download infrastructure and login verification.
+    'DOMAIN-SUFFIX,xunlei.com,DIRECT',
+    'DOMAIN-SUFFIX,xunlei.cn,DIRECT',
+    'DOMAIN-SUFFIX,xunleix.com,DIRECT',
+    'DOMAIN-SUFFIX,sandai.net,DIRECT',
+    'DOMAIN-SUFFIX,thunderurl.com,DIRECT',
+    'DOMAIN-SUFFIX,thundercdn.com,DIRECT',
+    'DOMAIN-SUFFIX,kanimg.com,DIRECT',
+    'DOMAIN-SUFFIX,kankan.com,DIRECT',
+    'DOMAIN-SUFFIX,00cdn.com,DIRECT',
+    'DOMAIN-SUFFIX,88cdn.com,DIRECT',
+    'DOMAIN-SUFFIX,p2cdn.com,DIRECT',
+    'DOMAIN-SUFFIX,8uri.cn,DIRECT',
+    'DOMAIN-SUFFIX,xycloud.com,DIRECT',
+    'DOMAIN-SUFFIX,xycdn.com,DIRECT',
+    'DOMAIN-SUFFIX,xlpan.com,DIRECT',
+
+    // Domestic captcha / verification code services used during login (e.g. Tencent Captcha, Geetest).
+    'DOMAIN-SUFFIX,tcsecq.com,DIRECT',
+    'DOMAIN-SUFFIX,007.qq.com,DIRECT',
+    'DOMAIN-SUFFIX,tcaptcha.qq.com,DIRECT',
+    'DOMAIN-SUFFIX,captcha.qq.com,DIRECT',
+    'DOMAIN-SUFFIX,tcaptcha.gtimg.com,DIRECT',
+    'DOMAIN-SUFFIX,captcha.gtimg.com,DIRECT',
+    'DOMAIN-SUFFIX,geetest.com,DIRECT',
+    'DOMAIN-SUFFIX,dingxiang-inc.com,DIRECT',
   ],
 
   foreignDnsDomains: [
