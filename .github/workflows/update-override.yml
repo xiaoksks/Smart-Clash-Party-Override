@@ -1,6 +1,13 @@
 name: Update Clash Party Override
 
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'custom-overrides.js'
+      - 'scripts/**'
+      - 'package.json'
   workflow_dispatch:
   schedule:
     # Daily at 17:00 UTC, 01:00 Beijing time.

@@ -9,6 +9,14 @@ const CUSTOM_FORCE_CHINA_IP_DIRECT = true
 const CUSTOM_PREVENT_WEBRTC_LEAK = true
 const CUSTOM_WEBRTC_BROWSER_PROCESSES = ["chrome.exe","msedge.exe","firefox.exe","brave.exe","opera.exe","vivaldi.exe","chromium.exe"]
 const CUSTOM_WEBRTC_PORTS = ["3478","3479","5349","19302","19305","19307"]
+const CUSTOM_TUN_EXCLUDE_PROCESSES = [
+  "Thunder.exe",
+  "ThunderPlatform.exe",
+  "DownloadService.exe",
+  "XLServicePlatform.exe",
+  "xllite.exe",
+  "DownloadSDKServer.exe"
+]
 const CUSTOM_WEBRTC_RULES = [
   "AND,((PROCESS-NAME,chrome.exe),(NETWORK,UDP),(NOT,((GEOSITE,cn)))),REJECT",
   "AND,((PROCESS-NAME,msedge.exe),(NETWORK,UDP),(NOT,((GEOSITE,cn)))),REJECT",
@@ -1820,19 +1828,34 @@ function localRuleUsesWebRtcPort(rule) {
 }
 
 function localPreventWebRtcLeak(config) {
-  if (!CUSTOM_PREVENT_WEBRTC_LEAK) return
+  if (CUSTOM_PREVENT_WEBRTC_LEAK) {
+    // Upstream currently sends common STUN/TURN ports DIRECT; remove future variants too.
+    config.rules = (config.rules || []).filter(function(rule) {
+      return !(localRuleTarget(rule) === 'DIRECT' && localRuleUsesWebRtcPort(rule))
+    })
 
-  // Upstream currently sends common STUN/TURN ports DIRECT; remove future variants too.
-  config.rules = (config.rules || []).filter(function(rule) {
-    return !(localRuleTarget(rule) === 'DIRECT' && localRuleUsesWebRtcPort(rule))
-  })
+    if (!config.tun) config.tun = {}
+    config.tun.enable = true
+    config.tun['auto-route'] = true
+    config.tun['strict-route'] = false
+    config.tun['auto-detect-interface'] = true
+  }
 
-  if (!config.tun) config.tun = {}
-  config.tun.enable = true
-  config.tun['auto-route'] = true
-  config.tun['strict-route'] = false
-  config.tun['auto-detect-interface'] = true
-  if (Array.isArray(config.tun['exclude-process'])) {
+  if (Array.isArray(CUSTOM_TUN_EXCLUDE_PROCESSES) && CUSTOM_TUN_EXCLUDE_PROCESSES.length > 0) {
+    if (!config.tun) config.tun = {}
+    var excludeList = Array.isArray(config.tun['exclude-process']) ? config.tun['exclude-process'].slice() : []
+    var excludeSet = new Set(excludeList.map(function(name) { return String(name).toLowerCase() }))
+    CUSTOM_TUN_EXCLUDE_PROCESSES.forEach(function(name) {
+      var lower = String(name).toLowerCase()
+      if (!excludeSet.has(lower)) {
+        excludeList.push(name)
+        excludeSet.add(lower)
+      }
+    })
+    config.tun['exclude-process'] = excludeList
+  }
+
+  if (CUSTOM_PREVENT_WEBRTC_LEAK && config.tun && Array.isArray(config.tun['exclude-process'])) {
     var browsers = new Set(CUSTOM_WEBRTC_BROWSER_PROCESSES.map(function(name) { return name.toLowerCase() }))
     config.tun['exclude-process'] = config.tun['exclude-process'].filter(function(name) {
       return !browsers.has(String(name).toLowerCase())

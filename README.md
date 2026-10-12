@@ -14,9 +14,11 @@ https://github.com/IvanSolis1989/Smart-Config-Kit
 
 ## 核心特性与定制
 
-- **双版本同步构建与持续交付**：一套规则源同时产出 Smart 与 Normal 双版本，自动化流程包含上游版本追踪、降级拦截与全量结构契约审计。
+- **双版本同步构建与持续交付**：一套规则源同时产出 Smart 与 Normal 双版本，GitHub Actions 自动化流水线（定时 + push 触发）包含上游版本追踪、降级拦截与全量结构契约审计。
 - **构建后自动移除广告拦截**：自动移除上游广告拦截策略组、指向该策略的规则及其专用 provider，避免误杀正常页面资源；其他非广告用途的 `REJECT` 规则保持原样。
 - **WebRTC 防泄露优化（国内直连放行，仅境外访问防泄漏）**：智能区分境内外流量。国内域名（`geosite:cn`）、国内权威 IP 及自定义直连规则全面放行 UDP，Bilibili、抖音等国内音视频和网页 HTTP/3 (QUIC) / WebRTC 享受原生极速直连；仅针对境外非直连的浏览器 UDP 连接进行阻断（无缝降级 TCP 走代理隧道），并全局拒绝常见 STUN/TURN 探测端口，既杜绝了向境外暴露真实公网 IP，又完全保留了国内网络的极速体验。移除了 Windows 下引发冷启动网络黑洞的 `strict-route`，兼顾隐私安全与系统网络稳定性。
+- **迅雷全生态极速直连与 TUN 内核级旁路**：针对迅雷客户端生态（`Thunder.exe`、`ThunderPlatform.exe`、`DownloadService.exe`、`XLServicePlatform.exe`、`xllite.exe`、`DownloadSDKServer.exe` 等）及云盘/CDN 域名强制前置直连；同时在内核级 `tun['exclude-process']` 进行进程旁路，P2P 海量并发直接走系统物理网卡原生网络协议栈，消除虚拟网卡内存流和 CPU 协议栈转换开销，彻底杜绝大文件满速下载时系统网络卡顿。
+- **国内人机验证码与滑块服务直连**：腾讯验证码（`tcaptcha.qq.com`、`007.qq.com` 等）、极验（`geetest.com`）、顶象（`dingxiang-inc.com`）等主流国内验证码基础设施前置直连，消除登录鉴权时验证码加载超时或人机验证死循环。
 - **Windows NCSI 联网探针秒级直连**：将微软系统连通性检测（`msftconnecttest.com`、`msftncsi.com`）前置强制直连，开机 5ms 即可获取连通响应，立即标记网络正常。
 - **国内权威 IP 与域名秒解**：中国大陆权威 IP 集合强制直连并前置（保留 `no-resolve`）；国内域名（`geosite:cn`）与引导 DNS 采用纯 UDP `223.5.5.5`（阿里 DNS），彻底移除容易超时的 `doh.pub`。
 - **Fake-IP 缓存持久化**：开启 Fake-IP 缓存持久化（`store-fake-ip`），防止重启客户端后浏览器缓存的虚拟 IP 映射丢失。
@@ -42,20 +44,12 @@ https://github.com/IvanSolis1989/Smart-Config-Kit
   ```text
   https://raw.githubusercontent.com/xiaoksks/Smart-Clash-Party-Override/main/dist/Smart-Override.js
   ```
-- **jsDelivr CDN**：
-  ```text
-  https://cdn.jsdelivr.net/gh/xiaoksks/Smart-Clash-Party-Override@main/dist/Smart-Override.js
-  ```
 
 ### 2. Normal 普通版（标准 url-test 版）
 适合标准 Mihomo/Clash.Meta 内核、Clash Verge Rev 正式版，或偏好经典低延迟自动测速选路的用户。
 - **GitHub Raw**：
   ```text
   https://raw.githubusercontent.com/xiaoksks/Smart-Clash-Party-Override/main/dist/Normal-Override.js
-  ```
-- **jsDelivr CDN**：
-  ```text
-  https://cdn.jsdelivr.net/gh/xiaoksks/Smart-Clash-Party-Override@main/dist/Normal-Override.js
   ```
 
 ---
@@ -75,7 +69,9 @@ npm run report
 
 `npm run check` 包含严密的双版本质量守卫：
 - 上游与路由图基础版本一致性校验、完整版本防降级检测
+- 自定义规则格式与字段静态强类型校验（支持规则类型及合法段数合法性检测）
 - 重复规则检测、广告内容与 WebRTC 直连规则精准移除断言
+- TUN 虚拟网卡旁路进程与浏览器防泄漏安全断言
 - Smart 契约校验（机器学习参数合法、无废弃 `strategy` 字段、禁用数据收集）
 - Normal 契约校验（精准识别并生成区域 `url-test` 组，严禁引入 smart 类型组）
 - 规则 / 策略组 / provider 交叉引用完整性
@@ -90,7 +86,7 @@ npm run report
 1. 左侧菜单 → **覆写（Override）** → 右上角 ➕。
 2. 类型选择 **JavaScript（.js）**。
 3. 名称建议：`Smart-Override`（或 `Normal-Override`）。
-4. 内容：填入对应版本的 Raw 或 jsDelivr 地址，或者复制对应文件的全文粘贴进去。
+4. 内容：填入对应版本的 GitHub Raw 导入链接，或者复制对应文件的全文粘贴进去。
 5. 保存。
 6. 返回「订阅」页面，右键你的订阅 → **编辑** → **启用覆写** → 勾选刚才添加的脚本 → 保存（**仅勾选一份**）。
 7. 切换到该订阅，点击「**连接**」。
@@ -98,7 +94,7 @@ npm run report
 ### Clash Verge Rev
 
 1. 左侧 → **脚本（Scripts）** → ➕ **新建脚本** → **在线脚本**（或本地脚本）。
-2. 填入上方对应的 `.js` 订阅链接，保存。
+2. 填入上方对应的 GitHub Raw 导入链接，保存。
 3. **订阅（Profiles）** → 右上角 ⋯ → **扩展管理（Extensions）** → 勾选刚才的脚本。
 4. 重启内核（Ctrl/Cmd + R）。
 
@@ -117,10 +113,10 @@ npm run report
 
 ```yaml
 geox-url:
-  geoip: https://fastly.jsdelivr.net/gh/Loyalsoldier/geoip@release/geoip.dat
-  mmdb: https://fastly.jsdelivr.net/gh/Loyalsoldier/geoip@release/Country.mmdb
-  asn: https://fastly.jsdelivr.net/gh/Loyalsoldier/geoip@release/GeoLite2-ASN.mmdb
-  geosite: https://fastly.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geosite.dat
+  geoip: https://raw.githubusercontent.com/Loyalsoldier/geoip/release/geoip.dat
+  mmdb: https://raw.githubusercontent.com/Loyalsoldier/geoip/release/Country.mmdb
+  asn: https://raw.githubusercontent.com/Loyalsoldier/geoip/release/GeoLite2-ASN.mmdb
+  geosite: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/release/geosite.dat
 geo-auto-update: true
 ```
 

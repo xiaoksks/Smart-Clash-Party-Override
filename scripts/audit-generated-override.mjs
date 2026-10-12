@@ -173,6 +173,7 @@ function assertWebRtcProtection(config, spec, webRtcRules) {
   assert(!config.tun?.['dns-hijack'], 'TUN dns-hijack must not be hardcoded to prevent Clash Verge application settings conflicts')
   const excluded = new Set((config.tun?.['exclude-process'] || []).map(name => String(name).toLowerCase()))
   spec.webRtcBrowserProcesses.forEach(name => assert(!excluded.has(name.toLowerCase()), `Browser excluded from TUN: ${name}`))
+  spec.tunExcludeProcesses.forEach(name => assert(excluded.has(name.toLowerCase()), `Expected process to be excluded from TUN: ${name}`))
 }
 
 function assertReferences(config) {

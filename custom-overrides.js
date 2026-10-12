@@ -21,6 +21,19 @@ const CUSTOM_OVERRIDE_SPEC = {
   ],
   webRtcPorts: ['3478', '3479', '5349', '19302', '19305', '19307'],
 
+  // Processes excluded from TUN virtual network adapter at the kernel driver level.
+  // P2P downloaders establish massive concurrent direct connections; bypassing TUN directly
+  // eliminates virtual adapter protocol stack overhead and reduces CPU utilization.
+  // Note: WebRTC browser processes are strictly forbidden here to maintain leak protection.
+  tunExcludeProcesses: [
+    'Thunder.exe',
+    'ThunderPlatform.exe',
+    'DownloadService.exe',
+    'XLServicePlatform.exe',
+    'xllite.exe',
+    'DownloadSDKServer.exe',
+  ],
+
   // Reuse complete upstream providers and only change their routing target.
   // These explicit overrides take priority over generic WebRTC UDP blocking.
   // This stays current when upstream adds domains and avoids duplicate inline rules.
