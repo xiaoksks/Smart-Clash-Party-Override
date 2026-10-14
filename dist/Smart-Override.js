@@ -1,7 +1,7 @@
 // This file is generated automatically. Do not edit dist output directly.
 // Upstream source: https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/main/Clash%20Party/ClashParty(mihomo-smart).js
-// Upstream version: v6.0.17-dns.14
-// Upstream SHA-256: e177fe46b3031288b101669e55638082642dc059b66edef3e3aaa402cec1f406
+// Upstream version: v6.0.17-dns.15
+// Upstream SHA-256: 1d5dfa3073fbdee323b271a42bbd49c066f12dcc489b334d7d2ba18ac9bcf02d
 // Edit custom-overrides.js, then run: npm run check
 
 const CUSTOM_REMOVE_AD_BLOCKING = true
@@ -156,7 +156,7 @@ const CUSTOM_FOREIGN_DNS_DOMAINS = [
   "+.stream-io-video.com"
 ]
 // Clash Smart 内核覆写脚本 - SUB-STORE 多机场精细分流版
-// 版本：v6.0.17-dns.14 (2026-10-12)
+// 版本：v6.0.17-dns.15 (2026-10-14)
 // 架构：SUB-STORE 多机场融合 + 22 Smart 区域组（11 全部 + 11 家宽）+ 33 业务策略组 + 132 融合 rule-providers / 151 rules
 // 规则源：rulesets/source/routing-graph.js v6.0.17（同策略规范化与语义去重）
 // 变更历史：见 `Clash Party/CHANGELOG.md`
@@ -165,7 +165,7 @@ const CUSTOM_FOREIGN_DNS_DOMAINS = [
 //  版本常量
 // ================================================================
 
-const VERSION = 'v6.0.17-dns.14'
+const VERSION = 'v6.0.17-dns.15'
 
 // 受信任的本地订阅适配模式：off | policy | adaptive。
 // 不从机场订阅读取；三档均不会改变 55 组、规则或仓库 DNS 基线。
@@ -173,7 +173,7 @@ const SCKI_SUBSCRIPTION_ADAPTER_PROFILE = 'adaptive'
 // 仅本地可调；null 关闭倍率筛选，正数才按“倍率 > 阈值”剔除。
 const SCKI_MAX_NODE_MULTIPLIER = null
 
-// SCKI local traffic options. Edit trusted local constants only; synchronization restores source defaults.
+// SCKI local traffic options. Sync restores health/QUIC presets and preserves the explicit local ZeroTier choice.
 const SCKI_HEALTH_CHECK_PROFILE = 'standard'
 const SCKI_QUIC_POLICY = 'block-foreign'
 const SCKI_ZEROTIER_PLANET_PROXY = false
