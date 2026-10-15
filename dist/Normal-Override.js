@@ -67,6 +67,20 @@ const CUSTOM_PRE_RULES = [
   "DOMAIN-SUFFIX,ifconfig.me,🌐 国外网站",
   "DOMAIN,ip.cip.cc,DIRECT",
   "DOMAIN,myip.ipip.net,DIRECT",
+  "DOMAIN-SUFFIX,chatgpt.com,🤖 AI 服务",
+  "DOMAIN-SUFFIX,oaistatic.com,🤖 AI 服务",
+  "DOMAIN-SUFFIX,oaiusercontent.com,🤖 AI 服务",
+  "DOMAIN-SUFFIX,openai.com,🤖 AI 服务",
+  "DOMAIN-SUFFIX,ai.com,🤖 AI 服务",
+  "DOMAIN-SUFFIX,sora.com,🤖 AI 服务",
+  "DOMAIN-SUFFIX,chat.com,🤖 AI 服务",
+  "DOMAIN-SUFFIX,api.statsig.com,🤖 AI 服务",
+  "DOMAIN-SUFFIX,events.statsigapi.net,🤖 AI 服务",
+  "DOMAIN-SUFFIX,featuregates.org,🤖 AI 服务",
+  "DOMAIN-SUFFIX,client-api.arkoselabs.com,🤖 AI 服务",
+  "DOMAIN-SUFFIX,openai-api.arkoselabs.com,🤖 AI 服务",
+  "DOMAIN-SUFFIX,challenges.cloudflare.com,🤖 AI 服务",
+  "DOMAIN-SUFFIX,turnstile.cloudflare.com,🤖 AI 服务",
   "DOMAIN-SUFFIX,patreon.com,🌐 国外网站",
   "DOMAIN-SUFFIX,patreonusercontent.com,🌐 国外网站",
   "DOMAIN-SUFFIX,patreoncommunity.com,🌐 国外网站",
@@ -145,6 +159,17 @@ const CUSTOM_PRE_RULES = [
   "DOMAIN-SUFFIX,dingxiang-inc.com,DIRECT"
 ]
 const CUSTOM_FOREIGN_DNS_DOMAINS = [
+  "+.chatgpt.com",
+  "+.oaistatic.com",
+  "+.oaiusercontent.com",
+  "+.openai.com",
+  "+.ai.com",
+  "+.sora.com",
+  "+.chat.com",
+  "+.statsig.com",
+  "+.statsigapi.net",
+  "+.featuregates.org",
+  "+.arkoselabs.com",
   "+.patreon.com",
   "+.patreonusercontent.com",
   "+.patreoncommunity.com",
@@ -1687,6 +1712,38 @@ function localPreferHuluUs(config) {
   }))
 }
 
+function localPreferAiSupported(config) {
+  var group = (config['proxy-groups'] || []).find(function(item) {
+    return item && item.name === BIZ.AI
+  })
+  if (!group || !Array.isArray(group.proxies)) return
+
+  // Preferred supported regions for OpenAI / ChatGPT:
+  // US is native home with lowest rate limits; Singapore, Japan/Korea, Americas and Europe have full official support.
+  // HK is explicitly NOT supported by OpenAI and causes Cloudflare loops / 403 blocks; demote to tail.
+  var preferred = [
+    SMART.US_HOME, SMART.US,
+    SMART.SG_HOME, SMART.SG,
+    SMART.JPKR_HOME, SMART.JPKR,
+    SMART.AMERICAS_HOME, SMART.AMERICAS,
+    SMART.EU_HOME, SMART.EU,
+  ]
+  var hkProxies = [SMART.HK_HOME, SMART.HK]
+
+  var existing = group.proxies.slice()
+  var prioritized = preferred.filter(function(name) {
+    return existing.indexOf(name) !== -1
+  })
+  var middle = existing.filter(function(name) {
+    return preferred.indexOf(name) === -1 && hkProxies.indexOf(name) === -1
+  })
+  var tail = hkProxies.filter(function(name) {
+    return existing.indexOf(name) !== -1
+  })
+
+  group.proxies = prioritized.concat(middle, tail)
+}
+
 function localRuleTarget(rule) {
   var parts = String(rule).split(',')
   return parts[parts.length - 1] === 'no-resolve' ? parts[parts.length - 2] : parts[parts.length - 1]
@@ -1895,13 +1952,14 @@ function applyLocalOverrides(config) {
   // Persist Fake-IP mapping to disk so restarts don't drop browser cached 198.18.x.x IPs
   config.profile['store-fake-ip'] = true
   localPreferHuluUs(config)
+  localPreferAiSupported(config)
   localRemoveAdBlocking(config)
   localInstallRuleSetTargetOverrides(config)
   localPreventWebRtcLeak(config)
   localApplyDns(config)
   var chinaIpRules = localPromoteChinaIpDirect(config)
   localPrependRules(config, chinaIpRules)
-  console.log('[local] Applied China IP direct routing, WebRTC leak protection, ad-blocking preference, rule-set targets, custom rules, proxy-group preferences, DNS policy and Hulu US preference')
+  console.log('[local] Applied China IP direct routing, WebRTC leak protection, ad-blocking preference, rule-set targets, custom rules, proxy-group preferences, DNS policy, Hulu US preference and AI service region preference')
   return config
 }
 

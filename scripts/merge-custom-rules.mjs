@@ -118,6 +118,38 @@ function localPreferHuluUs(config) {
   }))
 }
 
+function localPreferAiSupported(config) {
+  var group = (config['proxy-groups'] || []).find(function(item) {
+    return item && item.name === BIZ.AI
+  })
+  if (!group || !Array.isArray(group.proxies)) return
+
+  // Preferred supported regions for OpenAI / ChatGPT:
+  // US is native home with lowest rate limits; Singapore, Japan/Korea, Americas and Europe have full official support.
+  // HK is explicitly NOT supported by OpenAI and causes Cloudflare loops / 403 blocks; demote to tail.
+  var preferred = [
+    SMART.US_HOME, SMART.US,
+    SMART.SG_HOME, SMART.SG,
+    SMART.JPKR_HOME, SMART.JPKR,
+    SMART.AMERICAS_HOME, SMART.AMERICAS,
+    SMART.EU_HOME, SMART.EU,
+  ]
+  var hkProxies = [SMART.HK_HOME, SMART.HK]
+
+  var existing = group.proxies.slice()
+  var prioritized = preferred.filter(function(name) {
+    return existing.indexOf(name) !== -1
+  })
+  var middle = existing.filter(function(name) {
+    return preferred.indexOf(name) === -1 && hkProxies.indexOf(name) === -1
+  })
+  var tail = hkProxies.filter(function(name) {
+    return existing.indexOf(name) !== -1
+  })
+
+  group.proxies = prioritized.concat(middle, tail)
+}
+
 function localRuleTarget(rule) {
   var parts = String(rule).split(',')
   return parts[parts.length - 1] === 'no-resolve' ? parts[parts.length - 2] : parts[parts.length - 1]
@@ -326,13 +358,14 @@ function applyLocalOverrides(config) {
   // Persist Fake-IP mapping to disk so restarts don't drop browser cached 198.18.x.x IPs
   config.profile['store-fake-ip'] = true
   localPreferHuluUs(config)
+  localPreferAiSupported(config)
   localRemoveAdBlocking(config)
   localInstallRuleSetTargetOverrides(config)
   localPreventWebRtcLeak(config)
   localApplyDns(config)
   var chinaIpRules = localPromoteChinaIpDirect(config)
   localPrependRules(config, chinaIpRules)
-  console.log('[local] Applied China IP direct routing, WebRTC leak protection, ad-blocking preference, rule-set targets, custom rules, proxy-group preferences, DNS policy and Hulu US preference')
+  console.log('[local] Applied China IP direct routing, WebRTC leak protection, ad-blocking preference, rule-set targets, custom rules, proxy-group preferences, DNS policy, Hulu US preference and AI service region preference')
   return config
 }
 

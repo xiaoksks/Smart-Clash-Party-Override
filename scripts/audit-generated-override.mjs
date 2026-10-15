@@ -275,6 +275,7 @@ function assertNormalContract(config, upstreamConfig) {
 function assertGroupRoutingContract(config, upstreamConfig) {
   const adPolicy = '\ud83d\uded1 \u5e7f\u544a\u62e6\u622a'
   const huluPolicy = '\ud83d\udcfa Hulu'
+  const aiPolicy = '\ud83e\udd16 AI \u670d\u52a1'
   const actualGroups = new Map((config['proxy-groups'] || []).map(group => [group.name, group]))
   const expectedGroups = (upstreamConfig['proxy-groups'] || []).filter(group => group.name !== adPolicy)
 
@@ -282,7 +283,7 @@ function assertGroupRoutingContract(config, upstreamConfig) {
   expectedGroups.forEach(upstreamGroup => {
     const group = actualGroups.get(upstreamGroup.name)
     assert(group, `Proxy group was removed locally: ${upstreamGroup.name}`)
-    if (group.name === huluPolicy) return
+    if (group.name === huluPolicy || group.name === aiPolicy) return
     const expectedProxies = (upstreamGroup.proxies || []).filter(name => name !== adPolicy)
     assert(
       JSON.stringify(group.proxies || []) === JSON.stringify(expectedProxies),
@@ -316,6 +317,24 @@ function assertHuluPreference(config) {
   const hulu = (config['proxy-groups'] || []).find(group => group.name === '\ud83d\udcfa Hulu')
   assert(hulu && hulu.proxies.length > 0, 'Hulu group is missing')
   assert(hulu.proxies[0] === '\ud83c\udfe1 \u7f8e\u56fd\u5bb6\u5bbd', `Hulu must prefer US residential group, got ${hulu.proxies[0]}`)
+}
+
+function assertAiPreference(config) {
+  const ai = (config['proxy-groups'] || []).find(group => group.name === '\ud83e\udd16 AI \u670d\u52a1')
+  assert(ai && ai.proxies.length > 0, 'AI group is missing')
+  const validSupported = [
+    '\ud83c\udfe1 \u7f8e\u56fd\u5bb6\u5bbd',
+    '\ud83c\uddfa\ud83c\uddf8 \u7f8e\u56fd\u8282\u70b9',
+    '\ud83c\udfe1 \u72ee\u57ce\u5bb6\u5bbd',
+    '\ud83c\uddf8\ud83c\uddec \u72ee\u57ce\u8282\u70b9',
+    '\ud83c\udfe1 \u65e5\u97e9\u5bb6\u5bbd',
+    '\ud83c\uddef\ud83c\uddf5 \u65e5\u97e9\u8282\u70b9',
+  ]
+  assert(validSupported.includes(ai.proxies[0]), `AI group must prefer supported regions (US/SG/JP), got ${ai.proxies[0]}`)
+  const hkIndex = ai.proxies.findIndex(p => p.includes('\u9999\u6e2f'))
+  if (hkIndex !== -1) {
+    assert(hkIndex >= ai.proxies.length - 2, `Hong Kong nodes must be demoted to tail of AI group, got index ${hkIndex}`)
+  }
 }
 
 async function auditTarget(target, spec) {
@@ -352,6 +371,7 @@ async function auditTarget(target, spec) {
   assertDnsContract(first, spec.foreignDnsDomains)
   assertProviderVersioning(first, version)
   assertHuluPreference(first)
+  assertAiPreference(first)
 
   const firstJson = JSON.stringify(first)
   const second = runOverride(output, first)

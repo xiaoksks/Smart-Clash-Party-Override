@@ -67,6 +67,22 @@ const CUSTOM_OVERRIDE_SPEC = {
     'DOMAIN,ip.cip.cc,DIRECT',
     'DOMAIN,myip.ipip.net,DIRECT',
 
+    // OpenAI / ChatGPT ecosystem: ensure web UI, API, static assets, telemetry, feature flags, and anti-bot challenges route to AI service consistently.
+    'DOMAIN-SUFFIX,chatgpt.com,🤖 AI 服务',
+    'DOMAIN-SUFFIX,oaistatic.com,🤖 AI 服务',
+    'DOMAIN-SUFFIX,oaiusercontent.com,🤖 AI 服务',
+    'DOMAIN-SUFFIX,openai.com,🤖 AI 服务',
+    'DOMAIN-SUFFIX,ai.com,🤖 AI 服务',
+    'DOMAIN-SUFFIX,sora.com,🤖 AI 服务',
+    'DOMAIN-SUFFIX,chat.com,🤖 AI 服务',
+    'DOMAIN-SUFFIX,api.statsig.com,🤖 AI 服务',
+    'DOMAIN-SUFFIX,events.statsigapi.net,🤖 AI 服务',
+    'DOMAIN-SUFFIX,featuregates.org,🤖 AI 服务',
+    'DOMAIN-SUFFIX,client-api.arkoselabs.com,🤖 AI 服务',
+    'DOMAIN-SUFFIX,openai-api.arkoselabs.com,🤖 AI 服务',
+    'DOMAIN-SUFFIX,challenges.cloudflare.com,🤖 AI 服务',
+    'DOMAIN-SUFFIX,turnstile.cloudflare.com,🤖 AI 服务',
+
     // Patreon page bootstrap: first party, consent, media, video and chat CDNs.
     'DOMAIN-SUFFIX,patreon.com,🌐 国外网站',
     'DOMAIN-SUFFIX,patreonusercontent.com,🌐 国外网站',
@@ -157,6 +173,17 @@ const CUSTOM_OVERRIDE_SPEC = {
   ],
 
   foreignDnsDomains: [
+    '+.chatgpt.com',
+    '+.oaistatic.com',
+    '+.oaiusercontent.com',
+    '+.openai.com',
+    '+.ai.com',
+    '+.sora.com',
+    '+.chat.com',
+    '+.statsig.com',
+    '+.statsigapi.net',
+    '+.featuregates.org',
+    '+.arkoselabs.com',
     '+.patreon.com',
     '+.patreonusercontent.com',
     '+.patreoncommunity.com',

@@ -30,6 +30,8 @@ https://github.com/IvanSolis1989/Smart-Config-Kit
   - Gitee（`gitee.com`）强制直连，避免被上游下载更新规则误分流至代理。
   - 斗鱼复用上游完整 `douyu` provider 并整体直连。
   - Patreon 媒体、视频与聊天依赖链及专属海外 DNS 策略。
+  - OpenAI / ChatGPT 全生态链与依赖服务前置统一归流（涵盖 `chatgpt.com`, `oaistatic.com`, `oaiusercontent.com`, `openai.com`, `statsig.com`, `arkoselabs.com`, `challenges.cloudflare.com` 等），彻底消除第三方静态 CDN、A/B 测试标志与人机验证落在不同代理出口导致的“会话与 IP 分裂”和验证死循环。
+  - `🤖 AI 服务` 策略组智能优选官方支持区域（美国家宽/美国节点、狮城、日韩优先，自动将官方不支持的香港节点降级至组末尾），避免自动测速选路误选香港导致 403 阻断或无法加载。
   - Hulu 默认优先美国家宽/美国节点。
 
 ---
@@ -129,3 +131,9 @@ geo-auto-update: true
 
 ### country code id not found in geoip.dat
 如果客户端报 `[GeoIP] failed to decode geodata file: geoip.dat, base error: country code id not found in geoip.dat`，说明当前客户端使用的 `geoip.dat` 不包含上游脚本里的印尼 GeoIP 国家码规则。本项目会在生成阶段自动移除该不兼容兜底规则，保留前面已有的印尼域名规则，避免整份覆写加载失败。
+
+### ChatGPT / OpenAI 网页加载或操作卡顿
+ChatGPT 网页高度依赖 Cloudflare 边缘节点、实时 HTTP/3 (QUIC) 竞态探测、Statsig 特性标志和 Arkose 人机安全验证。本项目已在规则层完成了全链条统一出口与节点优选。若在部分网络环境下仍偶发卡顿，推荐按如下排查：
+1. **策略组节点确认**：确保客户端「🤖 AI 服务」使用的是美国（US）、狮城（SG）或日韩（JPKR）等官方支持节点，避免使用香港（HK）节点。
+2. **关闭浏览器 QUIC 协议**：Cloudflare 会向浏览器下发 HTTP/3 指令，若节点 UDP 延迟不稳定或运营商 QoS，浏览器会在 UDP 与 TCP 之间反复竞态等待。可在 Chrome / Edge 浏览器地址栏打开 `chrome://flags`，搜索 `Experimental QUIC protocol` 设置为 `Disabled`，强制使用稳定的 TCP 隧道加载，可彻底消除静态资源与打字卡顿。
+3. **清理浏览器旧 Host 缓存**：访问 `chrome://net-internals/#sockets` 点击 `Flush socket pools`，重置可能遗留的旧连接。
