@@ -38,6 +38,9 @@ async function main() {
   console.log(`- Ad blocking removed: ${spec.removeAdBlocking ? 'yes' : 'no'}`)
   console.log(`- China IP forced direct: ${spec.forceChinaIpDirect ? 'yes' : 'no'}`)
   console.log(`- WebRTC leak protection: ${spec.preventWebRtcLeak ? `yes (${buildWebRtcProtectionRules(spec).length} rules)` : 'no'}`)
+  if (spec.webRtcDomains && spec.webRtcDomains.length > 0) {
+    console.log(`- WebRTC protected domains: ${spec.webRtcDomains.join(', ')}`)
+  }
   console.log(`- Rule-set target overrides: ${Object.keys(spec.ruleSetTargetOverrides).length}`)
   console.log(`- Custom priority rules: ${spec.preRules.length}`)
   console.log(`- Custom foreign-DNS domains: ${spec.foreignDnsDomains.length}`)

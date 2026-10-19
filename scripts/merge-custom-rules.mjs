@@ -50,6 +50,7 @@ function buildHeader(spec, upstream, providerBundle, mode = 'normal') {
     `const CUSTOM_PREVENT_WEBRTC_LEAK = ${JSON.stringify(spec.preventWebRtcLeak)}`,
     `const CUSTOM_WEBRTC_BROWSER_PROCESSES = ${JSON.stringify(spec.webRtcBrowserProcesses)}`,
     `const CUSTOM_WEBRTC_PORTS = ${JSON.stringify(spec.webRtcPorts)}`,
+    `const CUSTOM_WEBRTC_DOMAINS = ${JSON.stringify(spec.webRtcDomains || [])}`,
     `const CUSTOM_TUN_EXCLUDE_PROCESSES = ${JSON.stringify(spec.tunExcludeProcesses, null, 2)}`,
     `const CUSTOM_WEBRTC_RULES = ${JSON.stringify(buildWebRtcProtectionRules(spec), null, 2)}`,
     `const CUSTOM_RULE_SET_TARGET_OVERRIDES = ${JSON.stringify(spec.ruleSetTargetOverrides, null, 2)}`,

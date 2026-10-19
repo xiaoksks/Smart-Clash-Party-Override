@@ -10,6 +10,7 @@ const CUSTOM_FORCE_CHINA_IP_DIRECT = true
 const CUSTOM_PREVENT_WEBRTC_LEAK = true
 const CUSTOM_WEBRTC_BROWSER_PROCESSES = ["chrome.exe","msedge.exe","firefox.exe","brave.exe","opera.exe","vivaldi.exe","chromium.exe"]
 const CUSTOM_WEBRTC_PORTS = ["3478","3479","5349","19302","19305","19307"]
+const CUSTOM_WEBRTC_DOMAINS = ["ippure.com"]
 const CUSTOM_TUN_EXCLUDE_PROCESSES = [
   "Thunder.exe",
   "ThunderPlatform.exe",
@@ -31,7 +32,8 @@ const CUSTOM_WEBRTC_RULES = [
   "DST-PORT,5349,REJECT",
   "DST-PORT,19302,REJECT",
   "DST-PORT,19305,REJECT",
-  "DST-PORT,19307,REJECT"
+  "DST-PORT,19307,REJECT",
+  "AND,((DOMAIN-SUFFIX,ippure.com),(NETWORK,UDP)),REJECT"
 ]
 const CUSTOM_RULE_SET_TARGET_OVERRIDES = {
   "douyu": "DIRECT"
@@ -66,6 +68,7 @@ const CUSTOM_PRE_RULES = [
   "DOMAIN-SUFFIX,ident.me,🌐 国外网站",
   "DOMAIN-SUFFIX,icanhazip.com,🌐 国外网站",
   "DOMAIN-SUFFIX,ifconfig.me,🌐 国外网站",
+  "DOMAIN-SUFFIX,ippure.com,🌐 国外网站",
   "DOMAIN,ip.cip.cc,DIRECT",
   "DOMAIN,myip.ipip.net,DIRECT",
   "DOMAIN-SUFFIX,chatgpt.com,🤖 AI 服务",
@@ -179,7 +182,8 @@ const CUSTOM_FOREIGN_DNS_DOMAINS = [
   "patreon-media.s3-accelerate.amazonaws.com",
   "+.mux.com",
   "+.stream-io-api.com",
-  "+.stream-io-video.com"
+  "+.stream-io-video.com",
+  "+.ippure.com"
 ]
 // Clash 覆写脚本 - SUB-STORE 多机场精细分流版
 // 版本：v6.0.20-normal.20 (2026-10-16)

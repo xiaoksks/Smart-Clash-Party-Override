@@ -103,6 +103,7 @@ export function buildWebRtcProtectionRules(spec) {
   return [
     ...spec.webRtcBrowserProcesses.map(process => `AND,((PROCESS-NAME,${process}),(NETWORK,UDP),(NOT,((GEOSITE,cn)))),REJECT`),
     ...spec.webRtcPorts.map(port => `DST-PORT,${port},REJECT`),
+    ...((spec.webRtcDomains || []).map(domain => `AND,((DOMAIN-SUFFIX,${domain}),(NETWORK,UDP)),REJECT`)),
   ]
 }
 
@@ -136,6 +137,16 @@ export async function loadCustomSpec() {
       throw new Error(`Invalid webRtcPorts entry: ${port}`)
     }
   })
+  const webRtcDomains = Array.isArray(spec.webRtcDomains) ? spec.webRtcDomains : []
+  assertUniqueStrings(webRtcDomains, 'webRtcDomains')
+  const cleanWebRtcDomains = webRtcDomains.map(d =>
+    d.replace(/^https?:\/\//i, '').replace(/\/.*$/, '').toLowerCase().trim()
+  )
+  cleanWebRtcDomains.forEach(domain => {
+    if (!domain || domain.includes(' ') || domain.includes(',')) {
+      throw new Error(`Invalid webRtcDomains entry: ${domain}`)
+    }
+  })
   const tunExcludeProcesses = Array.isArray(spec.tunExcludeProcesses) ? spec.tunExcludeProcesses : []
   assertUniqueStrings(tunExcludeProcesses, 'tunExcludeProcesses')
   const browserSet = new Set(spec.webRtcBrowserProcesses.map(p => String(p).toLowerCase()))
@@ -153,6 +164,7 @@ export async function loadCustomSpec() {
     preventWebRtcLeak: spec.preventWebRtcLeak,
     webRtcBrowserProcesses: Array.from(spec.webRtcBrowserProcesses),
     webRtcPorts: Array.from(spec.webRtcPorts),
+    webRtcDomains: cleanWebRtcDomains,
     tunExcludeProcesses: Array.from(tunExcludeProcesses),
     ruleSetTargetOverrides,
     preRules: Array.from(spec.preRules),

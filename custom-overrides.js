@@ -20,6 +20,10 @@ const CUSTOM_OVERRIDE_SPEC = {
     'chromium.exe',
   ],
   webRtcPorts: ['3478', '3479', '5349', '19302', '19305', '19307'],
+  // Dedicated domains for WebRTC leak prevention (rejects all UDP traffic to block STUN/ICE probes).
+  webRtcDomains: [
+    'ippure.com',
+  ],
 
   // Processes excluded from TUN virtual network adapter at the kernel driver level.
   // P2P downloaders establish massive concurrent direct connections; bypassing TUN directly
@@ -64,6 +68,7 @@ const CUSTOM_OVERRIDE_SPEC = {
     'DOMAIN-SUFFIX,ident.me,🌐 国外网站',
     'DOMAIN-SUFFIX,icanhazip.com,🌐 国外网站',
     'DOMAIN-SUFFIX,ifconfig.me,🌐 国外网站',
+    'DOMAIN-SUFFIX,ippure.com,🌐 国外网站',
     'DOMAIN,ip.cip.cc,DIRECT',
     'DOMAIN,myip.ipip.net,DIRECT',
 
@@ -193,5 +198,6 @@ const CUSTOM_OVERRIDE_SPEC = {
     '+.mux.com',
     '+.stream-io-api.com',
     '+.stream-io-video.com',
+    '+.ippure.com',
   ],
 }
