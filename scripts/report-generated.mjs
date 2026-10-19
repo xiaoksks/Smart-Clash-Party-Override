@@ -25,13 +25,15 @@ async function main() {
 
   console.log('## Clash Party / Mihomo Override - Lite 极简版')
   console.log('')
-  console.log('### 策略组配置 (Dual-Group)')
-  console.log(`- 核心策略组数: ${summary.groups} (🌐 国外节点 / 🇨🇳 国内节点)`)
+  console.log('### 策略组配置 (Triple-Group)')
+  console.log(`- 核心策略组数: ${summary.groups} (🌐 国外节点 / 🚫 日本禁用 / 🇨🇳 国内节点)`)
+  console.log(`- 日本禁用策略组: 自动排除所有日本节点，提供港/台/美/新等非日节点备选，直连保底`)
   console.log(`- 国内节点出站: 首项默认 DIRECT，内嵌「🌐 国外节点」支持一键全局翻墙`)
   console.log('')
   console.log('### 规则与分流配置')
   console.log(`- 总规则数: ${summary.rules}`)
   console.log(`- 规则提供商 (MRS): ${summary.providers}`)
+  console.log(`- 日本禁用分流网站数: ${(spec.japanBlockedDomains || []).length} (含 hgamefree.info, 生肉漫画, ACG 资源, 成人流媒体等)`)
   console.log(`- 自定义前置规则: ${spec.preRules.length}`)
   console.log(`- 大陆权威 IP 强制直连: ${spec.forceChinaIpDirect ? '开启' : '关闭'}`)
   console.log(`- 广告拦截移除: ${spec.removeAdBlocking ? '已移除' : '保留'}`)
@@ -41,7 +43,7 @@ async function main() {
   if (spec.webRtcDomains && spec.webRtcDomains.length > 0) {
     console.log(`- WebRTC 重点防御域名: ${spec.webRtcDomains.join(', ')}`)
   }
-  console.log(`- 海外 DoH 防污染域名数: ${spec.foreignDnsDomains.length}`)
+  console.log(`- 海外 DoH 防污染域名数: ${spec.foreignDnsDomains.length + (spec.japanBlockedDomains || []).length}`)
   console.log(`- TUN 内核旁路进程数: ${(spec.tunExcludeProcesses || []).length}`)
 }
 

@@ -1,5 +1,5 @@
 // Clash Party / Mihomo Override - Lite 极简版
-// 仅保留「🌐 国外节点」与「🇨🇳 国内节点」两大策略组，全本地自主维护
+// 核心三策略组：「🌐 国外节点」、「🚫 日本禁用」、「🇨🇳 国内节点」，全本地自主维护
 // 自定义规则与配置请编辑 custom-overrides.js，然后运行 npm run check
 
 const LITE_RULES = [
@@ -101,6 +101,61 @@ const LITE_RULES = [
   "AND,((DOMAIN-SUFFIX,stun.chat.bilibili.com),(NETWORK,UDP)),REJECT",
   "AND,((DOMAIN-SUFFIX,stun.hitv.com),(NETWORK,UDP)),REJECT",
   "AND,((DOMAIN-SUFFIX,stun.miwifi.com),(NETWORK,UDP)),REJECT",
+  "DOMAIN-SUFFIX,hgamefree.info,🚫 日本禁用",
+  "DOMAIN-SUFFIX,erogames.top,🚫 日本禁用",
+  "DOMAIN-SUFFIX,gg-games.org,🚫 日本禁用",
+  "DOMAIN-SUFFIX,gg-games.net,🚫 日本禁用",
+  "DOMAIN-SUFFIX,anime-sharing.com,🚫 日本禁用",
+  "DOMAIN-SUFFIX,2djgame.net,🚫 日本禁用",
+  "DOMAIN-SUFFIX,acgngame.net,🚫 日本禁用",
+  "DOMAIN-SUFFIX,zodgame.xyz,🚫 日本禁用",
+  "DOMAIN-SUFFIX,south-plus.net,🚫 日本禁用",
+  "DOMAIN-SUFFIX,south-plus.org,🚫 日本禁用",
+  "DOMAIN-SUFFIX,rawkuma.com,🚫 日本禁用",
+  "DOMAIN-SUFFIX,weloma.art,🚫 日本禁用",
+  "DOMAIN-SUFFIX,weloma.net,🚫 日本禁用",
+  "DOMAIN-SUFFIX,klmanga.com,🚫 日本禁用",
+  "DOMAIN-SUFFIX,klmanga.net,🚫 日本禁用",
+  "DOMAIN-SUFFIX,klmanga.co,🚫 日本禁用",
+  "DOMAIN-SUFFIX,manga1000.top,🚫 日本禁用",
+  "DOMAIN-SUFFIX,manga1001.top,🚫 日本禁用",
+  "DOMAIN-SUFFIX,manga1000.com,🚫 日本禁用",
+  "DOMAIN-SUFFIX,manga1001.in,🚫 日本禁用",
+  "DOMAIN-SUFFIX,senmanga.com,🚫 日本禁用",
+  "DOMAIN-SUFFIX,synobamangas.com,🚫 日本禁用",
+  "DOMAIN-SUFFIX,sakuramanga.org,🚫 日本禁用",
+  "DOMAIN-SUFFIX,rawdevart.com,🚫 日本禁用",
+  "DOMAIN-SUFFIX,bato.to,🚫 日本禁用",
+  "DOMAIN-SUFFIX,mangakakalot.com,🚫 日本禁用",
+  "DOMAIN-SUFFIX,mangakakalot.tv,🚫 日本禁用",
+  "DOMAIN-SUFFIX,manganato.com,🚫 日本禁用",
+  "DOMAIN-SUFFIX,chapmanganato.to,🚫 日本禁用",
+  "DOMAIN-SUFFIX,comick.io,🚫 日本禁用",
+  "DOMAIN-SUFFIX,comick.app,🚫 日本禁用",
+  "DOMAIN-SUFFIX,18comic.vip,🚫 日本禁用",
+  "DOMAIN-SUFFIX,18comic.org,🚫 日本禁用",
+  "DOMAIN-SUFFIX,wnacg.com,🚫 日本禁用",
+  "DOMAIN-SUFFIX,wnacg.org,🚫 日本禁用",
+  "DOMAIN-SUFFIX,hitomi.la,🚫 日本禁用",
+  "DOMAIN-SUFFIX,nhentai.net,🚫 日本禁用",
+  "DOMAIN-SUFFIX,asmhentai.com,🚫 日本禁用",
+  "DOMAIN-SUFFIX,kemono.su,🚫 日本禁用",
+  "DOMAIN-SUFFIX,kemono.party,🚫 日本禁用",
+  "DOMAIN-SUFFIX,coomer.su,🚫 日本禁用",
+  "DOMAIN-SUFFIX,coomer.party,🚫 日本禁用",
+  "DOMAIN-SUFFIX,nyaa.si,🚫 日本禁用",
+  "DOMAIN-SUFFIX,missav.com,🚫 日本禁用",
+  "DOMAIN-SUFFIX,missav.ai,🚫 日本禁用",
+  "DOMAIN-SUFFIX,missav.ws,🚫 日本禁用",
+  "DOMAIN-SUFFIX,jable.tv,🚫 日本禁用",
+  "DOMAIN-SUFFIX,supjav.com,🚫 日本禁用",
+  "DOMAIN-SUFFIX,tktube.com,🚫 日本禁用",
+  "DOMAIN-SUFFIX,7mmtv.tv,🚫 日本禁用",
+  "DOMAIN-SUFFIX,7mmtv.sx,🚫 日本禁用",
+  "DOMAIN-SUFFIX,netflav.com,🚫 日本禁用",
+  "DOMAIN-SUFFIX,hpjav.tv,🚫 日本禁用",
+  "DOMAIN-SUFFIX,javlibrary.com,🚫 日本禁用",
+  "DOMAIN-SUFFIX,cableav.tv,🚫 日本禁用",
   "RULE-SET,scki-fused-075-cn-site-ipcidr-no-resolve,🇨🇳 国内节点,no-resolve",
   "DOMAIN-SUFFIX,ip.sb,🌐 国外节点",
   "DOMAIN-SUFFIX,ipify.org,🌐 国外节点",
@@ -1699,6 +1754,63 @@ const LITE_FOREIGN_DNS_DOMAINS = [
   "+.stream-io-video.com",
   "+.ippure.com"
 ]
+const LITE_JAPAN_BLOCKED_DOMAINS = [
+  "hgamefree.info",
+  "erogames.top",
+  "gg-games.org",
+  "gg-games.net",
+  "anime-sharing.com",
+  "2djgame.net",
+  "acgngame.net",
+  "zodgame.xyz",
+  "south-plus.net",
+  "south-plus.org",
+  "rawkuma.com",
+  "weloma.art",
+  "weloma.net",
+  "klmanga.com",
+  "klmanga.net",
+  "klmanga.co",
+  "manga1000.top",
+  "manga1001.top",
+  "manga1000.com",
+  "manga1001.in",
+  "senmanga.com",
+  "synobamangas.com",
+  "sakuramanga.org",
+  "rawdevart.com",
+  "bato.to",
+  "mangakakalot.com",
+  "mangakakalot.tv",
+  "manganato.com",
+  "chapmanganato.to",
+  "comick.io",
+  "comick.app",
+  "18comic.vip",
+  "18comic.org",
+  "wnacg.com",
+  "wnacg.org",
+  "hitomi.la",
+  "nhentai.net",
+  "asmhentai.com",
+  "kemono.su",
+  "kemono.party",
+  "coomer.su",
+  "coomer.party",
+  "nyaa.si",
+  "missav.com",
+  "missav.ai",
+  "missav.ws",
+  "jable.tv",
+  "supjav.com",
+  "tktube.com",
+  "7mmtv.tv",
+  "7mmtv.sx",
+  "netflav.com",
+  "hpjav.tv",
+  "javlibrary.com",
+  "cableav.tv"
+]
 const LITE_TUN_EXCLUDE_PROCESSES = [
   "Thunder.exe",
   "ThunderPlatform.exe",
@@ -1708,9 +1820,11 @@ const LITE_TUN_EXCLUDE_PROCESSES = [
   "DownloadSDKServer.exe"
 ]
 
-// 节点分类辅助工具：精准识别国内回国节点与说明节点
+// 节点分类辅助工具：精准识别国内回国节点、说明节点与日本节点
 var INFO_REGEX = /流量|到期|过期|重置|官网|通知|订阅|套餐|客服|QQ群|TG频道|网址|剩余|官方/i
 var CN_NODE_REGEX = /中国(?:电信|联通|移动|铁通|中转|专线)|(?:^|[^a-zA-Z])(?:CN|China|Mainland|回国|国内|北京|上海|广州|深圳|杭州|南京|武汉|成都|重庆|天津|西安|苏州|郑州|长沙|沈阳|青岛|济南|大连|厦门|福州|合肥)(?:[^a-zA-Z]|$)/i
+var JP_NODE_REGEX = /(?:^|[^a-zA-Z])(?:JP|JPN|Japan|Tokyo|Osaka|Nagoya|Fukuoka|Yokohama|Saitama|Chiba|Hokkaido|Okinawa|Kyoto|Kobe)(?:[^a-zA-Z]|$)|(?:日本|东京|大阪|名古屋|福冈|横滨|埼玉|千叶|北海道|冲绳|京都|神户)|🇯🇵/i
+var FOREIGN_KEYWORD_REGEX = /(?:^|[^a-zA-Z])(?:HK|HongKong|TW|Taiwan|JP|Japan|SG|Singapore|US|USA|KR|Korea|UK)(?:[^a-zA-Z]|$)|(?:香港|台湾|日本|新加坡|美国|韩国|英国|德国|法国)|(?:🇭🇰|🇹🇼|🇯🇵|🇸🇬|🇺🇸|🇰🇷|🇬🇧|🇩🇪|🇫🇷)/i
 
 function isInfoNode(name) {
   if (typeof name !== 'string') return false
@@ -1719,7 +1833,13 @@ function isInfoNode(name) {
 
 function isCnNode(name) {
   if (typeof name !== 'string') return false
+  if (FOREIGN_KEYWORD_REGEX.test(name)) return false
   return CN_NODE_REGEX.test(name)
+}
+
+function isJpNode(name) {
+  if (typeof name !== 'string') return false
+  return JP_NODE_REGEX.test(name)
 }
 
 function applyLiteDns(config) {
@@ -1753,6 +1873,11 @@ function applyLiteDns(config) {
   LITE_FOREIGN_DNS_DOMAINS.forEach(function(host) {
     config.dns['nameserver-policy'][host] = foreignDoH.slice()
   })
+
+  // 日本禁用站点同样走海外 DoH 防污染
+  LITE_JAPAN_BLOCKED_DOMAINS.forEach(function(domain) {
+    config.dns['nameserver-policy']['+.' + domain] = foreignDoH.slice()
+  })
 }
 
 function applyLiteTun(config) {
@@ -1784,8 +1909,9 @@ function main(config) {
   if (!config || typeof config !== 'object') return config
   if (!Array.isArray(config.proxies) || config.proxies.length === 0) return config
 
-  // 1. 节点分类：分离有效国外代理与国内回国节点，剔除流量说明节点
+  // 1. 节点分类：分离有效国外代理、非日本节点与国内回国节点，剔除流量说明节点
   var foreignNodes = []
+  var nonJpNodes = []
   var cnNodes = []
 
   for (var i = 0; i < config.proxies.length; i++) {
@@ -1800,14 +1926,31 @@ function main(config) {
       cnNodes.push(name)
     } else {
       foreignNodes.push(name)
+      if (!isJpNode(name)) {
+        nonJpNodes.push(name)
+      }
     }
   }
 
-  // 2. 策略组极简双组：仅「🌐 国外节点」与「🇨🇳 国内节点」
+  // 2. 策略组配置：三大核心策略组
+  // 「🌐 国外节点」：全部海外节点
+  // 「🚫 日本禁用」：自动排除日本节点（用于访问因日本著作权法/WAF对日本IP返回403的站点）
+  // 「🇨🇳 国内节点」：默认 DIRECT 直连，内嵌国外节点支持一键全局翻墙
   var foreignGroup = {
     name: '🌐 国外节点',
     type: 'select',
     proxies: foreignNodes.length > 0 ? foreignNodes : ['REJECT'],
+  }
+
+  var nonJpProxies = nonJpNodes.length > 0 ? nonJpNodes.slice() : (foreignNodes.length > 0 ? foreignNodes.slice() : ['DIRECT'])
+  if (!nonJpProxies.includes('DIRECT')) {
+    nonJpProxies.push('DIRECT')
+  }
+
+  var nonJpGroup = {
+    name: '🚫 日本禁用',
+    type: 'select',
+    proxies: nonJpProxies,
   }
 
   var domesticGroup = {
@@ -1816,7 +1959,7 @@ function main(config) {
     proxies: ['DIRECT', '🌐 国外节点'].concat(cnNodes),
   }
 
-  config['proxy-groups'] = [foreignGroup, domesticGroup]
+  config['proxy-groups'] = [foreignGroup, nonJpGroup, domesticGroup]
 
   // 3. 规则集与提供商注入
   config['rule-providers'] = LITE_RULE_PROVIDERS
@@ -1835,6 +1978,6 @@ function main(config) {
     { name: 'MIXED-DIRECT', type: 'mixed', port: 10086, proxy: 'DIRECT' },
   ]
 
-  console.log('[Lite-Override] Loaded successfully: 2 proxy groups (' + foreignNodes.length + ' foreign proxies, ' + domesticGroup.proxies.length + ' domestic options), ' + config.rules.length + ' rules, ' + Object.keys(config['rule-providers']).length + ' rule-providers')
+  console.log('[Lite-Override] Loaded successfully: 3 proxy groups (' + foreignNodes.length + ' foreign proxies, ' + nonJpProxies.length + ' non-JP proxies, ' + domesticGroup.proxies.length + ' domestic options), ' + config.rules.length + ' rules, ' + Object.keys(config['rule-providers']).length + ' rule-providers')
   return config
 }

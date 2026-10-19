@@ -62,29 +62,39 @@ export async function auditLiteOverride() {
   const initial = fixtureConfig()
   const result = runOverride(code, initial)
 
-  // 1. Assert exactly 2 proxy groups
+  // 1. Assert exactly 3 proxy groups
   const groups = result['proxy-groups'] || []
-  assert(groups.length === 2, `Expected exactly 2 proxy groups, found ${groups.length}`)
+  assert(groups.length === 3, `Expected exactly 3 proxy groups, found ${groups.length}`)
 
   const foreignGroup = groups.find(g => g.name === '🌐 国外节点')
+  const nonJpGroup = groups.find(g => g.name === '🚫 日本禁用')
   const domesticGroup = groups.find(g => g.name === '🇨🇳 国内节点')
   assert(foreignGroup, 'Missing "🌐 国外节点" group')
+  assert(nonJpGroup, 'Missing "🚫 日本禁用" group')
   assert(domesticGroup, 'Missing "🇨🇳 国内节点" group')
   assert(foreignGroup.type === 'select', '"🌐 国外节点" must be select type')
+  assert(nonJpGroup.type === 'select', '"🚫 日本禁用" must be select type')
   assert(domesticGroup.type === 'select', '"🇨🇳 国内节点" must be select type')
 
   // Check node classification
   assert(foreignGroup.proxies.includes('🇭🇰 香港 01 | BGP专线'), 'Foreign group missing HK node')
   assert(foreignGroup.proxies.includes('🇺🇸 美国 01 | 原生住宅'), 'Foreign group missing US node')
+  assert(foreignGroup.proxies.includes('🇯🇵 日本 01 | 低延迟'), 'Foreign group missing JP node')
   assert(!foreignGroup.proxies.includes('🇨🇳 国内中转-上海电信'), 'Foreign group must not include CN node')
   assert(!foreignGroup.proxies.some(n => n.includes('流量信息')), 'Foreign group must filter out info nodes')
+
+  // Check Japan blocked group classification
+  assert(nonJpGroup.proxies.includes('🇭🇰 香港 01 | BGP专线'), 'Non-JP group missing HK node')
+  assert(nonJpGroup.proxies.includes('🇺🇸 美国 01 | 原生住宅'), 'Non-JP group missing US node')
+  assert(!nonJpGroup.proxies.includes('🇯🇵 日本 01 | 低延迟'), 'Non-JP group must NOT include JP node')
+  assert(nonJpGroup.proxies.includes('DIRECT'), 'Non-JP group should include DIRECT fallback')
 
   assert(domesticGroup.proxies[0] === 'DIRECT', '"🇨🇳 国内节点" first proxy must be DIRECT')
   assert(domesticGroup.proxies[1] === '🌐 国外节点', '"🇨🇳 国内节点" second proxy must be "🌐 国外节点"')
   assert(domesticGroup.proxies.includes('🇨🇳 国内中转-上海电信'), '"🇨🇳 国内节点" must include CN transit node')
 
   // 2. Assert Rule Targets
-  const validTargets = new Set(['DIRECT', 'REJECT', 'REJECT-DROP', 'PASS', '🌐 国外节点', '🇨🇳 国内节点'])
+  const validTargets = new Set(['DIRECT', 'REJECT', 'REJECT-DROP', 'PASS', '🌐 国外节点', '🇨🇳 国内节点', '🚫 日本禁用'])
   const seenRules = new Set()
   const referencedProviders = new Set()
 
@@ -98,6 +108,12 @@ export async function auditLiteOverride() {
     if (parts[0] === 'RULE-SET') {
       referencedProviders.add(parts[1])
     }
+  })
+
+  // Check Japan blocked rules
+  assert(result.rules.includes('DOMAIN-SUFFIX,hgamefree.info,🚫 日本禁用'), 'Missing rule for hgamefree.info -> 🚫 日本禁用')
+  ;(spec.japanBlockedDomains || []).forEach(domain => {
+    assert(result.rules.includes(`DOMAIN-SUFFIX,${domain},🚫 日本禁用`), `Missing rule for ${domain} -> 🚫 日本禁用`)
   })
 
   // 3. Assert WebRTC Leak Protection
@@ -143,6 +159,10 @@ export async function auditLiteOverride() {
     const policy = result.dns?.['nameserver-policy']?.[domain]
     assert(Array.isArray(policy) && policy.length > 0, `Missing foreign DNS policy for ${domain}`)
   })
+  ;(spec.japanBlockedDomains || []).forEach(domain => {
+    const policy = result.dns?.['nameserver-policy']?.['+.' + domain]
+    assert(Array.isArray(policy) && policy.length > 0, `Missing foreign DNS policy for japan-blocked domain ${domain}`)
+  })
 
   // 6. Assert TUN
   assert(result.tun?.enable === true, 'TUN must be enabled')
@@ -165,7 +185,7 @@ export async function auditLiteOverride() {
   const second = runOverride(code, result)
   assert(JSON.stringify(second) === JSON.stringify(result), 'Lite override execution is not idempotent')
 
-  console.log(`Lite override audit passed: 2 proxy groups, ${result.rules.length} rules, ${Object.keys(providers).length} rule-providers`)
+  console.log(`Lite override audit passed: 3 proxy groups, ${result.rules.length} rules, ${Object.keys(providers).length} rule-providers`)
 }
 
 if (process.argv[1] && process.argv[1].endsWith('audit.mjs')) {

@@ -1,6 +1,6 @@
 import { readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
-import { buildWebRtcProtectionRules, loadCustomSpec, ROOT } from './custom-spec.mjs'
+import { buildJapanBlockedRules, buildWebRtcProtectionRules, loadCustomSpec, ROOT } from './custom-spec.mjs'
 
 const DIST_PATH = path.join(ROOT, 'dist', 'Lite-Override.js')
 const BASE_DATA_PATH = path.join(ROOT, 'scripts', 'base-data.json')
@@ -15,6 +15,8 @@ function normalizeRuleTarget(rule) {
     newTarget = oldTarget
   } else if (['DIRECT', '🇨🇳 常用网站', '📺 国内媒体', '🕹️ 国内游戏', '🏠 国内网站', '📺 国内流媒体', '🇨🇳 国内节点'].includes(oldTarget)) {
     newTarget = '🇨🇳 国内节点'
+  } else if (['🚫 日本禁用', '日本禁用', '🚫 非日节点', '非日节点'].includes(oldTarget)) {
+    newTarget = '🚫 日本禁用'
   } else {
     newTarget = '🌐 国外节点'
   }
@@ -34,8 +36,9 @@ export async function buildLiteOverride() {
   ])
   const baseData = JSON.parse(baseDataRaw)
 
-  // 1. Build WebRTC protection rules
+  // 1. Build WebRTC protection rules and Japan blocked rules
   const webRtcRules = buildWebRtcProtectionRules(spec)
+  const japanBlockedRules = buildJapanBlockedRules(spec)
 
   // 2. Pre-rules (separated by direct vs non-direct)
   const directPreRules = spec.preRules
@@ -68,6 +71,7 @@ export async function buildLiteOverride() {
     ...localRuleSetRules,
     ...directPreRules,
     ...webRtcRules,
+    ...japanBlockedRules,
     ...chinaIpRules,
     ...nonDirectPreRules,
   ]
@@ -113,18 +117,21 @@ export async function buildLiteOverride() {
 
   // 7. Assemble the standalone Lite-Override.js script
   const content = `// Clash Party / Mihomo Override - Lite 极简版
-// 仅保留「🌐 国外节点」与「🇨🇳 国内节点」两大策略组，全本地自主维护
+// 核心三策略组：「🌐 国外节点」、「🚫 日本禁用」、「🇨🇳 国内节点」，全本地自主维护
 // 自定义规则与配置请编辑 custom-overrides.js，然后运行 npm run check
 
 const LITE_RULES = ${JSON.stringify(finalRules, null, 2)}
 const LITE_RULE_PROVIDERS = ${JSON.stringify(ruleProviders, null, 2)}
 const LITE_DNS_CONFIG = ${JSON.stringify(baseData.dns, null, 2)}
 const LITE_FOREIGN_DNS_DOMAINS = ${JSON.stringify(spec.foreignDnsDomains, null, 2)}
+const LITE_JAPAN_BLOCKED_DOMAINS = ${JSON.stringify(spec.japanBlockedDomains || [], null, 2)}
 const LITE_TUN_EXCLUDE_PROCESSES = ${JSON.stringify(spec.tunExcludeProcesses || [], null, 2)}
 
-// 节点分类辅助工具：精准识别国内回国节点与说明节点
+// 节点分类辅助工具：精准识别国内回国节点、说明节点与日本节点
 var INFO_REGEX = /流量|到期|过期|重置|官网|通知|订阅|套餐|客服|QQ群|TG频道|网址|剩余|官方/i
 var CN_NODE_REGEX = /中国(?:电信|联通|移动|铁通|中转|专线)|(?:^|[^a-zA-Z])(?:CN|China|Mainland|回国|国内|北京|上海|广州|深圳|杭州|南京|武汉|成都|重庆|天津|西安|苏州|郑州|长沙|沈阳|青岛|济南|大连|厦门|福州|合肥)(?:[^a-zA-Z]|$)/i
+var JP_NODE_REGEX = /(?:^|[^a-zA-Z])(?:JP|JPN|Japan|Tokyo|Osaka|Nagoya|Fukuoka|Yokohama|Saitama|Chiba|Hokkaido|Okinawa|Kyoto|Kobe)(?:[^a-zA-Z]|$)|(?:日本|东京|大阪|名古屋|福冈|横滨|埼玉|千叶|北海道|冲绳|京都|神户)|🇯🇵/i
+var FOREIGN_KEYWORD_REGEX = /(?:^|[^a-zA-Z])(?:HK|HongKong|TW|Taiwan|JP|Japan|SG|Singapore|US|USA|KR|Korea|UK)(?:[^a-zA-Z]|$)|(?:香港|台湾|日本|新加坡|美国|韩国|英国|德国|法国)|(?:🇭🇰|🇹🇼|🇯🇵|🇸🇬|🇺🇸|🇰🇷|🇬🇧|🇩🇪|🇫🇷)/i
 
 function isInfoNode(name) {
   if (typeof name !== 'string') return false
@@ -133,7 +140,13 @@ function isInfoNode(name) {
 
 function isCnNode(name) {
   if (typeof name !== 'string') return false
+  if (FOREIGN_KEYWORD_REGEX.test(name)) return false
   return CN_NODE_REGEX.test(name)
+}
+
+function isJpNode(name) {
+  if (typeof name !== 'string') return false
+  return JP_NODE_REGEX.test(name)
 }
 
 function applyLiteDns(config) {
@@ -167,6 +180,11 @@ function applyLiteDns(config) {
   LITE_FOREIGN_DNS_DOMAINS.forEach(function(host) {
     config.dns['nameserver-policy'][host] = foreignDoH.slice()
   })
+
+  // 日本禁用站点同样走海外 DoH 防污染
+  LITE_JAPAN_BLOCKED_DOMAINS.forEach(function(domain) {
+    config.dns['nameserver-policy']['+.' + domain] = foreignDoH.slice()
+  })
 }
 
 function applyLiteTun(config) {
@@ -198,8 +216,9 @@ function main(config) {
   if (!config || typeof config !== 'object') return config
   if (!Array.isArray(config.proxies) || config.proxies.length === 0) return config
 
-  // 1. 节点分类：分离有效国外代理与国内回国节点，剔除流量说明节点
+  // 1. 节点分类：分离有效国外代理、非日本节点与国内回国节点，剔除流量说明节点
   var foreignNodes = []
+  var nonJpNodes = []
   var cnNodes = []
 
   for (var i = 0; i < config.proxies.length; i++) {
@@ -214,14 +233,31 @@ function main(config) {
       cnNodes.push(name)
     } else {
       foreignNodes.push(name)
+      if (!isJpNode(name)) {
+        nonJpNodes.push(name)
+      }
     }
   }
 
-  // 2. 策略组极简双组：仅「🌐 国外节点」与「🇨🇳 国内节点」
+  // 2. 策略组配置：三大核心策略组
+  // 「🌐 国外节点」：全部海外节点
+  // 「🚫 日本禁用」：自动排除日本节点（用于访问因日本著作权法/WAF对日本IP返回403的站点）
+  // 「🇨🇳 国内节点」：默认 DIRECT 直连，内嵌国外节点支持一键全局翻墙
   var foreignGroup = {
     name: '🌐 国外节点',
     type: 'select',
     proxies: foreignNodes.length > 0 ? foreignNodes : ['REJECT'],
+  }
+
+  var nonJpProxies = nonJpNodes.length > 0 ? nonJpNodes.slice() : (foreignNodes.length > 0 ? foreignNodes.slice() : ['DIRECT'])
+  if (!nonJpProxies.includes('DIRECT')) {
+    nonJpProxies.push('DIRECT')
+  }
+
+  var nonJpGroup = {
+    name: '🚫 日本禁用',
+    type: 'select',
+    proxies: nonJpProxies,
   }
 
   var domesticGroup = {
@@ -230,7 +266,7 @@ function main(config) {
     proxies: ['DIRECT', '🌐 国外节点'].concat(cnNodes),
   }
 
-  config['proxy-groups'] = [foreignGroup, domesticGroup]
+  config['proxy-groups'] = [foreignGroup, nonJpGroup, domesticGroup]
 
   // 3. 规则集与提供商注入
   config['rule-providers'] = LITE_RULE_PROVIDERS
@@ -249,7 +285,7 @@ function main(config) {
     { name: 'MIXED-DIRECT', type: 'mixed', port: 10086, proxy: 'DIRECT' },
   ]
 
-  console.log('[Lite-Override] Loaded successfully: 2 proxy groups (' + foreignNodes.length + ' foreign proxies, ' + domesticGroup.proxies.length + ' domestic options), ' + config.rules.length + ' rules, ' + Object.keys(config['rule-providers']).length + ' rule-providers')
+  console.log('[Lite-Override] Loaded successfully: 3 proxy groups (' + foreignNodes.length + ' foreign proxies, ' + nonJpProxies.length + ' non-JP proxies, ' + domesticGroup.proxies.length + ' domestic options), ' + config.rules.length + ' rules, ' + Object.keys(config['rule-providers']).length + ' rule-providers')
   return config
 }
 `

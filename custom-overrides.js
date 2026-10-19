@@ -48,6 +48,80 @@ const CUSTOM_OVERRIDE_SPEC = {
     douyu: 'DIRECT',
   },
 
+  // 无法使用日本节点访问的网站（由于日本《著作权法》反盗版严格执法、WAF 盾或网站主动封锁日本 IP 返回 403 Forbidden）
+  // 流量将自动路由至「🚫 日本禁用」策略组（自动排除所有日本节点，优先使用港/台/新/美等节点）
+  // 同时自动注入海外 DoH 加密解析，防止本地 DNS 污染
+  japanBlockedDomains: [
+    // 用户指定站点
+    'hgamefree.info',
+
+    // 主流 H-Game / ACG 破解与讨论站（规避日本版权调查与取证）
+    'erogames.top',
+    'gg-games.org',
+    'gg-games.net',
+    'anime-sharing.com',
+    '2djgame.net',
+    'acgngame.net',
+    'zodgame.xyz',
+    'south-plus.net',
+    'south-plus.org',
+
+    // 主流生肉/盗版漫画平台（CODA 及各大日本出版社重点打击对象，针对日本 IP 返回 403）
+    'rawkuma.com',
+    'weloma.art',
+    'weloma.net',
+    'klmanga.com',
+    'klmanga.net',
+    'klmanga.co',
+    'manga1000.top',
+    'manga1001.top',
+    'manga1000.com',
+    'manga1001.in',
+    'senmanga.com',
+    'synobamangas.com',
+    'sakuramanga.org',
+    'rawdevart.com',
+    'bato.to',
+    'mangakakalot.com',
+    'mangakakalot.tv',
+    'manganato.com',
+    'chapmanganato.to',
+    'comick.io',
+    'comick.app',
+
+    // 同人漫画/本子资源站（主动屏蔽日本 IP 规避侵权诉讼）
+    '18comic.vip',
+    '18comic.org',
+    'wnacg.com',
+    'wnacg.org',
+    'hitomi.la',
+    'nhentai.net',
+    'asmhentai.com',
+
+    // 创作者赞助扒取平台（Fanbox / Fantia 镜像，高频封锁日本 IP）
+    'kemono.su',
+    'kemono.party',
+    'coomer.su',
+    'coomer.party',
+
+    // BT 种子发布站（日本境内 ISP/DNS 强制阻断）
+    'nyaa.si',
+
+    // 成人视频流媒体（为规避 DMM / Fanza 法律诉讼，主动屏蔽日本 IP 返回 403）
+    'missav.com',
+    'missav.ai',
+    'missav.ws',
+    'jable.tv',
+    'supjav.com',
+    'tktube.com',
+    '7mmtv.tv',
+    '7mmtv.sx',
+    'netflav.com',
+    'hpjav.tv',
+    'javlibrary.com',
+    'cableav.tv',
+  ],
+
   preRules: [
     // Desktop clients that may call unlisted domains or direct IPs; keep fully direct.
     'PROCESS-NAME,QQ.exe,DIRECT',

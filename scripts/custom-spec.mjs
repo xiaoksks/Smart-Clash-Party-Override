@@ -112,6 +112,10 @@ export function buildRuleSetOverrideRules(spec) {
   return Object.entries(spec.ruleSetTargetOverrides).map(([name, target]) => `RULE-SET,local-${name},${target}`)
 }
 
+export function buildJapanBlockedRules(spec) {
+  return (spec.japanBlockedDomains || []).map(domain => `DOMAIN-SUFFIX,${domain},🚫 日本禁用`)
+}
+
 export async function loadCustomSpec() {
   const source = (await readFile(CUSTOM_SPEC_PATH, 'utf8')).replace(/^\uFEFF/, '')
   const spec = vm.runInNewContext(`${source}\n;CUSTOM_OVERRIDE_SPEC`, Object.create(null), {
@@ -148,6 +152,16 @@ export async function loadCustomSpec() {
       throw new Error(`Invalid webRtcDomains entry: ${domain}`)
     }
   })
+  const japanBlockedDomains = Array.isArray(spec.japanBlockedDomains) ? spec.japanBlockedDomains : []
+  assertUniqueStrings(japanBlockedDomains, 'japanBlockedDomains')
+  const cleanJapanBlockedDomains = japanBlockedDomains.map(d =>
+    d.replace(/^https?:\/\//i, '').replace(/\/.*$/, '').toLowerCase().trim()
+  )
+  cleanJapanBlockedDomains.forEach(domain => {
+    if (!domain || domain.includes(' ') || domain.includes(',')) {
+      throw new Error(`Invalid japanBlockedDomains entry: ${domain}`)
+    }
+  })
   const tunExcludeProcesses = Array.isArray(spec.tunExcludeProcesses) ? spec.tunExcludeProcesses : []
   assertUniqueStrings(tunExcludeProcesses, 'tunExcludeProcesses')
   const browserSet = new Set(spec.webRtcBrowserProcesses.map(p => String(p).toLowerCase()))
@@ -166,6 +180,7 @@ export async function loadCustomSpec() {
     webRtcBrowserProcesses: Array.from(spec.webRtcBrowserProcesses),
     webRtcPorts: Array.from(spec.webRtcPorts),
     webRtcDomains: cleanWebRtcDomains,
+    japanBlockedDomains: cleanJapanBlockedDomains,
     tunExcludeProcesses: Array.from(tunExcludeProcesses),
     ruleSetTargetOverrides,
     preRules: Array.from(spec.preRules),
