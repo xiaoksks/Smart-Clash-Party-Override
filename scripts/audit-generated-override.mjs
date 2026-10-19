@@ -345,11 +345,11 @@ async function auditTarget(target, spec) {
   const directPreRules = spec.preRules.filter(rule => ruleTarget(rule) === 'DIRECT')
   const nonDirectPreRules = spec.preRules.filter(rule => ruleTarget(rule) !== 'DIRECT')
   const chinaIpRules = promotedChinaIpRules(upstream, spec)
-  const chinaIpIndex = buildRuleSetOverrideRules(spec).length + directPreRules.length
+  const chinaIpIndex = buildRuleSetOverrideRules(spec).length + directPreRules.length + webRtcRules.length
   const priorityRules = buildRuleSetOverrideRules(spec).concat(
     directPreRules,
-    chinaIpRules,
     webRtcRules,
+    chinaIpRules,
     nonDirectPreRules,
   )
 

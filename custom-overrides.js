@@ -23,6 +23,9 @@ const CUSTOM_OVERRIDE_SPEC = {
   // Dedicated domains for WebRTC leak prevention (rejects all UDP traffic to block STUN/ICE probes).
   webRtcDomains: [
     'ippure.com',
+    'stun.chat.bilibili.com',
+    'stun.hitv.com',
+    'stun.miwifi.com',
   ],
 
   // Processes excluded from TUN virtual network adapter at the kernel driver level.

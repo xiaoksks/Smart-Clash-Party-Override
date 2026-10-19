@@ -335,8 +335,8 @@ function localPrependRules(config, chinaIpRules) {
   })
   var priorityRules = CUSTOM_RULE_SET_RULES.concat(
     directPreRules,
-    chinaIpRules,
     CUSTOM_WEBRTC_RULES,
+    chinaIpRules,
     nonDirectPreRules
   )
   var custom = new Set(priorityRules)

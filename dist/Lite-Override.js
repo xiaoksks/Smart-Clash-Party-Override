@@ -10,7 +10,7 @@ const CUSTOM_FORCE_CHINA_IP_DIRECT = true
 const CUSTOM_PREVENT_WEBRTC_LEAK = true
 const CUSTOM_WEBRTC_BROWSER_PROCESSES = ["chrome.exe","msedge.exe","firefox.exe","brave.exe","opera.exe","vivaldi.exe","chromium.exe"]
 const CUSTOM_WEBRTC_PORTS = ["3478","3479","5349","19302","19305","19307"]
-const CUSTOM_WEBRTC_DOMAINS = ["ippure.com"]
+const CUSTOM_WEBRTC_DOMAINS = ["ippure.com","stun.chat.bilibili.com","stun.hitv.com","stun.miwifi.com"]
 const CUSTOM_TUN_EXCLUDE_PROCESSES = [
   "Thunder.exe",
   "ThunderPlatform.exe",
@@ -33,7 +33,11 @@ const CUSTOM_WEBRTC_RULES = [
   "DST-PORT,19302,REJECT",
   "DST-PORT,19305,REJECT",
   "DST-PORT,19307,REJECT",
-  "AND,((DOMAIN-SUFFIX,ippure.com),(NETWORK,UDP)),REJECT"
+  "AND,((DOMAIN-KEYWORD,stun),(NETWORK,UDP)),REJECT",
+  "AND,((DOMAIN-SUFFIX,ippure.com),(NETWORK,UDP)),REJECT",
+  "AND,((DOMAIN-SUFFIX,stun.chat.bilibili.com),(NETWORK,UDP)),REJECT",
+  "AND,((DOMAIN-SUFFIX,stun.hitv.com),(NETWORK,UDP)),REJECT",
+  "AND,((DOMAIN-SUFFIX,stun.miwifi.com),(NETWORK,UDP)),REJECT"
 ]
 const CUSTOM_RULE_SET_TARGET_OVERRIDES = {
   "douyu": "DIRECT"
@@ -1944,8 +1948,8 @@ function localPrependRules(config, chinaIpRules) {
   })
   var priorityRules = CUSTOM_RULE_SET_RULES.concat(
     directPreRules,
-    chinaIpRules,
     CUSTOM_WEBRTC_RULES,
+    chinaIpRules,
     nonDirectPreRules
   )
   var custom = new Set(priorityRules)

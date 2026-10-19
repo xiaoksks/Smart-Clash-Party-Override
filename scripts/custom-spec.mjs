@@ -103,6 +103,7 @@ export function buildWebRtcProtectionRules(spec) {
   return [
     ...spec.webRtcBrowserProcesses.map(process => `AND,((PROCESS-NAME,${process}),(NETWORK,UDP),(NOT,((GEOSITE,cn)))),REJECT`),
     ...spec.webRtcPorts.map(port => `DST-PORT,${port},REJECT`),
+    'AND,((DOMAIN-KEYWORD,stun),(NETWORK,UDP)),REJECT',
     ...((spec.webRtcDomains || []).map(domain => `AND,((DOMAIN-SUFFIX,${domain}),(NETWORK,UDP)),REJECT`)),
   ]
 }
