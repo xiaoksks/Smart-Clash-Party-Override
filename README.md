@@ -6,7 +6,7 @@ https://github.com/IvanSolis1989/Smart-Config-Kit
 这个仓库会定时拉取上游 [Smart-Config-Kit](https://github.com/IvanSolis1989/Smart-Config-Kit) 的规则配置，**同步构建并生成两款覆写文件**（Normal 普通版与 Lite 极简版），在完整执行上游路由配置后，自动应用 `custom-overrides.js` 中的本地规则、DNS 和策略偏好：
 
 - **Normal 普通版 (`dist/Normal-Override.js`)**：基于上游 `ClashParty(mihomo).js`，区域组采用标准的 **`url-test` 延迟测速选路**（测试地址 `gstatic.com/generate_204`，检测间隔 300s，容差 10ms），具备完整的地区自动测速选路与 40+ 细粒度业务组，兼容所有主流 Mihomo / Clash.Meta / Clash Verge / Mihomo Party 客户端。
-- **Lite 极简版 (`dist/Lite-Override.js`)**：基于 Normal 版深度精简，**仅划分「🌐 国外节点」与「🇨🇳 国内节点」两大策略组**。纯手动平铺选择，不生成繁琐的业务分流组与测速组；境外所有流量与服务统一归流至国外节点，境内流量与国内权威 IP 走国内节点（首项默认 `DIRECT`，订阅含有国内专线时一并列入可选），界面极致清爽。
+- **Lite 极简版 (`dist/Lite-Override.js`)**：基于 Normal 版深度精简，**仅划分「🌐 国外节点」与「🇨🇳 国内节点」两大策略组**。纯手动平铺选择，不生成繁琐的业务分流组与测速组；境外所有流量与服务统一归流至国外节点，境内流量与国内权威 IP 走国内节点（首项默认 `DIRECT`，并内嵌「🌐 国外节点」选项可一键全局翻墙，订阅含有国内专线时一并列入可选），无需展开漫长节点列表，界面极致清爽。
 
 两版本**完全共享底层的高性能本地优化**（移广告拦截、WebRTC 防泄漏、迅雷 TUN 旁路、国内验证码/NCSI 秒级直连、纯 UDP `223.5.5.5` 引导与 Fake-IP 缓存持久化）。
 

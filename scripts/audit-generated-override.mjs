@@ -317,6 +317,7 @@ function assertLiteContract(config) {
   assert(foreignGroup.type === 'select', '"🌐 国外节点" must be select type')
   assert(domesticGroup.type === 'select', '"🇨🇳 国内节点" must be select type')
   assert(domesticGroup.proxies[0] === 'DIRECT', '"🇨🇳 国内节点" first proxy must be DIRECT')
+  assert(domesticGroup.proxies[1] === '🌐 国外节点', '"🇨🇳 国内节点" second proxy must be "🌐 国外节点"')
 
   const validTargets = new Set(['DIRECT', 'REJECT', 'REJECT-DROP', 'PASS', '🌐 国外节点', '🇨🇳 国内节点'])
   ;(config.rules || []).forEach(rule => {

@@ -1993,7 +1993,7 @@ function localApplyLiteSimplification(config) {
   var domesticGroup = {
     name: '🇨🇳 国内节点',
     type: 'select',
-    proxies: ['DIRECT'].concat(cnNodes),
+    proxies: ['DIRECT', '🌐 国外节点'].concat(cnNodes),
   }
   config['proxy-groups'] = [foreignGroup, domesticGroup]
 
@@ -2050,7 +2050,7 @@ function localApplyLiteSimplification(config) {
     { name: 'MIXED-PROXY', type: 'mixed', port: 50000, proxy: '🌐 国外节点' },
     { name: 'MIXED-DIRECT', type: 'mixed', port: 10086, proxy: 'DIRECT' },
   ]
-  console.log('[local-lite] Simplified to 2 proxy groups: "🌐 国外节点" (' + foreignNodes.length + ' proxies) and "🇨🇳 国内节点" (' + (1 + cnNodes.length) + ' proxies)')
+  console.log('[local-lite] Simplified to 2 proxy groups: "🌐 国外节点" (' + foreignNodes.length + ' proxies) and "🇨🇳 国内节点" (' + domesticGroup.proxies.length + ' options: DIRECT, 🌐 国外节点' + (cnNodes.length ? ' + ' + cnNodes.length + ' CN nodes' : '') + ')')
   return config
 }
 
