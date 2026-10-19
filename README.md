@@ -1,9 +1,6 @@
-# 来源
-https://github.com/IvanSolis1989/Smart-Config-Kit
-
 # Clash Party Custom Override
 
-这个仓库会定时拉取上游 [Smart-Config-Kit](https://github.com/IvanSolis1989/Smart-Config-Kit) 的规则配置，**同步构建并生成两款覆写文件**（Normal 普通版与 Lite 极简版），在完整执行上游路由配置后，自动应用 `custom-overrides.js` 中的本地规则、DNS 和策略偏好：
+本项目定时同步上游 [Smart-Config-Kit](https://github.com/IvanSolis1989/Smart-Config-Kit) 规则配置，**同步构建并生成两款覆写文件**（Normal 普通版与 Lite 极简版），在完整执行上游路由配置后，自动应用 `custom-overrides.js` 中的本地规则、DNS 和策略偏好：
 
 - **Normal 普通版 (`dist/Normal-Override.js`)**：基于上游 `ClashParty(mihomo).js`，区域组采用标准的 **`url-test` 延迟测速选路**（测试地址 `gstatic.com/generate_204`，检测间隔 300s，容差 10ms），具备完整的地区自动测速选路与 40+ 细粒度业务组，兼容所有主流 Mihomo / Clash.Meta / Clash Verge / Mihomo Party 客户端。
 - **Lite 极简版 (`dist/Lite-Override.js`)**：基于 Normal 版深度精简，**仅划分「🌐 国外节点」与「🇨🇳 国内节点」两大策略组**。纯手动平铺选择，不生成繁琐的业务分流组与测速组；境外所有流量与服务统一归流至国外节点，境内流量与国内权威 IP 走国内节点（首项默认 `DIRECT`，并内嵌「🌐 国外节点」选项可一键全局翻墙，订阅含有国内专线时一并列入可选），无需展开漫长节点列表，界面极致清爽。
@@ -127,9 +124,6 @@ geo-auto-update: true
 
 ### Clash Party 获取当前 IP 失败
 若「网络信息」里的 IPSB 等查询源显示获取失败，通常是查询域名被误分流或 DNS 超时。本项目已在 `custom-overrides.js` 前置处理常见 IP 查询域名：国外查询源走国外代理，国内兜底查询源走国内直连。
-
-### country code id not found in geoip.dat
-如果客户端报 `[GeoIP] failed to decode geodata file: geoip.dat, base error: country code id not found in geoip.dat`，说明当前客户端使用的 `geoip.dat` 不包含上游脚本里的印尼 GeoIP 国家码规则。本项目会在生成阶段自动移除该不兼容兜底规则，保留前面已有的印尼域名规则，避免整份覆写加载失败。
 
 ### ChatGPT / OpenAI 网页加载或操作卡顿
 ChatGPT 网页高度依赖 Cloudflare 边缘节点、实时 HTTP/3 (QUIC) 竞态探测、Statsig 特性标志和 Arkose 人机安全验证。本项目已在规则层完成了全链条统一出口与节点优选。若在部分网络环境下仍偶发卡顿，推荐按如下排查：

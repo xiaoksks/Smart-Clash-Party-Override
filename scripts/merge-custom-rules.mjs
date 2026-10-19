@@ -88,8 +88,6 @@ function readRuleSetProviderBundle(graph, spec, trafficOptions) {
   return { base: metadata.base, specs }
 }
 
-
-
 function buildLocalRuntime(mode = 'normal') {
   return `
 
