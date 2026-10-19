@@ -1,4 +1,5 @@
 // This file is generated automatically. Do not edit dist output directly.
+// Edition: Normal (Standard url-test)
 // Upstream source: https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/main/Clash%20Party/ClashParty(mihomo).js
 // Upstream version: v6.0.20-normal.20
 // Upstream SHA-256: 53e8ef663647c077dde7e6f42b9db9251e160db0007e4610e2d04bc05c4a1bcb
@@ -1975,3 +1976,4 @@ function main(config) {
     return upstreamResult
   }
 }
+

@@ -307,6 +307,32 @@ function assertAiPreference(config) {
   }
 }
 
+function assertLiteContract(config) {
+  const groups = config['proxy-groups'] || []
+  assert(groups.length === 2, `Lite override must have exactly 2 proxy groups, found ${groups.length}`)
+  const foreignGroup = groups.find(g => g.name === '🌐 国外节点')
+  const domesticGroup = groups.find(g => g.name === '🇨🇳 国内节点')
+  assert(foreignGroup, 'Lite override missing "🌐 国外节点" group')
+  assert(domesticGroup, 'Lite override missing "🇨🇳 国内节点" group')
+  assert(foreignGroup.type === 'select', '"🌐 国外节点" must be select type')
+  assert(domesticGroup.type === 'select', '"🇨🇳 国内节点" must be select type')
+  assert(domesticGroup.proxies[0] === 'DIRECT', '"🇨🇳 国内节点" first proxy must be DIRECT')
+
+  const validTargets = new Set(['DIRECT', 'REJECT', 'REJECT-DROP', 'PASS', '🌐 国外节点', '🇨🇳 国内节点'])
+  ;(config.rules || []).forEach(rule => {
+    const parts = rule.split(',')
+    const target = parts[parts.length - 1] === 'no-resolve' ? parts[parts.length - 2] : parts[parts.length - 1]
+    assert(validTargets.has(target), `Lite rule targets unknown group: ${target} (${rule})`)
+  })
+
+  const providers = config['rule-providers'] || {}
+  Object.entries(providers).forEach(([name, p]) => {
+    if (p.proxy && p.proxy !== 'DIRECT') {
+      assert(p.proxy === '🌐 国外节点', `Lite rule provider ${name} proxy must be "🌐 国外节点", got ${p.proxy}`)
+    }
+  })
+}
+
 async function auditTarget(target, spec) {
   const filePath = path.join(ROOT, 'dist', target.file)
   const output = await readFile(filePath, 'utf8')
@@ -326,24 +352,47 @@ async function auditTarget(target, spec) {
     webRtcRules,
     nonDirectPreRules,
   )
-  assertRulePrefix(first, priorityRules)
-  assertLocalFiltering(first, upstream, spec, priorityRules.length)
-  assertRuleSetTargetOverrides(first, upstream, spec, version)
-  assertChinaIpDirect(first, upstream, spec, chinaIpIndex)
+
+  if (target.type === 'normal') {
+    assertRulePrefix(first, priorityRules)
+    assertLocalFiltering(first, upstream, spec, priorityRules.length)
+    assertRuleSetTargetOverrides(first, upstream, spec, version)
+    assertChinaIpDirect(first, upstream, spec, chinaIpIndex)
+    assertNormalContract(first, upstream)
+    assertGroupRoutingContract(first, upstream)
+    assertHuluPreference(first)
+    assertAiPreference(first)
+  } else if (target.type === 'lite') {
+    assertLiteContract(first)
+    const expectedLitePrefix = priorityRules.map(rule => {
+      const parts = rule.split(',')
+      const hasNoResolve = parts[parts.length - 1] === 'no-resolve'
+      const oldTarget = hasNoResolve ? parts[parts.length - 2] : parts[parts.length - 1]
+      let newTarget
+      if (['REJECT', 'REJECT-DROP', 'PASS'].includes(oldTarget)) {
+        newTarget = oldTarget
+      } else if (['DIRECT', '🇨🇳 常用网站', '📺 国内媒体', '🕹️ 国内游戏', '🏠 国内网站', '📺 国内流媒体'].includes(oldTarget)) {
+        newTarget = '🇨🇳 国内节点'
+      } else {
+        newTarget = '🌐 国外节点'
+      }
+      if (hasNoResolve) parts[parts.length - 2] = newTarget
+      else parts[parts.length - 1] = newTarget
+      return parts.join(',')
+    })
+    assertRulePrefix(first, expectedLitePrefix)
+  }
+
   assertWebRtcProtection(first, spec, webRtcRules)
   assertReferences(first)
-  assertNormalContract(first, upstream)
-  assertGroupRoutingContract(first, upstream)
   assertDnsContract(first, spec.foreignDnsDomains)
   assertProviderVersioning(first, version)
-  assertHuluPreference(first)
-  assertAiPreference(first)
 
   const firstJson = JSON.stringify(first)
   const second = runOverride(output, first)
   assert(JSON.stringify(second) === firstJson, `Generated override ${target.file} is not idempotent`)
 
-  console.log(`Generated override audit passed (${target.name} - ${target.file}): ${priorityRules.length} priority rules (${webRtcRules.length} WebRTC), ${first['proxy-groups'].length} groups, ${first.rules.length} rules, ${Object.keys(first['rule-providers']).length} providers`)
+  console.log(`Generated override audit passed (${target.name} - ${target.file}): ${first['proxy-groups'].length} groups, ${first.rules.length} rules, ${Object.keys(first['rule-providers']).length} providers`)
 }
 
 async function main() {
@@ -356,6 +405,7 @@ async function main() {
   const spec = await loadCustomSpec()
   const targets = [
     { name: 'Normal', file: 'Normal-Override.js', type: 'normal' },
+    { name: 'Lite', file: 'Lite-Override.js', type: 'lite' },
   ]
   for (const target of targets) {
     await auditTarget(target, spec)

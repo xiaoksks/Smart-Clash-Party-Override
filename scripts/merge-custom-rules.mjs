@@ -13,26 +13,33 @@ import {
 const DIST_DIR = path.join(ROOT, 'dist')
 const BUILD_DIR = path.join(ROOT, '.build')
 
-const TARGET = {
-  id: 'normal',
-  name: 'Normal override',
-  outputFile: 'Normal-Override.js',
-  snapshotFile: 'upstream-normal.js',
-  fetchSource: fetchNormalSource,
-  parseVersion: parseNormalVersion,
-}
+const TARGETS = [
+  {
+    id: 'normal',
+    name: 'Normal override',
+    outputFile: 'Normal-Override.js',
+    mode: 'normal',
+  },
+  {
+    id: 'lite',
+    name: 'Lite override',
+    outputFile: 'Lite-Override.js',
+    mode: 'lite',
+  },
+]
 
 async function readCurrentVersion(target) {
   try {
-    return target.parseVersion(await readFile(path.join(DIST_DIR, target.outputFile), 'utf8'))
+    return parseNormalVersion(await readFile(path.join(DIST_DIR, target.outputFile), 'utf8'))
   } catch {
     return null
   }
 }
 
-function buildHeader(spec, upstream, providerBundle) {
+function buildHeader(spec, upstream, providerBundle, mode = 'normal') {
   return [
     '// This file is generated automatically. Do not edit dist output directly.',
+    `// Edition: ${mode === 'lite' ? 'Lite (Minimal Dual-Group: Foreign & Domestic)' : 'Normal (Standard url-test)'}`,
     `// Upstream source: ${upstream.url}`,
     `// Upstream version: ${upstream.version}`,
     `// Upstream SHA-256: ${upstream.sha256}`,
@@ -82,7 +89,7 @@ function readRuleSetProviderBundle(graph, spec, trafficOptions) {
 
 
 
-function buildLocalRuntime() {
+function buildLocalRuntime(mode = 'normal') {
   return `
 
 // ================================================================
@@ -353,7 +360,97 @@ function applyLocalOverrides(config) {
   console.log('[local] Applied China IP direct routing, WebRTC leak protection, ad-blocking preference, rule-set targets, custom rules, proxy-group preferences, DNS policy, Hulu US preference and AI service region preference')
   return config
 }
+` + (mode === 'lite' ? `
+function localApplyLiteSimplification(config) {
+  if (!config || typeof config !== 'object') return config
+  if (!Array.isArray(config.proxies) || config.proxies.length === 0) return config
 
+  var nodeClass = classifyAllNodes(config.proxies || [])
+  var cnNodes = Array.isArray(nodeClass.CN) ? nodeClass.CN : []
+  var allNodes = Array.isArray(nodeClass.ALL) ? nodeClass.ALL : []
+  var cnSet = new Set(cnNodes)
+  var foreignNodes = allNodes.filter(function(name) { return !cnSet.has(name) })
+
+  var foreignGroup = {
+    name: '🌐 国外节点',
+    type: 'select',
+    proxies: foreignNodes.length > 0 ? foreignNodes : ['REJECT'],
+  }
+  var domesticGroup = {
+    name: '🇨🇳 国内节点',
+    type: 'select',
+    proxies: ['DIRECT'].concat(cnNodes),
+  }
+  config['proxy-groups'] = [foreignGroup, domesticGroup]
+
+  var DOMESTIC_TARGETS = new Set([
+    'DIRECT',
+    typeof BIZ !== 'undefined' && BIZ.CN_SITE ? BIZ.CN_SITE : '🏠 国内网站',
+    typeof BIZ !== 'undefined' && BIZ.CNMEDIA ? BIZ.CNMEDIA : '📺 国内流媒体',
+    typeof BIZ !== 'undefined' && BIZ.GAME_CN ? BIZ.GAME_CN : '🕹️ 国内游戏',
+    '🇨🇳 常用网站',
+    '📺 国内媒体',
+    '🕹️ 国内游戏',
+    '🇨🇳 国内节点',
+  ])
+  var REJECT_TARGETS = new Set(['REJECT', 'REJECT-DROP', 'PASS'])
+
+  var seenRules = new Set()
+  var newRules = []
+  ;(config.rules || []).forEach(function(rule) {
+    var parts = String(rule).split(',')
+    var hasNoResolve = parts[parts.length - 1] === 'no-resolve'
+    var oldTarget = hasNoResolve ? parts[parts.length - 2] : parts[parts.length - 1]
+
+    var newTarget
+    if (REJECT_TARGETS.has(oldTarget)) {
+      newTarget = oldTarget
+    } else if (DOMESTIC_TARGETS.has(oldTarget)) {
+      newTarget = '🇨🇳 国内节点'
+    } else {
+      newTarget = '🌐 国外节点'
+    }
+
+    if (hasNoResolve) {
+      parts[parts.length - 2] = newTarget
+    } else {
+      parts[parts.length - 1] = newTarget
+    }
+    var transformed = parts.join(',')
+    if (!seenRules.has(transformed)) {
+      seenRules.add(transformed)
+      newRules.push(transformed)
+    }
+  })
+  config.rules = newRules
+
+  var providers = config['rule-providers'] || {}
+  Object.keys(providers).forEach(function(key) {
+    var p = providers[key]
+    if (p && typeof p === 'object' && p.proxy && p.proxy !== 'DIRECT') {
+      p.proxy = '🌐 国外节点'
+    }
+  })
+
+  config.listeners = [
+    { name: 'MIXED-PROXY', type: 'mixed', port: 50000, proxy: '🌐 国外节点' },
+    { name: 'MIXED-DIRECT', type: 'mixed', port: 10086, proxy: 'DIRECT' },
+  ]
+  console.log('[local-lite] Simplified to 2 proxy groups: "🌐 国外节点" (' + foreignNodes.length + ' proxies) and "🇨🇳 国内节点" (' + (1 + cnNodes.length) + ' proxies)')
+  return config
+}
+
+function main(config) {
+  var upstreamResult = upstreamMain(config)
+  try {
+    var withLocal = applyLocalOverrides(upstreamResult)
+    return localApplyLiteSimplification(withLocal)
+  } catch (error) {
+    console.error('[local-lite] Post-processing failed:', error)
+    return upstreamResult
+  }
+}
+` : `
 function main(config) {
   var upstreamResult = upstreamMain(config)
   try {
@@ -363,16 +460,17 @@ function main(config) {
     return upstreamResult
   }
 }
+`) + `
 `
 }
 
-function generateOutput(upstream, spec, graph, trafficOptions) {
+function generateOutput(upstream, spec, graph, trafficOptions, mode = 'normal') {
   const source = upstream.body.replace(/^\uFEFF/, '')
   if (!source.includes('function applyMihomoFusedRuleSets(config) {')) {
     throw new Error('Upstream no longer exposes the fused Mihomo ruleset contract')
   }
   const providerBundle = readRuleSetProviderBundle(graph, spec, trafficOptions)
-  return buildHeader(spec, upstream, providerBundle) + renameUpstreamMain(source) + buildLocalRuntime()
+  return buildHeader(spec, upstream, providerBundle, mode) + renameUpstreamMain(source) + buildLocalRuntime(mode)
 }
 
 async function persistBuildSnapshot(normalUpstream, graph, trafficOptions) {
@@ -394,26 +492,32 @@ async function persistBuildSnapshot(normalUpstream, graph, trafficOptions) {
 async function mainBuild() {
   const [spec, normalCurrentVersion] = await Promise.all([
     loadCustomSpec(),
-    readCurrentVersion(TARGET),
+    readCurrentVersion(TARGETS[0]),
   ])
   const [normalUpstream, trafficOptions] = await Promise.all([
-    TARGET.fetchSource({ minimumVersion: normalCurrentVersion || undefined }),
+    fetchNormalSource({ minimumVersion: normalCurrentVersion || undefined }),
     fetchTrafficOptions(),
   ])
   const graph = await fetchRoutingGraph({ requiredBaseVersion: normalUpstream.version })
 
-  const normalOutput = generateOutput(normalUpstream, spec, graph, trafficOptions)
+  const normalOutput = generateOutput(normalUpstream, spec, graph, trafficOptions, 'normal')
+  const liteOutput = generateOutput(normalUpstream, spec, graph, trafficOptions, 'lite')
 
   await Promise.all([
     mkdir(DIST_DIR, { recursive: true }),
     persistBuildSnapshot(normalUpstream, graph, trafficOptions),
   ])
 
-  const normalPath = path.join(DIST_DIR, TARGET.outputFile)
+  const normalPath = path.join(DIST_DIR, TARGETS[0].outputFile)
+  const litePath = path.join(DIST_DIR, TARGETS[1].outputFile)
 
-  await writeFile(normalPath, normalOutput, 'utf8')
+  await Promise.all([
+    writeFile(normalPath, normalOutput, 'utf8'),
+    writeFile(litePath, liteOutput, 'utf8'),
+  ])
 
   console.log(`Generated ${path.relative(ROOT, normalPath)} from ${normalUpstream.version} (${normalUpstream.sha256.slice(0, 12)})`)
+  console.log(`Generated ${path.relative(ROOT, litePath)} from ${normalUpstream.version} (${normalUpstream.sha256.slice(0, 12)})`)
 }
 
 mainBuild().catch(error => {

@@ -3,15 +3,18 @@ https://github.com/IvanSolis1989/Smart-Config-Kit
 
 # Clash Party Custom Override
 
-这个仓库会定时拉取上游 [Smart-Config-Kit](https://github.com/IvanSolis1989/Smart-Config-Kit) 的规则配置，**自动构建并生成 Normal 普通版覆写文件 (`dist/Normal-Override.js`)**，在完整执行上游路由配置后，自动应用 `custom-overrides.js` 中的本地规则、DNS 和策略偏好：
+这个仓库会定时拉取上游 [Smart-Config-Kit](https://github.com/IvanSolis1989/Smart-Config-Kit) 的规则配置，**同步构建并生成两款覆写文件**（Normal 普通版与 Lite 极简版），在完整执行上游路由配置后，自动应用 `custom-overrides.js` 中的本地规则、DNS 和策略偏好：
 
-- **Normal 普通版 (`dist/Normal-Override.js`)**：基于上游 `ClashParty(mihomo).js`，区域组采用标准的 **`url-test` 延迟测速选路**（测试地址 `gstatic.com/generate_204`，检测间隔 300s，容差 10ms），**不依赖 Smart 特殊内核**，兼容所有主流 Mihomo / Clash.Meta / Clash Verge / Mihomo Party 客户端。
+- **Normal 普通版 (`dist/Normal-Override.js`)**：基于上游 `ClashParty(mihomo).js`，区域组采用标准的 **`url-test` 延迟测速选路**（测试地址 `gstatic.com/generate_204`，检测间隔 300s，容差 10ms），具备完整的地区自动测速选路与 40+ 细粒度业务组，兼容所有主流 Mihomo / Clash.Meta / Clash Verge / Mihomo Party 客户端。
+- **Lite 极简版 (`dist/Lite-Override.js`)**：基于 Normal 版深度精简，**仅划分「🌐 国外节点」与「🇨🇳 国内节点」两大策略组**。纯手动平铺选择，不生成繁琐的业务分流组与测速组；境外所有流量与服务统一归流至国外节点，境内流量与国内权威 IP 走国内节点（首项默认 `DIRECT`，订阅含有国内专线时一并列入可选），界面极致清爽。
+
+两版本**完全共享底层的高性能本地优化**（移广告拦截、WebRTC 防泄漏、迅雷 TUN 旁路、国内验证码/NCSI 秒级直连、纯 UDP `223.5.5.5` 引导与 Fake-IP 缓存持久化）。
 
 ---
 
 ## 核心特性与定制
 
-- **自动化构建与持续交付**：基于上游规则源自动生成 Normal 普通版，GitHub Actions 自动化流水线（定时 + push 触发）包含上游版本追踪、降级拦截与全量结构契约审计。
+- **双版本同步构建与持续交付**：一套规则源同时产出 Normal 普通版与 Lite 极简版，GitHub Actions 自动化流水线（定时 + push 触发）包含上游版本追踪、降级拦截与全量结构契约审计。
 - **构建后自动移除广告拦截**：自动移除上游广告拦截策略组、指向该策略的规则及其专用 provider，避免误杀正常页面资源；其他非广告用途的 `REJECT` 规则保持原样。
 - **WebRTC 防泄露优化（国内直连放行，仅境外访问防泄漏）**：智能区分境内外流量。国内域名（`geosite:cn`）、国内权威 IP 及自定义直连规则全面放行 UDP，Bilibili、抖音等国内音视频和网页 HTTP/3 (QUIC) / WebRTC 享受原生极速直连；仅针对境外非直连的浏览器 UDP 连接进行阻断（无缝降级 TCP 走代理隧道），并全局拒绝常见 STUN/TURN 探测端口，既杜绝了向境外暴露真实公网 IP，又完全保留了国内网络的极速体验。移除了 Windows 下引发冷启动网络黑洞的 `strict-route`，兼顾隐私安全与系统网络稳定性。
 - **迅雷全生态极速直连与 TUN 内核级旁路**：针对迅雷客户端生态（`Thunder.exe`、`ThunderPlatform.exe`、`DownloadService.exe`、`XLServicePlatform.exe`、`xllite.exe`、`DownloadSDKServer.exe` 等）及云盘/CDN 域名强制前置直连；同时在内核级 `tun['exclude-process']` 进行进程旁路，P2P 海量并发直接走系统物理网卡原生网络协议栈，消除虚拟网卡内存流和 CPU 协议栈转换开销，彻底杜绝大文件满速下载时系统网络卡顿。
@@ -28,18 +31,26 @@ https://github.com/IvanSolis1989/Smart-Config-Kit
   - 斗鱼复用上游完整 `douyu` provider 并整体直连。
   - Patreon 媒体、视频与聊天依赖链及专属海外 DNS 策略。
   - OpenAI / ChatGPT 全生态链与依赖服务前置统一归流（涵盖 `chatgpt.com`, `oaistatic.com`, `oaiusercontent.com`, `openai.com`, `statsig.com`, `arkoselabs.com`, `challenges.cloudflare.com` 等），彻底消除第三方静态 CDN、A/B 测试标志与人机验证落在不同代理出口导致的“会话与 IP 分裂”和验证死循环。
-  - `🤖 AI 服务` 策略组智能优选官方支持区域（美国家宽/美国节点、狮城、日韩优先，自动将官方不支持的香港节点降级至组末尾），避免自动测速选路误选香港导致 403 阻断或无法加载。
-  - Hulu 默认优先美国家宽/美国节点。
+  - Normal 版专属策略组优选：`🤖 AI 服务` 策略组智能优选官方支持区域（美国家宽/美国节点、狮城、日韩优先，自动将官方不支持的香港节点降级至组末尾），Hulu 默认优先美国家宽/美国节点。
 
 ---
 
-## 导入链接
+## 版本选型与导入链接
 
-### Normal 普通版（标准 url-test 版）
-适合标准 Mihomo/Clash.Meta 内核、Clash Verge Rev 正式版，或偏好经典低延迟自动测速选路的用户。
+> ⚠️ **二选一使用**：请根据个人偏好**选择其中一个版本导入**即可，**请勿在客户端中同时勾选两份覆写**！
+
+### 1. Normal 普通版（标准 url-test 多组版）
+适合喜欢按地区自动测速选路、按业务单独指定代理出口（如针对 ChatGPT、YouTube、奈飞独立选节点）的用户。
 - **GitHub Raw**：
   ```text
   https://raw.githubusercontent.com/xiaoksks/Smart-Clash-Party-Override/main/dist/Normal-Override.js
+  ```
+
+### 2. Lite 极简版（纯净双组版）
+适合追求极致简洁、不想在客户端策略列表上下翻找，仅需手动选择一个「国外节点」接管所有翻墙流量、国内走「国内节点」的用户。
+- **GitHub Raw**：
+  ```text
+  https://raw.githubusercontent.com/xiaoksks/Smart-Clash-Party-Override/main/dist/Lite-Override.js
   ```
 
 ---
@@ -47,7 +58,7 @@ https://github.com/IvanSolis1989/Smart-Config-Kit
 ## 本地构建与审计
 
 ```bash
-# 构建 Normal 产物
+# 构建 Normal 与 Lite 两款产物
 npm run build
 
 # 执行全量自动化合规检查与语法校验
@@ -63,8 +74,9 @@ npm run report
 - 重复规则检测、广告内容与 WebRTC 直连规则精准移除断言
 - TUN 虚拟网卡旁路进程与浏览器防泄漏安全断言
 - Normal 契约校验（精准识别并生成区域 `url-test` 组，严禁引入 smart 类型组）
+- Lite 契约校验（严格断言仅存在双策略组，所有规则精准映射无悬空）
 - 规则 / 策略组 / provider 交叉引用完整性
-- DNS 契约、Hulu 区域偏好、运行幂等性及 JavaScript 语法检查
+- DNS 契约、运行幂等性及 JavaScript 语法检查
 
 ---
 
@@ -74,10 +86,10 @@ npm run report
 
 1. 左侧菜单 → **覆写（Override）** → 右上角 ➕。
 2. 类型选择 **JavaScript（.js）**。
-3. 名称建议：`Normal-Override`。
-4. 内容：填入上方 GitHub Raw 导入链接，或者复制对应文件的全文粘贴进去。
+3. 名称建议：`Lite-Override`（或 `Normal-Override`）。
+4. 内容：填入上方对应版本的 GitHub Raw 导入链接，或者复制对应文件的全文粘贴进去。
 5. 保存。
-6. 返回「订阅」页面，右键你的订阅 → **编辑** → **启用覆写** → 勾选刚才添加的脚本 → 保存。
+6. 返回「订阅」页面，右键你的订阅 → **编辑** → **启用覆写** → 勾选刚才添加的脚本 → 保存（**仅勾选一份**）。
 7. 切换到该订阅，点击「**连接**」。
 
 ### Clash Verge Rev
@@ -91,7 +103,7 @@ npm run report
 
 ## 关于客户端设置
 
-脚本已接管了分流、DNS、嗅探与自适应路由配置，因此：
+无论使用 `Normal-Override.js` 还是 `Lite-Override.js`，脚本均已接管了分流、DNS、嗅探与自适应路由配置，因此：
 
 1. **无需在 UI 开启「DNS 覆写」**：
    脚本内部已写入完整的 Fake-IP、国内纯 UDP 极速解析（阿里 DNS `223.5.5.5`）与海外 DoH 防污染策略。保持客户端 UI 的「DNS 覆写」为关闭即可。
@@ -114,13 +126,13 @@ geo-auto-update: true
 ## 常见问题
 
 ### Clash Party 获取当前 IP 失败
-若「网络信息」里的 IPSB 等查询源显示获取失败，通常是查询域名被误分流或 DNS 超时。本项目已在 `custom-overrides.js` 前置处理常见 IP 查询域名：国外查询源走 `🌐 国外网站`，国内兜底查询源走 `DIRECT`。
+若「网络信息」里的 IPSB 等查询源显示获取失败，通常是查询域名被误分流或 DNS 超时。本项目已在 `custom-overrides.js` 前置处理常见 IP 查询域名：国外查询源走国外代理，国内兜底查询源走国内直连。
 
 ### country code id not found in geoip.dat
 如果客户端报 `[GeoIP] failed to decode geodata file: geoip.dat, base error: country code id not found in geoip.dat`，说明当前客户端使用的 `geoip.dat` 不包含上游脚本里的印尼 GeoIP 国家码规则。本项目会在生成阶段自动移除该不兼容兜底规则，保留前面已有的印尼域名规则，避免整份覆写加载失败。
 
 ### ChatGPT / OpenAI 网页加载或操作卡顿
 ChatGPT 网页高度依赖 Cloudflare 边缘节点、实时 HTTP/3 (QUIC) 竞态探测、Statsig 特性标志和 Arkose 人机安全验证。本项目已在规则层完成了全链条统一出口与节点优选。若在部分网络环境下仍偶发卡顿，推荐按如下排查：
-1. **策略组节点确认**：确保客户端「🤖 AI 服务」使用的是美国（US）、狮城（SG）或日韩（JPKR）等官方支持节点，避免使用香港（HK）节点。
+1. **策略组节点确认**：确保客户端「🤖 AI 服务」（或极简版的「🌐 国外节点」）使用的是美国（US）、狮城（SG）或日韩（JPKR）等官方支持节点，避免使用香港（HK）节点。
 2. **关闭浏览器 QUIC 协议**：Cloudflare 会向浏览器下发 HTTP/3 指令，若节点 UDP 延迟不稳定或运营商 QoS，浏览器会在 UDP 与 TCP 之间反复竞态等待。可在 Chrome / Edge 浏览器地址栏打开 `chrome://flags`，搜索 `Experimental QUIC protocol` 设置为 `Disabled`，强制使用稳定的 TCP 隧道加载，可彻底消除静态资源与打字卡顿。
 3. **清理浏览器旧 Host 缓存**：访问 `chrome://net-internals/#sockets` 点击 `Flush socket pools`，重置可能遗留的旧连接。

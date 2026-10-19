@@ -48,10 +48,11 @@ jobs:
           path: |
             .build/
             dist/Normal-Override.js
+            dist/Lite-Override.js
           if-no-files-found: ignore
 
       - name: Commit generated override
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: 'chore: update generated clash party override'
-          file_pattern: 'dist/Normal-Override.js'
+          file_pattern: 'dist/Normal-Override.js dist/Lite-Override.js'

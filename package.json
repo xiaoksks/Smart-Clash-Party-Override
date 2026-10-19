@@ -8,7 +8,7 @@
     "audit:upstream": "node scripts/audit-upstream-graph.mjs",
     "audit:generated": "node scripts/audit-generated-override.mjs",
     "report": "node scripts/report-generated.mjs",
-    "check": "npm run build && npm run audit:upstream && npm run audit:generated && node --check dist/Normal-Override.js"
+    "check": "npm run build && npm run audit:upstream && npm run audit:generated && node --check dist/Normal-Override.js && node --check dist/Lite-Override.js"
   },
   "engines": {
     "node": ">=14.21"

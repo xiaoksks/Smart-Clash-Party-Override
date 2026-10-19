@@ -12,21 +12,27 @@ function inspectOverride(code) {
 }
 
 async function main() {
-  const [normalCode, metadata, spec] = await Promise.all([
+  const [normalCode, liteCode, metadata, spec] = await Promise.all([
     readFile(path.join(ROOT, 'dist', 'Normal-Override.js'), 'utf8'),
+    readFile(path.join(ROOT, 'dist', 'Lite-Override.js'), 'utf8'),
     readFile(path.join(ROOT, '.build', 'metadata.json'), 'utf8').then(JSON.parse),
     loadCustomSpec(),
   ])
   const normalSummary = inspectOverride(normalCode)
+  const liteSummary = inspectOverride(liteCode)
 
   console.log('## Clash Party override build')
   console.log('')
   console.log('### Normal Edition (`dist/Normal-Override.js`)')
   console.log(`- Upstream: \`${normalSummary.version}\``)
   console.log(`- SHA-256: \`${metadata.normal?.sha256 || metadata.upstream?.sha256 || 'n/a'}\``)
-  console.log(`- Type: Latency Auto-Select (url-test)`)
+  console.log(`- Type: Latency Auto-Select (url-test, 42 groups)`)
   console.log('')
-  console.log('### Custom Rules & Adjustments')
+  console.log('### Lite Edition (`dist/Lite-Override.js`)')
+  console.log(`- Upstream: \`${liteSummary.version}\``)
+  console.log(`- Type: Minimal Dual-Group (select: 🌐 国外节点 / 🇨🇳 国内节点)`)
+  console.log('')
+  console.log('### Custom Rules & Adjustments (Shared)')
   console.log(`- Fused providers: ${normalSummary.providers}`)
   console.log(`- Upstream rules: ${normalSummary.upstreamRules}`)
   console.log(`- Ad blocking removed: ${spec.removeAdBlocking ? 'yes' : 'no'}`)
