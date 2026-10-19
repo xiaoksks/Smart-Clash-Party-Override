@@ -216,36 +216,6 @@ function assertReferences(config) {
   })
 }
 
-function comparableSmartSettings(group) {
-  const settings = {}
-  Object.keys(group).sort().forEach(key => {
-    if (key !== 'proxies' && key !== 'strategy') settings[key] = group[key]
-  })
-  return settings
-}
-
-function assertSmartContract(config, upstreamConfig) {
-  const smartGroups = (config['proxy-groups'] || []).filter(group => group.type === 'smart')
-  const urlTestGroups = (config['proxy-groups'] || []).filter(group => group.type === 'url-test')
-  assert(urlTestGroups.length === 0, 'Smart override must not produce url-test regional groups')
-  const upstreamGroups = new Map(
-    (upstreamConfig['proxy-groups'] || [])
-      .filter(group => group.type === 'smart')
-      .map(group => [group.name, group]),
-  )
-  assert(smartGroups.length > 0, 'Generated override produced no Smart groups')
-  smartGroups.forEach(group => {
-    const upstreamGroup = upstreamGroups.get(group.name)
-    assert(upstreamGroup, `Generated Smart group is missing upstream counterpart: ${group.name}`)
-    assert(!Object.prototype.hasOwnProperty.call(group, 'strategy'), `${group.name} still contains the removed Smart strategy option`)
-    assert(group.collectdata === false, `${group.name} must keep upstream Smart data collection disabled`)
-    assert(
-      JSON.stringify(comparableSmartSettings(group)) === JSON.stringify(comparableSmartSettings(upstreamGroup)),
-      `${group.name} Smart settings drifted from upstream`,
-    )
-  })
-  assert(config.profile?.['store-selected'] === false, 'store-selected must be disabled')
-}
 
 function assertNormalContract(config, upstreamConfig) {
   const urlTestGroups = (config['proxy-groups'] || []).filter(group => group.type === 'url-test')
@@ -362,11 +332,7 @@ async function auditTarget(target, spec) {
   assertChinaIpDirect(first, upstream, spec, chinaIpIndex)
   assertWebRtcProtection(first, spec, webRtcRules)
   assertReferences(first)
-  if (target.type === 'smart') {
-    assertSmartContract(first, upstream)
-  } else if (target.type === 'normal') {
-    assertNormalContract(first, upstream)
-  }
+  assertNormalContract(first, upstream)
   assertGroupRoutingContract(first, upstream)
   assertDnsContract(first, spec.foreignDnsDomains)
   assertProviderVersioning(first, version)
@@ -389,7 +355,6 @@ async function main() {
 
   const spec = await loadCustomSpec()
   const targets = [
-    { name: 'Smart', file: 'Smart-Override.js', type: 'smart' },
     { name: 'Normal', file: 'Normal-Override.js', type: 'normal' },
   ]
   for (const target of targets) {

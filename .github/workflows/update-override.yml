@@ -47,7 +47,6 @@ jobs:
           name: override-build-diagnostics
           path: |
             .build/
-            dist/Smart-Override.js
             dist/Normal-Override.js
           if-no-files-found: ignore
 
@@ -55,4 +54,4 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: 'chore: update generated clash party override'
-          file_pattern: 'dist/Smart-Override.js dist/Normal-Override.js'
+          file_pattern: 'dist/Normal-Override.js'

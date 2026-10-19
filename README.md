@@ -3,18 +3,15 @@ https://github.com/IvanSolis1989/Smart-Config-Kit
 
 # Clash Party Custom Override
 
-这个仓库会定时拉取上游 [Smart-Config-Kit](https://github.com/IvanSolis1989/Smart-Config-Kit) 的规则配置，**同步构建并生成两款覆写文件**（Smart 内核版与 Normal 普通版），在完整执行上游路由配置后，自动应用 `custom-overrides.js` 中的本地规则、DNS 和策略偏好：
+这个仓库会定时拉取上游 [Smart-Config-Kit](https://github.com/IvanSolis1989/Smart-Config-Kit) 的规则配置，**自动构建并生成 Normal 普通版覆写文件 (`dist/Normal-Override.js`)**，在完整执行上游路由配置后，自动应用 `custom-overrides.js` 中的本地规则、DNS 和策略偏好：
 
-- **Smart 内核版 (`dist/Smart-Override.js`)**：基于上游 `ClashParty(mihomo-smart).js`，区域组采用 Mihomo 专属的 **Smart 机器学习算法**（基于 LightGBM 决策树，结合 RTT、历史可用率、丢包与权重综合评估优选节点）。需要客户端支持 Smart 内核（如 Mihomo Party 内置，或 Clash Verge Rev 开启 Alpha 内核）。
 - **Normal 普通版 (`dist/Normal-Override.js`)**：基于上游 `ClashParty(mihomo).js`，区域组采用标准的 **`url-test` 延迟测速选路**（测试地址 `gstatic.com/generate_204`，检测间隔 300s，容差 10ms），**不依赖 Smart 特殊内核**，兼容所有主流 Mihomo / Clash.Meta / Clash Verge / Mihomo Party 客户端。
-
-两个版本**完全共享相同的本地定制层与优化**，规则集、分流业务组、前置直连与 DNS 防护等特性 100% 保持一致。
 
 ---
 
 ## 核心特性与定制
 
-- **双版本同步构建与持续交付**：一套规则源同时产出 Smart 与 Normal 双版本，GitHub Actions 自动化流水线（定时 + push 触发）包含上游版本追踪、降级拦截与全量结构契约审计。
+- **自动化构建与持续交付**：基于上游规则源自动生成 Normal 普通版，GitHub Actions 自动化流水线（定时 + push 触发）包含上游版本追踪、降级拦截与全量结构契约审计。
 - **构建后自动移除广告拦截**：自动移除上游广告拦截策略组、指向该策略的规则及其专用 provider，避免误杀正常页面资源；其他非广告用途的 `REJECT` 规则保持原样。
 - **WebRTC 防泄露优化（国内直连放行，仅境外访问防泄漏）**：智能区分境内外流量。国内域名（`geosite:cn`）、国内权威 IP 及自定义直连规则全面放行 UDP，Bilibili、抖音等国内音视频和网页 HTTP/3 (QUIC) / WebRTC 享受原生极速直连；仅针对境外非直连的浏览器 UDP 连接进行阻断（无缝降级 TCP 走代理隧道），并全局拒绝常见 STUN/TURN 探测端口，既杜绝了向境外暴露真实公网 IP，又完全保留了国内网络的极速体验。移除了 Windows 下引发冷启动网络黑洞的 `strict-route`，兼顾隐私安全与系统网络稳定性。
 - **迅雷全生态极速直连与 TUN 内核级旁路**：针对迅雷客户端生态（`Thunder.exe`、`ThunderPlatform.exe`、`DownloadService.exe`、`XLServicePlatform.exe`、`xllite.exe`、`DownloadSDKServer.exe` 等）及云盘/CDN 域名强制前置直连；同时在内核级 `tun['exclude-process']` 进行进程旁路，P2P 海量并发直接走系统物理网卡原生网络协议栈，消除虚拟网卡内存流和 CPU 协议栈转换开销，彻底杜绝大文件满速下载时系统网络卡顿。
@@ -36,18 +33,9 @@ https://github.com/IvanSolis1989/Smart-Config-Kit
 
 ---
 
-## 版本选型与导入链接
+## 导入链接
 
-> ⚠️ **二选一使用**：请根据你的客户端内核支持情况与个人偏好**选择其中一个版本导入**即可，**请勿在客户端中同时勾选两份覆写**！
-
-### 1. Smart 内核版（推荐配合 Mihomo Party 使用）
-适合追求智能选路、使用 Mihomo Party 或已开启 Mihomo Alpha 内核的用户。
-- **GitHub Raw**：
-  ```text
-  https://raw.githubusercontent.com/xiaoksks/Smart-Clash-Party-Override/main/dist/Smart-Override.js
-  ```
-
-### 2. Normal 普通版（标准 url-test 版）
+### Normal 普通版（标准 url-test 版）
 适合标准 Mihomo/Clash.Meta 内核、Clash Verge Rev 正式版，或偏好经典低延迟自动测速选路的用户。
 - **GitHub Raw**：
   ```text
@@ -59,7 +47,7 @@ https://github.com/IvanSolis1989/Smart-Config-Kit
 ## 本地构建与审计
 
 ```bash
-# 构建 Smart 与 Normal 两款产物
+# 构建 Normal 产物
 npm run build
 
 # 执行全量自动化合规检查与语法校验
@@ -69,12 +57,11 @@ npm run check
 npm run report
 ```
 
-`npm run check` 包含严密的双版本质量守卫：
+`npm run check` 包含严密的质量守卫：
 - 上游与路由图基础版本一致性校验、完整版本防降级检测
 - 自定义规则格式与字段静态强类型校验（支持规则类型及合法段数合法性检测）
 - 重复规则检测、广告内容与 WebRTC 直连规则精准移除断言
 - TUN 虚拟网卡旁路进程与浏览器防泄漏安全断言
-- Smart 契约校验（机器学习参数合法、无废弃 `strategy` 字段、禁用数据收集）
 - Normal 契约校验（精准识别并生成区域 `url-test` 组，严禁引入 smart 类型组）
 - 规则 / 策略组 / provider 交叉引用完整性
 - DNS 契约、Hulu 区域偏好、运行幂等性及 JavaScript 语法检查
@@ -87,10 +74,10 @@ npm run report
 
 1. 左侧菜单 → **覆写（Override）** → 右上角 ➕。
 2. 类型选择 **JavaScript（.js）**。
-3. 名称建议：`Smart-Override`（或 `Normal-Override`）。
-4. 内容：填入对应版本的 GitHub Raw 导入链接，或者复制对应文件的全文粘贴进去。
+3. 名称建议：`Normal-Override`。
+4. 内容：填入上方 GitHub Raw 导入链接，或者复制对应文件的全文粘贴进去。
 5. 保存。
-6. 返回「订阅」页面，右键你的订阅 → **编辑** → **启用覆写** → 勾选刚才添加的脚本 → 保存（**仅勾选一份**）。
+6. 返回「订阅」页面，右键你的订阅 → **编辑** → **启用覆写** → 勾选刚才添加的脚本 → 保存。
 7. 切换到该订阅，点击「**连接**」。
 
 ### Clash Verge Rev
@@ -104,7 +91,7 @@ npm run report
 
 ## 关于客户端设置
 
-无论使用 `Smart-Override.js` 还是 `Normal-Override.js`，脚本均已接管了分流、DNS、嗅探与自适应路由配置，因此：
+脚本已接管了分流、DNS、嗅探与自适应路由配置，因此：
 
 1. **无需在 UI 开启「DNS 覆写」**：
    脚本内部已写入完整的 Fake-IP、国内纯 UDP 极速解析（阿里 DNS `223.5.5.5`）与海外 DoH 防污染策略。保持客户端 UI 的「DNS 覆写」为关闭即可。

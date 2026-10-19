@@ -4,17 +4,11 @@ import https from 'node:https'
 const DEFAULT_RETRIES = Number(process.env.FETCH_RETRIES || 3)
 const DEFAULT_TIMEOUT_MS = Number(process.env.FETCH_TIMEOUT_MS || 30000)
 
-const SMART_PATH = 'Clash%20Party/ClashParty(mihomo-smart).js'
 const NORMAL_PATH = 'Clash%20Party/ClashParty(mihomo).js'
 const GRAPH_PATH = 'rulesets/source/routing-graph.js'
 const TRAFFIC_OPTIONS_PATH = 'rulesets/source/traffic-options.json'
 
-const SMART_URLS = (process.env.UPSTREAM_SMART_URLS || process.env.UPSTREAM_URLS || process.env.UPSTREAM_URL || [
-  `https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/main/${SMART_PATH}`,
-].join(','))
-  .split(',').map(value => value.trim()).filter(Boolean)
-
-const NORMAL_URLS = (process.env.UPSTREAM_NORMAL_URLS || [
+const NORMAL_URLS = (process.env.UPSTREAM_NORMAL_URLS || process.env.UPSTREAM_URLS || process.env.UPSTREAM_URL || [
   `https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/main/${NORMAL_PATH}`,
 ].join(','))
   .split(',').map(value => value.trim()).filter(Boolean)
@@ -133,20 +127,12 @@ async function fetchValidated(urls, label, getVersion, options = {}) {
   throw new Error(`Failed to fetch ${label}:\n${errors.join('\n')}`)
 }
 
-export function parseSmartVersion(body) {
-  return body.match(/const VERSION = '([^']+)'/)?.[1] || null
-}
-
 export function parseNormalVersion(body) {
   return body.match(/const VERSION = '([^']+)'/)?.[1] || null
 }
 
 export function parseGraphVersion(body) {
   return body.match(/const SOURCE_GRAPH_VERSION = '([^']+)'/)?.[1] || null
-}
-
-export function fetchSmartSource(options = {}) {
-  return fetchValidated(SMART_URLS, 'Smart override', parseSmartVersion, options)
 }
 
 export function fetchNormalSource(options = {}) {
