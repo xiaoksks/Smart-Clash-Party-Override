@@ -5,6 +5,15 @@ import vm from 'node:vm'
 export const ROOT = process.cwd()
 export const CUSTOM_SPEC_PATH = path.join(ROOT, 'custom-overrides.js')
 const PORT_PATTERN = /^\d{1,5}$/
+const RULE_SET_OVERRIDE_TARGETS = new Set([
+  'DIRECT',
+  'REJECT',
+  'REJECT-DROP',
+  'PASS',
+  '🌐 国外节点',
+  '🚫 日本禁用',
+  '🇨🇳 国内节点',
+])
 
 const VALID_RULE_TYPES = new Set([
   'DOMAIN',
@@ -112,6 +121,12 @@ export function buildRuleSetOverrideRules(spec) {
   return Object.entries(spec.ruleSetTargetOverrides).map(([name, target]) => `RULE-SET,local-${name},${target}`)
 }
 
+export function buildChinaIpDirectRules(enabled) {
+  return enabled
+    ? ['RULE-SET,scki-fused-075-cn-site-ipcidr-no-resolve,DIRECT,no-resolve']
+    : []
+}
+
 export function buildJapanBlockedRules(spec) {
   return (spec.japanBlockedDomains || []).map(domain => `DOMAIN-SUFFIX,${domain},🚫 日本禁用`)
 }
@@ -125,9 +140,6 @@ export async function loadCustomSpec() {
 
   if (!spec || typeof spec !== 'object' || Array.isArray(spec)) {
     throw new Error('CUSTOM_OVERRIDE_SPEC must be an object')
-  }
-  if (typeof spec.removeAdBlocking !== 'boolean') {
-    throw new Error('removeAdBlocking must be a boolean')
   }
   if (typeof spec.forceChinaIpDirect !== 'boolean') {
     throw new Error('forceChinaIpDirect must be a boolean')
@@ -171,10 +183,17 @@ export async function loadCustomSpec() {
     }
   }
   const ruleSetTargetOverrides = normalizeStringMap(spec.ruleSetTargetOverrides, 'ruleSetTargetOverrides')
+  for (const [name, target] of Object.entries(ruleSetTargetOverrides)) {
+    if (!/^[a-z0-9][a-z0-9-]*$/i.test(name)) {
+      throw new Error(`Invalid ruleSetTargetOverrides name "${name}" (expected letters, digits, or hyphens)`)
+    }
+    if (!RULE_SET_OVERRIDE_TARGETS.has(target)) {
+      throw new Error(`Invalid ruleSetTargetOverrides target "${target}" for "${name}"`)
+    }
+  }
   validatePreRules(spec.preRules)
   assertUniqueStrings(spec.foreignDnsDomains, 'foreignDnsDomains')
   return {
-    removeAdBlocking: spec.removeAdBlocking,
     forceChinaIpDirect: spec.forceChinaIpDirect,
     preventWebRtcLeak: spec.preventWebRtcLeak,
     webRtcBrowserProcesses: Array.from(spec.webRtcBrowserProcesses),

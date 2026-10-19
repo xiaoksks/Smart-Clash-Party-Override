@@ -1,9 +1,6 @@
 // Configuration spec for Clash Party / Mihomo Lite override.
 // Rules are prepended in order; foreignDnsDomains are resolved with overseas DoH.
 const CUSTOM_OVERRIDE_SPEC = {
-  // Omit ad-blocking policy and rules.
-  removeAdBlocking: true,
-
   // Route authoritative mainland China IP ranges directly before service-specific IP rules.
   // no-resolve is preserved so domain-based routing does not trigger an extra DNS lookup.
   forceChinaIpDirect: true,

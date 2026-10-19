@@ -1,6 +1,6 @@
 import { readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
-import { buildJapanBlockedRules, buildWebRtcProtectionRules, loadCustomSpec, ROOT } from './custom-spec.mjs'
+import { buildChinaIpDirectRules, buildJapanBlockedRules, buildRuleSetOverrideRules, buildWebRtcProtectionRules, loadCustomSpec, ROOT } from './custom-spec.mjs'
 
 const DIST_PATH = path.join(ROOT, 'dist', 'Lite-Override.js')
 const BASE_DATA_PATH = path.join(ROOT, 'scripts', 'base-data.json')
@@ -57,11 +57,11 @@ export async function buildLiteOverride() {
     })
     .map(normalizeRuleTarget)
 
-  // 3. Douyu local override rule
-  const localRuleSetRules = ['RULE-SET,local-douyu,🇨🇳 国内节点']
+  // 3. Rule-set target overrides from custom spec.
+  const localRuleSetRules = buildRuleSetOverrideRules(spec)
 
-  // 4. China IP authoritative direct rule
-  const chinaIpRules = ['RULE-SET,scki-fused-075-cn-site-ipcidr-no-resolve,🇨🇳 国内节点,no-resolve']
+  // 4. Optionally route authoritative mainland China IP ranges directly.
+  const chinaIpRules = buildChinaIpDirectRules(spec.forceChinaIpDirect)
 
   // 5. Baseline rules from base-data (excluding duplicate douyu / chinaIp)
   const seenRules = new Set()
@@ -97,6 +97,7 @@ export async function buildLiteOverride() {
 
   // 6. Rule Providers: base providers + local douyu
   const ruleProviders = {
+    ...baseData.ruleProviders,
     'local-douyu': {
       type: 'http',
       behavior: 'domain',
@@ -106,7 +107,11 @@ export async function buildLiteOverride() {
       interval: 86400,
       proxy: '🌐 国外节点',
     },
-    ...baseData.ruleProviders,
+  }
+  for (const [name] of Object.entries(spec.ruleSetTargetOverrides)) {
+    if (!ruleProviders[`local-${name}`]) {
+      throw new Error(`Missing rule provider for ruleSetTargetOverrides entry "${name}" (expected "local-${name}")`)
+    }
   }
   // Ensure all rule providers have proxy set to '🌐 国外节点'
   for (const p of Object.values(ruleProviders)) {
@@ -130,7 +135,7 @@ const LITE_TUN_EXCLUDE_PROCESSES = ${JSON.stringify(spec.tunExcludeProcesses || 
 // 节点分类辅助工具：精准识别国内回国节点、说明节点与日本节点
 var INFO_REGEX = /流量|到期|过期|重置|官网|通知|订阅|套餐|客服|QQ群|TG频道|网址|剩余|官方/i
 var CN_NODE_REGEX = /中国(?:电信|联通|移动|铁通|中转|专线)|(?:^|[^a-zA-Z])(?:CN|China|Mainland|回国|国内|北京|上海|广州|深圳|杭州|南京|武汉|成都|重庆|天津|西安|苏州|郑州|长沙|沈阳|青岛|济南|大连|厦门|福州|合肥)(?:[^a-zA-Z]|$)/i
-var JP_NODE_REGEX = /(?:^|[^a-zA-Z])(?:JP|JPN|Japan|Tokyo|Osaka|Nagoya|Fukuoka|Yokohama|Saitama|Chiba|Hokkaido|Okinawa|Kyoto|Kobe)(?:[^a-zA-Z]|$)|(?:日本|东京|大阪|名古屋|福冈|横滨|埼玉|千叶|北海道|冲绳|京都|神户)|🇯🇵/i
+var JP_NODE_REGEX = /(?:^|[^a-zA-Z])(?:JP|JPN|Japan|Tokyo|Osaka|Nagoya|Fukuoka|Yokohama|Saitama|Chiba|Hokkaido|Okinawa|Kyoto|Kobe)\\d*(?:[^a-zA-Z]|$)|(?:日本|东京|大阪|名古屋|福冈|横滨|埼玉|千叶|北海道|冲绳|京都|神户)|🇯🇵/i
 var FOREIGN_KEYWORD_REGEX = /(?:^|[^a-zA-Z])(?:HK|HongKong|TW|Taiwan|JP|Japan|SG|Singapore|US|USA|KR|Korea|UK)(?:[^a-zA-Z]|$)|(?:香港|台湾|日本|新加坡|美国|韩国|英国|德国|法国)|(?:🇭🇰|🇹🇼|🇯🇵|🇸🇬|🇺🇸|🇰🇷|🇬🇧|🇩🇪|🇫🇷)/i
 
 function isInfoNode(name) {

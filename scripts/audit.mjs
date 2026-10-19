@@ -1,25 +1,31 @@
 import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 import vm from 'node:vm'
-import { loadCustomSpec, ROOT } from './custom-spec.mjs'
+import { buildChinaIpDirectRules, buildRuleSetOverrideRules, loadCustomSpec, ROOT } from './custom-spec.mjs'
 
 const DIST_PATH = path.join(ROOT, 'dist', 'Lite-Override.js')
 const BUILTINS = new Set(['DIRECT', 'REJECT', 'REJECT-DROP', 'PASS'])
 
 function fixtureConfig() {
-  const names = [
-    '🇭🇰 香港 01 | BGP专线',
-    '🇸🇬 新加坡 01 | 优质流媒体',
-    '🇺🇸 美国 01 | 原生住宅',
-    '🇯🇵 日本 01 | 低延迟',
-    '🇨🇳 国内中转-上海电信',
-    '流量信息：剩余 888GB',
-    '套餐到期：2028-12-31',
+  const nodes = [
+    { name: '🇭🇰 香港 01 | BGP专线', type: 'ss' },
+    { name: '🇸🇬 新加坡 01 | 优质流媒体', type: 'ss' },
+    { name: '🇺🇸 美国 01 | 原生住宅', type: 'ss' },
+    { name: '🇯🇵 日本 01 | 低延迟', type: 'ss' },
+    { name: '🇨🇳 国内中转-上海电信', type: 'ss' },
+    { name: 'JP01 | Tokyo IPLC', type: 'ss' },
+    { name: 'Japan02 | Premium', type: 'ss' },
+    { name: '🇯🇵 Osaka03', type: 'ss' },
+    { name: 'JPX 01 | Test', type: 'ss' },
+    { name: '🇨🇦 Canada 01', type: 'ss' },
+    { name: '流量信息：剩余 888GB', type: 'ss' },
+    { name: '套餐到期：2028-12-31', type: 'ss' },
+    { name: '🇺🇸 Direct placeholder', type: 'direct' },
+    { name: '🇯🇵 Reject placeholder', type: 'reject' },
   ]
   return {
-    proxies: names.map((name, index) => ({
-      name,
-      type: 'ss',
+    proxies: nodes.map((node, index) => ({
+      ...node,
       server: `198.51.100.${index + 1}`,
       port: 443,
       cipher: 'aes-128-gcm',
@@ -80,13 +86,22 @@ export async function auditLiteOverride() {
   assert(foreignGroup.proxies.includes('🇭🇰 香港 01 | BGP专线'), 'Foreign group missing HK node')
   assert(foreignGroup.proxies.includes('🇺🇸 美国 01 | 原生住宅'), 'Foreign group missing US node')
   assert(foreignGroup.proxies.includes('🇯🇵 日本 01 | 低延迟'), 'Foreign group missing JP node')
+  assert(foreignGroup.proxies.includes('🇨🇦 Canada 01'), 'Foreign group missing unlisted-country node')
+  assert(foreignGroup.proxies.includes('JPX 01 | Test'), 'Foreign group must not treat JPX as a Japan marker')
   assert(!foreignGroup.proxies.includes('🇨🇳 国内中转-上海电信'), 'Foreign group must not include CN node')
-  assert(!foreignGroup.proxies.some(n => n.includes('流量信息')), 'Foreign group must filter out info nodes')
+  assert(!foreignGroup.proxies.includes('🇺🇸 Direct placeholder'), 'Foreign group must exclude DIRECT proxy entries')
+  assert(!foreignGroup.proxies.includes('🇯🇵 Reject placeholder'), 'Foreign group must exclude REJECT proxy entries')
+  assert(!foreignGroup.proxies.some(n => /流量信息|套餐到期/.test(n)), 'Foreign group must filter out info nodes')
 
   // Check Japan blocked group classification
   assert(nonJpGroup.proxies.includes('🇭🇰 香港 01 | BGP专线'), 'Non-JP group missing HK node')
   assert(nonJpGroup.proxies.includes('🇺🇸 美国 01 | 原生住宅'), 'Non-JP group missing US node')
+  assert(nonJpGroup.proxies.includes('🇨🇦 Canada 01'), 'Non-JP group missing unlisted-country node')
+  assert(nonJpGroup.proxies.includes('JPX 01 | Test'), 'Non-JP group must not treat JPX as a Japan marker')
   assert(!nonJpGroup.proxies.includes('🇯🇵 日本 01 | 低延迟'), 'Non-JP group must NOT include JP node')
+  for (const name of ['JP01 | Tokyo IPLC', 'Japan02 | Premium', '🇯🇵 Osaka03']) {
+    assert(!nonJpGroup.proxies.includes(name), `Non-JP group must exclude Japan node variant: ${name}`)
+  }
   assert(nonJpGroup.proxies.includes('DIRECT'), 'Non-JP group should include DIRECT fallback')
 
   assert(domesticGroup.proxies[0] === 'DIRECT', '"🇨🇳 国内节点" first proxy must be DIRECT')
@@ -116,7 +131,8 @@ export async function auditLiteOverride() {
     assert(result.rules.includes(`DOMAIN-SUFFIX,${domain},🚫 日本禁用`), `Missing rule for ${domain} -> 🚫 日本禁用`)
   })
 
-  // 3. Assert WebRTC Leak Protection
+  // 3. Assert WebRTC Leak Protection and optional authoritative China IP routing.
+  const chinaIpIndex = result.rules.indexOf('RULE-SET,scki-fused-075-cn-site-ipcidr-no-resolve,DIRECT,no-resolve')
   if (spec.preventWebRtcLeak) {
     spec.webRtcBrowserProcesses.forEach(proc => {
       const expected = `AND,((PROCESS-NAME,${proc}),(NETWORK,UDP),(NOT,((GEOSITE,cn)))),REJECT`
@@ -132,12 +148,31 @@ export async function auditLiteOverride() {
       assert(result.rules.includes(expected), `Missing domain WebRTC protection rule: ${expected}`)
     })
 
-    // WebRTC rules must come BEFORE China IP direct rule
-    const chinaIpIndex = result.rules.indexOf('RULE-SET,scki-fused-075-cn-site-ipcidr-no-resolve,🇨🇳 国内节点,no-resolve')
-    assert(chinaIpIndex > 0, 'China IP direct rule not found')
     const stunPortIndex = result.rules.indexOf('DST-PORT,3478,REJECT')
-    assert(stunPortIndex >= 0 && stunPortIndex < chinaIpIndex, 'WebRTC STUN port rule must precede China IP direct rule')
+    assert(stunPortIndex >= 0, 'WebRTC STUN port rule not found')
+    if (spec.forceChinaIpDirect) {
+      assert(stunPortIndex < chinaIpIndex, 'WebRTC STUN port rule must precede China IP direct rule')
+    }
   }
+
+  if (spec.forceChinaIpDirect) {
+    assert(chinaIpIndex >= 0, 'forceChinaIpDirect is enabled but China IP direct rule is missing')
+  } else {
+    assert(chinaIpIndex === -1, 'forceChinaIpDirect is disabled but China IP direct rule is present')
+  }
+  assert(buildChinaIpDirectRules(true).length === 1, 'Enabling forceChinaIpDirect must generate one China IP direct rule')
+  assert(buildChinaIpDirectRules(false).length === 0, 'Disabling forceChinaIpDirect must generate no China IP direct rule')
+
+  // Rule-set target overrides must generate rules with the configured target.
+  Object.entries(spec.ruleSetTargetOverrides).forEach(([name, target]) => {
+    assert(result.rules.includes(`RULE-SET,local-${name},${target}`), `Missing rule-set target override: ${name} -> ${target}`)
+    assert(Boolean(result['rule-providers']?.[`local-${name}`]), `Missing provider for rule-set target override: local-${name}`)
+  })
+  assert(
+    JSON.stringify(buildRuleSetOverrideRules({ ruleSetTargetOverrides: { douyu: 'REJECT', sample: 'DIRECT' } })) ===
+      JSON.stringify(['RULE-SET,local-douyu,REJECT', 'RULE-SET,local-sample,DIRECT']),
+    'Rule-set overrides must honor changed targets and additional mappings',
+  )
 
   // 4. Assert Rule Providers
   const providers = result['rule-providers'] || {}

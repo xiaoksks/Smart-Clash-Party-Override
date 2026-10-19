@@ -36,7 +36,7 @@ async function main() {
   console.log(`- 日本禁用分流网站数: ${(spec.japanBlockedDomains || []).length} (含 hgamefree.info, 生肉漫画, ACG 资源, 成人流媒体等)`)
   console.log(`- 自定义前置规则: ${spec.preRules.length}`)
   console.log(`- 大陆权威 IP 强制直连: ${spec.forceChinaIpDirect ? '开启' : '关闭'}`)
-  console.log(`- 广告拦截移除: ${spec.removeAdBlocking ? '已移除' : '保留'}`)
+  console.log('- 广告拦截规则: 未包含')
   console.log('')
   console.log('### 安全与 DNS 优化')
   console.log(`- WebRTC 防泄漏: ${spec.preventWebRtcLeak ? `开启 (${buildWebRtcProtectionRules(spec).length} 条规则，覆盖国内 STUN 与海外 UDP)` : '关闭'}`)

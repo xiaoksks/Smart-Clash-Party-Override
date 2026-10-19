@@ -3,7 +3,7 @@
 // 自定义规则与配置请编辑 custom-overrides.js，然后运行 npm run check
 
 const LITE_RULES = [
-  "RULE-SET,local-douyu,🇨🇳 国内节点",
+  "RULE-SET,local-douyu,DIRECT",
   "PROCESS-NAME,QQ.exe,🇨🇳 国内节点",
   "PROCESS-NAME,Thunder.exe,🇨🇳 国内节点",
   "PROCESS-NAME,ThunderPlatform.exe,🇨🇳 国内节点",
@@ -156,7 +156,7 @@ const LITE_RULES = [
   "DOMAIN-SUFFIX,hpjav.tv,🚫 日本禁用",
   "DOMAIN-SUFFIX,javlibrary.com,🚫 日本禁用",
   "DOMAIN-SUFFIX,cableav.tv,🚫 日本禁用",
-  "RULE-SET,scki-fused-075-cn-site-ipcidr-no-resolve,🇨🇳 国内节点,no-resolve",
+  "RULE-SET,scki-fused-075-cn-site-ipcidr-no-resolve,DIRECT,no-resolve",
   "DOMAIN-SUFFIX,ip.sb,🌐 国外节点",
   "DOMAIN-SUFFIX,ipify.org,🌐 国外节点",
   "DOMAIN-SUFFIX,ipinfo.io,🌐 国外节点",
@@ -347,15 +347,6 @@ const LITE_RULES = [
   "MATCH,🌐 国外节点"
 ]
 const LITE_RULE_PROVIDERS = {
-  "local-douyu": {
-    "type": "http",
-    "behavior": "domain",
-    "format": "mrs",
-    "url": "https://fastly.jsdelivr.net/gh/IvanSolis1989/Smart-Config-Kit@main/rulesets/generated/mihomo-mrs/douyu.mrs?scki=v6.0.20-normal.20",
-    "path": "./ruleset/local/v6.0.20-normal.20/douyu.mrs",
-    "interval": 86400,
-    "proxy": "🌐 国外节点"
-  },
   "scki-fused-001-direct-domain": {
     "type": "http",
     "behavior": "domain",
@@ -1642,6 +1633,15 @@ const LITE_RULE_PROVIDERS = {
     "path": "./ruleset/v6.0.20/scki-fused-082-google-residual.yaml",
     "interval": 86400,
     "proxy": "🌐 国外节点"
+  },
+  "local-douyu": {
+    "type": "http",
+    "behavior": "domain",
+    "format": "mrs",
+    "url": "https://fastly.jsdelivr.net/gh/IvanSolis1989/Smart-Config-Kit@main/rulesets/generated/mihomo-mrs/douyu.mrs?scki=v6.0.20",
+    "path": "./ruleset/local/v6.0.20/douyu.mrs",
+    "interval": 86400,
+    "proxy": "🌐 国外节点"
   }
 }
 const LITE_DNS_CONFIG = {
@@ -1823,7 +1823,7 @@ const LITE_TUN_EXCLUDE_PROCESSES = [
 // 节点分类辅助工具：精准识别国内回国节点、说明节点与日本节点
 var INFO_REGEX = /流量|到期|过期|重置|官网|通知|订阅|套餐|客服|QQ群|TG频道|网址|剩余|官方/i
 var CN_NODE_REGEX = /中国(?:电信|联通|移动|铁通|中转|专线)|(?:^|[^a-zA-Z])(?:CN|China|Mainland|回国|国内|北京|上海|广州|深圳|杭州|南京|武汉|成都|重庆|天津|西安|苏州|郑州|长沙|沈阳|青岛|济南|大连|厦门|福州|合肥)(?:[^a-zA-Z]|$)/i
-var JP_NODE_REGEX = /(?:^|[^a-zA-Z])(?:JP|JPN|Japan|Tokyo|Osaka|Nagoya|Fukuoka|Yokohama|Saitama|Chiba|Hokkaido|Okinawa|Kyoto|Kobe)(?:[^a-zA-Z]|$)|(?:日本|东京|大阪|名古屋|福冈|横滨|埼玉|千叶|北海道|冲绳|京都|神户)|🇯🇵/i
+var JP_NODE_REGEX = /(?:^|[^a-zA-Z])(?:JP|JPN|Japan|Tokyo|Osaka|Nagoya|Fukuoka|Yokohama|Saitama|Chiba|Hokkaido|Okinawa|Kyoto|Kobe)\d*(?:[^a-zA-Z]|$)|(?:日本|东京|大阪|名古屋|福冈|横滨|埼玉|千叶|北海道|冲绳|京都|神户)|🇯🇵/i
 var FOREIGN_KEYWORD_REGEX = /(?:^|[^a-zA-Z])(?:HK|HongKong|TW|Taiwan|JP|Japan|SG|Singapore|US|USA|KR|Korea|UK)(?:[^a-zA-Z]|$)|(?:香港|台湾|日本|新加坡|美国|韩国|英国|德国|法国)|(?:🇭🇰|🇹🇼|🇯🇵|🇸🇬|🇺🇸|🇰🇷|🇬🇧|🇩🇪|🇫🇷)/i
 
 function isInfoNode(name) {
