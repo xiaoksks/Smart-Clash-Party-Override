@@ -1,4 +1,4 @@
-name: Update Clash Party Override
+name: Build & Verify Lite Override
 
 on:
   push:
@@ -9,21 +9,18 @@ on:
       - 'scripts/**'
       - 'package.json'
   workflow_dispatch:
-  schedule:
-    # Daily at 17:00 UTC, 01:00 Beijing time.
-    - cron: '0 17 * * *'
 
 permissions:
   contents: write
 
 concurrency:
-  group: update-clash-party-override
+  group: build-lite-override
   cancel-in-progress: false
 
 jobs:
-  update:
+  build-and-verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 10
 
     steps:
       - name: Checkout
@@ -34,7 +31,7 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Build and validate merged override
+      - name: Build and validate Lite override
         run: npm run check
 
       - name: Publish build summary
@@ -44,15 +41,12 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: override-build-diagnostics
-          path: |
-            .build/
-            dist/Normal-Override.js
-            dist/Lite-Override.js
+          name: lite-override-build-diagnostics
+          path: dist/Lite-Override.js
           if-no-files-found: ignore
 
-      - name: Commit generated override
+      - name: Commit generated Lite override
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: 'chore: update generated clash party override'
-          file_pattern: 'dist/Normal-Override.js dist/Lite-Override.js'
+          commit_message: 'chore: update Lite override'
+          file_pattern: 'dist/Lite-Override.js'

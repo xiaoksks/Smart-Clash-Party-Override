@@ -1,7 +1,7 @@
-// Single source of truth for local behavior layered on top of Smart-Config-Kit.
+// Configuration spec for Clash Party / Mihomo Lite override.
 // Rules are prepended in order; foreignDnsDomains are resolved with overseas DoH.
 const CUSTOM_OVERRIDE_SPEC = {
-  // Keep upstream routing intact, but omit its ad-blocking policy, rules and providers.
+  // Omit ad-blocking policy and rules.
   removeAdBlocking: true,
 
   // Route authoritative mainland China IP ranges directly before service-specific IP rules.

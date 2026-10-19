@@ -1,16 +1,15 @@
 {
   "name": "clash-party-custom-override",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "node scripts/merge-custom-rules.mjs",
-    "audit:upstream": "node scripts/audit-upstream-graph.mjs",
-    "audit:generated": "node scripts/audit-generated-override.mjs",
+    "build": "node scripts/build.mjs",
+    "audit": "node scripts/audit.mjs",
     "report": "node scripts/report-generated.mjs",
-    "check": "npm run build && npm run audit:upstream && npm run audit:generated && node --check dist/Normal-Override.js && node --check dist/Lite-Override.js"
+    "check": "node scripts/build.mjs && node scripts/audit.mjs && node scripts/report-generated.mjs && node --check dist/Lite-Override.js"
   },
   "engines": {
-    "node": ">=14.21"
+    "node": ">=16.0.0"
   }
 }

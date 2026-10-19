@@ -3,47 +3,46 @@ import path from 'node:path'
 import vm from 'node:vm'
 import { buildWebRtcProtectionRules, loadCustomSpec, ROOT } from './custom-spec.mjs'
 
-function inspectOverride(code) {
-  return vm.runInNewContext(`${code}\n;({
-    version: VERSION,
-    providers: Object.keys(MIHOMO_FUSED_RULE_PROVIDERS || {}).length,
-    upstreamRules: (MIHOMO_FUSED_RULES || []).length,
-  })`, { console: { log() {}, error() {} } }, { timeout: 5000 })
+function inspectLiteOverride(code) {
+  const sandbox = {
+    __config: { proxies: [{ name: 'Test', type: 'ss', server: '1.1.1.1', port: 443, cipher: 'aes-128-gcm', password: 'p' }] },
+    console: { log() {}, error() {} },
+  }
+  const result = vm.runInNewContext(`${code}\n;main(__config)`, sandbox, { timeout: 5000 })
+  return {
+    groups: (result['proxy-groups'] || []).length,
+    rules: (result.rules || []).length,
+    providers: Object.keys(result['rule-providers'] || {}).length,
+  }
 }
 
 async function main() {
-  const [normalCode, liteCode, metadata, spec] = await Promise.all([
-    readFile(path.join(ROOT, 'dist', 'Normal-Override.js'), 'utf8'),
+  const [liteCode, spec] = await Promise.all([
     readFile(path.join(ROOT, 'dist', 'Lite-Override.js'), 'utf8'),
-    readFile(path.join(ROOT, '.build', 'metadata.json'), 'utf8').then(JSON.parse),
     loadCustomSpec(),
   ])
-  const normalSummary = inspectOverride(normalCode)
-  const liteSummary = inspectOverride(liteCode)
+  const summary = inspectLiteOverride(liteCode)
 
-  console.log('## Clash Party override build')
+  console.log('## Clash Party / Mihomo Override - Lite 极简版')
   console.log('')
-  console.log('### Normal Edition (`dist/Normal-Override.js`)')
-  console.log(`- Upstream: \`${normalSummary.version}\``)
-  console.log(`- SHA-256: \`${metadata.normal?.sha256 || metadata.upstream?.sha256 || 'n/a'}\``)
-  console.log(`- Type: Latency Auto-Select (url-test, 42 groups)`)
+  console.log('### 策略组配置 (Dual-Group)')
+  console.log(`- 核心策略组数: ${summary.groups} (🌐 国外节点 / 🇨🇳 国内节点)`)
+  console.log(`- 国内节点出站: 首项默认 DIRECT，内嵌「🌐 国外节点」支持一键全局翻墙`)
   console.log('')
-  console.log('### Lite Edition (`dist/Lite-Override.js`)')
-  console.log(`- Upstream: \`${liteSummary.version}\``)
-  console.log(`- Type: Minimal Dual-Group (select: 🌐 国外节点 / 🇨🇳 国内节点)`)
+  console.log('### 规则与分流配置')
+  console.log(`- 总规则数: ${summary.rules}`)
+  console.log(`- 规则提供商 (MRS): ${summary.providers}`)
+  console.log(`- 自定义前置规则: ${spec.preRules.length}`)
+  console.log(`- 大陆权威 IP 强制直连: ${spec.forceChinaIpDirect ? '开启' : '关闭'}`)
+  console.log(`- 广告拦截移除: ${spec.removeAdBlocking ? '已移除' : '保留'}`)
   console.log('')
-  console.log('### Custom Rules & Adjustments (Shared)')
-  console.log(`- Fused providers: ${normalSummary.providers}`)
-  console.log(`- Upstream rules: ${normalSummary.upstreamRules}`)
-  console.log(`- Ad blocking removed: ${spec.removeAdBlocking ? 'yes' : 'no'}`)
-  console.log(`- China IP forced direct: ${spec.forceChinaIpDirect ? 'yes' : 'no'}`)
-  console.log(`- WebRTC leak protection: ${spec.preventWebRtcLeak ? `yes (${buildWebRtcProtectionRules(spec).length} rules)` : 'no'}`)
+  console.log('### 安全与 DNS 优化')
+  console.log(`- WebRTC 防泄漏: ${spec.preventWebRtcLeak ? `开启 (${buildWebRtcProtectionRules(spec).length} 条规则，覆盖国内 STUN 与海外 UDP)` : '关闭'}`)
   if (spec.webRtcDomains && spec.webRtcDomains.length > 0) {
-    console.log(`- WebRTC protected domains: ${spec.webRtcDomains.join(', ')}`)
+    console.log(`- WebRTC 重点防御域名: ${spec.webRtcDomains.join(', ')}`)
   }
-  console.log(`- Rule-set target overrides: ${Object.keys(spec.ruleSetTargetOverrides).length}`)
-  console.log(`- Custom priority rules: ${spec.preRules.length}`)
-  console.log(`- Custom foreign-DNS domains: ${spec.foreignDnsDomains.length}`)
+  console.log(`- 海外 DoH 防污染域名数: ${spec.foreignDnsDomains.length}`)
+  console.log(`- TUN 内核旁路进程数: ${(spec.tunExcludeProcesses || []).length}`)
 }
 
 main().catch(error => {
