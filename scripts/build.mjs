@@ -271,7 +271,18 @@ function main(config) {
     proxies: ['DIRECT', '🌐 国外节点'].concat(cnNodes),
   }
 
-  config['proxy-groups'] = [foreignGroup, nonJpGroup, domesticGroup]
+  // 显式配置 GLOBAL 策略组并标记 hidden: true
+  // 1. 隐藏 Clash Party / Mihomo 界面多余的 GLOBAL 卡片，保持纯净三组视觉
+  // 2. 将核心策略组按序写入，固定客户端策略组排序
+  // 3. 避免误切换至全局模式时直连，默认优先走「🌐 国外节点」
+  var globalGroup = {
+    name: 'GLOBAL',
+    type: 'select',
+    proxies: ['🌐 国外节点', '🚫 日本禁用', '🇨🇳 国内节点', 'DIRECT'],
+    hidden: true,
+  }
+
+  config['proxy-groups'] = [foreignGroup, nonJpGroup, domesticGroup, globalGroup]
 
   // 3. 规则集与提供商注入
   config['rule-providers'] = LITE_RULE_PROVIDERS

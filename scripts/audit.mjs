@@ -68,19 +68,27 @@ export async function auditLiteOverride() {
   const initial = fixtureConfig()
   const result = runOverride(code, initial)
 
-  // 1. Assert exactly 3 proxy groups
+  // 1. Assert exactly 3 visible proxy groups + 1 hidden GLOBAL group
   const groups = result['proxy-groups'] || []
-  assert(groups.length === 3, `Expected exactly 3 proxy groups, found ${groups.length}`)
+  const visibleGroups = groups.filter(g => !g.hidden)
+  assert(visibleGroups.length === 3, `Expected exactly 3 visible proxy groups, found ${visibleGroups.length}`)
 
   const foreignGroup = groups.find(g => g.name === '🌐 国外节点')
   const nonJpGroup = groups.find(g => g.name === '🚫 日本禁用')
   const domesticGroup = groups.find(g => g.name === '🇨🇳 国内节点')
+  const globalGroup = groups.find(g => g.name === 'GLOBAL')
+
   assert(foreignGroup, 'Missing "🌐 国外节点" group')
   assert(nonJpGroup, 'Missing "🚫 日本禁用" group')
   assert(domesticGroup, 'Missing "🇨🇳 国内节点" group')
+  assert(globalGroup, 'Missing "GLOBAL" group')
+
   assert(foreignGroup.type === 'select', '"🌐 国外节点" must be select type')
   assert(nonJpGroup.type === 'select', '"🚫 日本禁用" must be select type')
   assert(domesticGroup.type === 'select', '"🇨🇳 国内节点" must be select type')
+  assert(globalGroup.type === 'select', '"GLOBAL" must be select type')
+  assert(globalGroup.hidden === true, '"GLOBAL" group must have hidden: true')
+  assert(globalGroup.proxies[0] === '🌐 国外节点', '"GLOBAL" first proxy must be "🌐 国外节点"')
 
   // Check node classification
   assert(foreignGroup.proxies.includes('🇭🇰 香港 01 | BGP专线'), 'Foreign group missing HK node')
