@@ -9,10 +9,8 @@ function inspectLiteOverride(code) {
     console: { log() {}, error() {} },
   }
   const result = vm.runInNewContext(`${code}\n;main(__config)`, sandbox, { timeout: 5000 })
-  const allGroups = result['proxy-groups'] || []
-  const visibleGroups = allGroups.filter(g => !g.hidden)
   return {
-    groups: visibleGroups.length,
+    groups: (result['proxy-groups'] || []).length,
     rules: (result.rules || []).length,
     providers: Object.keys(result['rule-providers'] || {}).length,
   }
