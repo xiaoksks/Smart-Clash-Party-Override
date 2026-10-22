@@ -5,7 +5,8 @@ const CUSTOM_OVERRIDE_SPEC = {
   // no-resolve is preserved so domain-based routing does not trigger an extra DNS lookup.
   forceChinaIpDirect: true,
 
-  // Capture browser traffic in TUN, reject overseas browser UDP (non-cn) and block common STUN/TURN ports while allowing domestic DIRECT traffic.
+  // Explicit direct pre-rules and mainland IPs take priority over WebRTC protection.
+  // Remaining non-CN traffic: reject browser UDP and known STUN/TURN ports in all apps.
   preventWebRtcLeak: true,
   webRtcBrowserProcesses: [
     'chrome.exe',
@@ -17,25 +18,12 @@ const CUSTOM_OVERRIDE_SPEC = {
     'chromium.exe',
   ],
   webRtcPorts: ['3478', '3479', '5349', '19302', '19305', '19307'],
-  // Dedicated domains for WebRTC leak prevention (rejects all UDP traffic to block STUN/ICE probes).
+  // Reject UDP probes to these domains unless an earlier direct rule or GEOSITE cn exempts them.
   webRtcDomains: [
     'ippure.com',
     'stun.chat.bilibili.com',
     'stun.hitv.com',
     'stun.miwifi.com',
-  ],
-
-  // Processes excluded from TUN virtual network adapter at the kernel driver level.
-  // P2P downloaders establish massive concurrent direct connections; bypassing TUN directly
-  // eliminates virtual adapter protocol stack overhead and reduces CPU utilization.
-  // Note: WebRTC browser processes are strictly forbidden here to maintain leak protection.
-  tunExcludeProcesses: [
-    'Thunder.exe',
-    'ThunderPlatform.exe',
-    'DownloadService.exe',
-    'XLServicePlatform.exe',
-    'xllite.exe',
-    'DownloadSDKServer.exe',
   ],
 
   // Reuse complete upstream providers and only change their routing target.
@@ -120,8 +108,10 @@ const CUSTOM_OVERRIDE_SPEC = {
   ],
 
   preRules: [
-    // Desktop clients that may call unlisted domains or direct IPs; keep fully direct.
+    // Desktop process rules also cover unlisted domains and direct IP connections.
     'PROCESS-NAME,QQ.exe,DIRECT',
+    // Thunder processes stay DIRECT even when the domestic group uses a proxy.
+    // Connections still pass through TUN; these rules do not bypass the adapter.
     'PROCESS-NAME,Thunder.exe,DIRECT',
     'PROCESS-NAME,ThunderPlatform.exe,DIRECT',
     'PROCESS-NAME,DownloadService.exe,DIRECT',

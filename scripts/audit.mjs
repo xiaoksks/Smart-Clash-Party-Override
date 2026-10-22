@@ -139,19 +139,31 @@ export async function auditLiteOverride() {
       assert(result.rules.includes(expected), `Missing browser WebRTC protection rule: ${expected}`)
     })
     spec.webRtcPorts.forEach(port => {
-      const expected = `DST-PORT,${port},REJECT`
+      const expected = `AND,((DST-PORT,${port}),(NOT,((GEOSITE,cn)))),REJECT`
       assert(result.rules.includes(expected), `Missing port WebRTC protection rule: ${expected}`)
     })
-    assert(result.rules.includes('AND,((DOMAIN-KEYWORD,stun),(NETWORK,UDP)),REJECT'), 'Missing STUN keyword UDP rejection rule')
+    assert(result.rules.includes('AND,((DOMAIN-KEYWORD,stun),(NETWORK,UDP),(NOT,((GEOSITE,cn)))),REJECT'), 'Missing STUN keyword UDP rejection rule')
     ;(spec.webRtcDomains || []).forEach(domain => {
-      const expected = `AND,((DOMAIN-SUFFIX,${domain}),(NETWORK,UDP)),REJECT`
+      const expected = `AND,((DOMAIN-SUFFIX,${domain}),(NETWORK,UDP),(NOT,((GEOSITE,cn)))),REJECT`
       assert(result.rules.includes(expected), `Missing domain WebRTC protection rule: ${expected}`)
     })
 
-    const stunPortIndex = result.rules.indexOf('DST-PORT,3478,REJECT')
+    const stunPortIndex = result.rules.indexOf('AND,((DST-PORT,3478),(NOT,((GEOSITE,cn)))),REJECT')
     assert(stunPortIndex >= 0, 'WebRTC STUN port rule not found')
+    for (const port of spec.webRtcPorts) {
+      assert(!result.rules.includes('DST-PORT,' + port + ',REJECT'), 'Unconditional WebRTC port rejection must not remain: ' + port)
+    }
+    const firstProtectionIndex = result.rules.findIndex(rule => rule.endsWith(',REJECT'))
+    for (const rule of result.rules) {
+      if (rule.startsWith('PROCESS-NAME,') || rule === 'RULE-SET,local-douyu,DIRECT' ||
+          /^(DOMAIN|DOMAIN-SUFFIX),[^,]+,🇨🇳 国内节点$/.test(rule)) {
+        assert(result.rules.indexOf(rule) < firstProtectionIndex, 'Explicit direct pre-rule must precede protection: ' + rule)
+      }
+    }
     if (spec.forceChinaIpDirect) {
-      assert(stunPortIndex < chinaIpIndex, 'WebRTC STUN port rule must precede China IP direct rule')
+      assert(chinaIpIndex < stunPortIndex, 'China IP direct rule must precede WebRTC STUN port rejection')
+      const firstBrowserIndex = result.rules.findIndex(rule => rule.startsWith('AND,((PROCESS-NAME,'))
+      assert(firstBrowserIndex < 0 || chinaIpIndex < firstBrowserIndex, 'China IP direct rule must precede browser UDP rejection')
     }
   }
 
@@ -203,13 +215,21 @@ export async function auditLiteOverride() {
   assert(result.tun?.enable === true, 'TUN must be enabled')
   assert(result.tun?.['auto-route'] === true, 'TUN auto-route must be true')
   assert(result.tun?.['strict-route'] === false, 'TUN strict-route must be false')
-  const excluded = new Set((result.tun?.['exclude-process'] || []).map(p => p.toLowerCase()))
-  spec.tunExcludeProcesses.forEach(proc => {
-    assert(excluded.has(proc.toLowerCase()), `Expected process excluded from TUN: ${proc}`)
-  })
-  spec.webRtcBrowserProcesses.forEach(proc => {
-    assert(!excluded.has(proc.toLowerCase()), `Browser process must not be excluded from TUN: ${proc}`)
-  })
+  assert(!Object.prototype.hasOwnProperty.call(result.tun, 'exclude-process'), 'Override must not inject unsupported TUN exclude-process')
+  const thunderProcesses = [
+    'Thunder.exe', 'ThunderPlatform.exe', 'DownloadService.exe',
+    'XLServicePlatform.exe', 'xllite.exe', 'DownloadSDKServer.exe', 'Thunder',
+  ]
+  const firstWebRtcIndex = result.rules.findIndex(rule => rule.includes('(NETWORK,UDP)') && rule.endsWith(',REJECT'))
+  for (const proc of thunderProcesses) {
+    const rules = result.rules.filter(rule => rule.startsWith('PROCESS-NAME,' + proc + ','))
+    assert(rules.length === 1 && rules[0] === 'PROCESS-NAME,' + proc + ',DIRECT', 'Thunder process must always route DIRECT: ' + proc)
+    if (spec.preventWebRtcLeak) {
+      assert(result.rules.indexOf(rules[0]) < firstWebRtcIndex, 'Thunder process must precede UDP rejection: ' + proc)
+    }
+  }
+  // Switching the domestic selector cannot affect a literal DIRECT process target.
+  assert(result.rules.includes('PROCESS-NAME,QQ.exe,🇨🇳 国内节点'), 'Unrelated process routing must still follow the domestic selector')
 
   // 7. Assert Profile & Listeners
   assert(result.profile?.['store-fake-ip'] === true, 'store-fake-ip must be true')

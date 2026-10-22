@@ -4,11 +4,19 @@ import { buildChinaIpDirectRules, buildJapanBlockedRules, buildRuleSetOverrideRu
 
 const DIST_PATH = path.join(ROOT, 'dist', 'Lite-Override.js')
 const BASE_DATA_PATH = path.join(ROOT, 'scripts', 'base-data.json')
+const THUNDER_PROCESSES = new Set([
+  'thunder.exe', 'thunderplatform.exe', 'downloadservice.exe',
+  'xlserviceplatform.exe', 'xllite.exe', 'downloadsdkserver.exe', 'thunder',
+])
 
-function normalizeRuleTarget(rule) {
+function normalizeRuleTarget(rule, preserveThunderDirect = false) {
   const parts = rule.split(',')
   const hasNoResolve = parts[parts.length - 1] === 'no-resolve'
   const oldTarget = hasNoResolve ? parts[parts.length - 2] : parts[parts.length - 1]
+
+  // Keep explicit Thunder process rules independent of the domestic selector.
+  if (preserveThunderDirect && parts[0] === 'PROCESS-NAME' &&
+      THUNDER_PROCESSES.has(parts[1].toLowerCase()) && oldTarget === 'DIRECT') return rule
 
   let newTarget
   if (['REJECT', 'REJECT-DROP', 'PASS'].includes(oldTarget)) {
@@ -47,7 +55,7 @@ export async function buildLiteOverride() {
       const target = parts[parts.length - 1] === 'no-resolve' ? parts[parts.length - 2] : parts[parts.length - 1]
       return target === 'DIRECT' || target === '🇨🇳 国内节点'
     })
-    .map(normalizeRuleTarget)
+    .map(rule => normalizeRuleTarget(rule, true))
 
   const nonDirectPreRules = spec.preRules
     .filter(r => {
@@ -55,7 +63,7 @@ export async function buildLiteOverride() {
       const target = parts[parts.length - 1] === 'no-resolve' ? parts[parts.length - 2] : parts[parts.length - 1]
       return target !== 'DIRECT' && target !== '🇨🇳 国内节点'
     })
-    .map(normalizeRuleTarget)
+    .map(rule => normalizeRuleTarget(rule))
 
   // 3. Rule-set target overrides from custom spec.
   const localRuleSetRules = buildRuleSetOverrideRules(spec)
@@ -70,9 +78,10 @@ export async function buildLiteOverride() {
   const priorityRules = [
     ...localRuleSetRules,
     ...directPreRules,
+    // Explicit direct routes, including authoritative mainland IPs, bypass protection.
+    ...chinaIpRules,
     ...webRtcRules,
     ...japanBlockedRules,
-    ...chinaIpRules,
     ...nonDirectPreRules,
   ]
 
@@ -130,7 +139,6 @@ const LITE_RULE_PROVIDERS = ${JSON.stringify(ruleProviders, null, 2)}
 const LITE_DNS_CONFIG = ${JSON.stringify(baseData.dns, null, 2)}
 const LITE_FOREIGN_DNS_DOMAINS = ${JSON.stringify(spec.foreignDnsDomains, null, 2)}
 const LITE_JAPAN_BLOCKED_DOMAINS = ${JSON.stringify(spec.japanBlockedDomains || [], null, 2)}
-const LITE_TUN_EXCLUDE_PROCESSES = ${JSON.stringify(spec.tunExcludeProcesses || [], null, 2)}
 
 // 节点分类辅助工具：精准识别国内回国节点、说明节点与日本节点
 var INFO_REGEX = /流量|到期|过期|重置|官网|通知|订阅|套餐|客服|QQ群|TG频道|网址|剩余|官方/i
@@ -198,23 +206,6 @@ function applyLiteTun(config) {
   config.tun['auto-route'] = true
   config.tun['strict-route'] = false
   config.tun['auto-detect-interface'] = true
-
-  var exclude = [
-    'GCUService.exe',
-    'GCUBridge.exe',
-    'GSCService.exe',
-    'gsupservice.exe',
-    'gchsvc.exe',
-  ]
-  var userExclude = LITE_TUN_EXCLUDE_PROCESSES || []
-  var excludeSet = new Set(exclude.map(function(s) { return s.toLowerCase() }))
-  userExclude.forEach(function(proc) {
-    if (!excludeSet.has(proc.toLowerCase())) {
-      exclude.push(proc)
-      excludeSet.add(proc.toLowerCase())
-    }
-  })
-  config.tun['exclude-process'] = exclude
 }
 
 function main(config) {

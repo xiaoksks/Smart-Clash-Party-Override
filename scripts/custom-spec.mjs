@@ -111,9 +111,10 @@ export function buildWebRtcProtectionRules(spec) {
   if (!spec.preventWebRtcLeak) return []
   return [
     ...spec.webRtcBrowserProcesses.map(process => `AND,((PROCESS-NAME,${process}),(NETWORK,UDP),(NOT,((GEOSITE,cn)))),REJECT`),
-    ...spec.webRtcPorts.map(port => `DST-PORT,${port},REJECT`),
-    'AND,((DOMAIN-KEYWORD,stun),(NETWORK,UDP)),REJECT',
-    ...((spec.webRtcDomains || []).map(domain => `AND,((DOMAIN-SUFFIX,${domain}),(NETWORK,UDP)),REJECT`)),
+    // Preserve TCP/UDP STUN/TURN blocking for non-CN destinations in all apps.
+    ...spec.webRtcPorts.map(port => `AND,((DST-PORT,${port}),(NOT,((GEOSITE,cn)))),REJECT`),
+    'AND,((DOMAIN-KEYWORD,stun),(NETWORK,UDP),(NOT,((GEOSITE,cn)))),REJECT',
+    ...((spec.webRtcDomains || []).map(domain => `AND,((DOMAIN-SUFFIX,${domain}),(NETWORK,UDP),(NOT,((GEOSITE,cn)))),REJECT`)),
   ]
 }
 
@@ -174,14 +175,6 @@ export async function loadCustomSpec() {
       throw new Error(`Invalid japanBlockedDomains entry: ${domain}`)
     }
   })
-  const tunExcludeProcesses = Array.isArray(spec.tunExcludeProcesses) ? spec.tunExcludeProcesses : []
-  assertUniqueStrings(tunExcludeProcesses, 'tunExcludeProcesses')
-  const browserSet = new Set(spec.webRtcBrowserProcesses.map(p => String(p).toLowerCase()))
-  for (const proc of tunExcludeProcesses) {
-    if (browserSet.has(proc.toLowerCase())) {
-      throw new Error(`tunExcludeProcesses entry "${proc}" cannot be a browser process (breaks WebRTC leak protection)`)
-    }
-  }
   const ruleSetTargetOverrides = normalizeStringMap(spec.ruleSetTargetOverrides, 'ruleSetTargetOverrides')
   for (const [name, target] of Object.entries(ruleSetTargetOverrides)) {
     if (!/^[a-z0-9][a-z0-9-]*$/i.test(name)) {
@@ -200,7 +193,6 @@ export async function loadCustomSpec() {
     webRtcPorts: Array.from(spec.webRtcPorts),
     webRtcDomains: cleanWebRtcDomains,
     japanBlockedDomains: cleanJapanBlockedDomains,
-    tunExcludeProcesses: Array.from(tunExcludeProcesses),
     ruleSetTargetOverrides,
     preRules: Array.from(spec.preRules),
     foreignDnsDomains: Array.from(spec.foreignDnsDomains),

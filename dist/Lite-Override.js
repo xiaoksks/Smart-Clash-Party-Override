@@ -5,13 +5,13 @@
 const LITE_RULES = [
   "RULE-SET,local-douyu,DIRECT",
   "PROCESS-NAME,QQ.exe,🇨🇳 国内节点",
-  "PROCESS-NAME,Thunder.exe,🇨🇳 国内节点",
-  "PROCESS-NAME,ThunderPlatform.exe,🇨🇳 国内节点",
-  "PROCESS-NAME,DownloadService.exe,🇨🇳 国内节点",
-  "PROCESS-NAME,XLServicePlatform.exe,🇨🇳 国内节点",
-  "PROCESS-NAME,xllite.exe,🇨🇳 国内节点",
-  "PROCESS-NAME,DownloadSDKServer.exe,🇨🇳 国内节点",
-  "PROCESS-NAME,Thunder,🇨🇳 国内节点",
+  "PROCESS-NAME,Thunder.exe,DIRECT",
+  "PROCESS-NAME,ThunderPlatform.exe,DIRECT",
+  "PROCESS-NAME,DownloadService.exe,DIRECT",
+  "PROCESS-NAME,XLServicePlatform.exe,DIRECT",
+  "PROCESS-NAME,xllite.exe,DIRECT",
+  "PROCESS-NAME,DownloadSDKServer.exe,DIRECT",
+  "PROCESS-NAME,Thunder,DIRECT",
   "DOMAIN-SUFFIX,msftconnecttest.com,🇨🇳 国内节点",
   "DOMAIN-SUFFIX,msftncsi.com,🇨🇳 国内节点",
   "DOMAIN,ip.cip.cc,🇨🇳 国内节点",
@@ -83,6 +83,7 @@ const LITE_RULES = [
   "DOMAIN-SUFFIX,captcha.gtimg.com,🇨🇳 国内节点",
   "DOMAIN-SUFFIX,geetest.com,🇨🇳 国内节点",
   "DOMAIN-SUFFIX,dingxiang-inc.com,🇨🇳 国内节点",
+  "RULE-SET,scki-fused-075-cn-site-ipcidr-no-resolve,DIRECT,no-resolve",
   "AND,((PROCESS-NAME,chrome.exe),(NETWORK,UDP),(NOT,((GEOSITE,cn)))),REJECT",
   "AND,((PROCESS-NAME,msedge.exe),(NETWORK,UDP),(NOT,((GEOSITE,cn)))),REJECT",
   "AND,((PROCESS-NAME,firefox.exe),(NETWORK,UDP),(NOT,((GEOSITE,cn)))),REJECT",
@@ -90,17 +91,17 @@ const LITE_RULES = [
   "AND,((PROCESS-NAME,opera.exe),(NETWORK,UDP),(NOT,((GEOSITE,cn)))),REJECT",
   "AND,((PROCESS-NAME,vivaldi.exe),(NETWORK,UDP),(NOT,((GEOSITE,cn)))),REJECT",
   "AND,((PROCESS-NAME,chromium.exe),(NETWORK,UDP),(NOT,((GEOSITE,cn)))),REJECT",
-  "DST-PORT,3478,REJECT",
-  "DST-PORT,3479,REJECT",
-  "DST-PORT,5349,REJECT",
-  "DST-PORT,19302,REJECT",
-  "DST-PORT,19305,REJECT",
-  "DST-PORT,19307,REJECT",
-  "AND,((DOMAIN-KEYWORD,stun),(NETWORK,UDP)),REJECT",
-  "AND,((DOMAIN-SUFFIX,ippure.com),(NETWORK,UDP)),REJECT",
-  "AND,((DOMAIN-SUFFIX,stun.chat.bilibili.com),(NETWORK,UDP)),REJECT",
-  "AND,((DOMAIN-SUFFIX,stun.hitv.com),(NETWORK,UDP)),REJECT",
-  "AND,((DOMAIN-SUFFIX,stun.miwifi.com),(NETWORK,UDP)),REJECT",
+  "AND,((DST-PORT,3478),(NOT,((GEOSITE,cn)))),REJECT",
+  "AND,((DST-PORT,3479),(NOT,((GEOSITE,cn)))),REJECT",
+  "AND,((DST-PORT,5349),(NOT,((GEOSITE,cn)))),REJECT",
+  "AND,((DST-PORT,19302),(NOT,((GEOSITE,cn)))),REJECT",
+  "AND,((DST-PORT,19305),(NOT,((GEOSITE,cn)))),REJECT",
+  "AND,((DST-PORT,19307),(NOT,((GEOSITE,cn)))),REJECT",
+  "AND,((DOMAIN-KEYWORD,stun),(NETWORK,UDP),(NOT,((GEOSITE,cn)))),REJECT",
+  "AND,((DOMAIN-SUFFIX,ippure.com),(NETWORK,UDP),(NOT,((GEOSITE,cn)))),REJECT",
+  "AND,((DOMAIN-SUFFIX,stun.chat.bilibili.com),(NETWORK,UDP),(NOT,((GEOSITE,cn)))),REJECT",
+  "AND,((DOMAIN-SUFFIX,stun.hitv.com),(NETWORK,UDP),(NOT,((GEOSITE,cn)))),REJECT",
+  "AND,((DOMAIN-SUFFIX,stun.miwifi.com),(NETWORK,UDP),(NOT,((GEOSITE,cn)))),REJECT",
   "DOMAIN-SUFFIX,hgamefree.info,🚫 日本禁用",
   "DOMAIN-SUFFIX,erogames.top,🚫 日本禁用",
   "DOMAIN-SUFFIX,gg-games.org,🚫 日本禁用",
@@ -156,7 +157,6 @@ const LITE_RULES = [
   "DOMAIN-SUFFIX,hpjav.tv,🚫 日本禁用",
   "DOMAIN-SUFFIX,javlibrary.com,🚫 日本禁用",
   "DOMAIN-SUFFIX,cableav.tv,🚫 日本禁用",
-  "RULE-SET,scki-fused-075-cn-site-ipcidr-no-resolve,DIRECT,no-resolve",
   "DOMAIN-SUFFIX,ip.sb,🌐 国外节点",
   "DOMAIN-SUFFIX,ipify.org,🌐 国外节点",
   "DOMAIN-SUFFIX,ipinfo.io,🌐 国外节点",
@@ -1811,14 +1811,6 @@ const LITE_JAPAN_BLOCKED_DOMAINS = [
   "javlibrary.com",
   "cableav.tv"
 ]
-const LITE_TUN_EXCLUDE_PROCESSES = [
-  "Thunder.exe",
-  "ThunderPlatform.exe",
-  "DownloadService.exe",
-  "XLServicePlatform.exe",
-  "xllite.exe",
-  "DownloadSDKServer.exe"
-]
 
 // 节点分类辅助工具：精准识别国内回国节点、说明节点与日本节点
 var INFO_REGEX = /流量|到期|过期|重置|官网|通知|订阅|套餐|客服|QQ群|TG频道|网址|剩余|官方/i
@@ -1886,23 +1878,6 @@ function applyLiteTun(config) {
   config.tun['auto-route'] = true
   config.tun['strict-route'] = false
   config.tun['auto-detect-interface'] = true
-
-  var exclude = [
-    'GCUService.exe',
-    'GCUBridge.exe',
-    'GSCService.exe',
-    'gsupservice.exe',
-    'gchsvc.exe',
-  ]
-  var userExclude = LITE_TUN_EXCLUDE_PROCESSES || []
-  var excludeSet = new Set(exclude.map(function(s) { return s.toLowerCase() }))
-  userExclude.forEach(function(proc) {
-    if (!excludeSet.has(proc.toLowerCase())) {
-      exclude.push(proc)
-      excludeSet.add(proc.toLowerCase())
-    }
-  })
-  config.tun['exclude-process'] = exclude
 }
 
 function main(config) {
