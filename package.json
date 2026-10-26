@@ -1,15 +1,19 @@
 {
   "name": "clash-party-custom-override",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "private": true,
   "type": "module",
   "scripts": {
     "build": "node scripts/build.mjs",
     "audit": "node scripts/audit.mjs",
     "report": "node scripts/report-generated.mjs",
-    "check": "node scripts/build.mjs && node scripts/audit.mjs && node scripts/report-generated.mjs && node --check dist/Lite-Override.js"
+    "test": "node --test scripts/override.test.mjs",
+    "sync:upstream": "node scripts/sync-upstream.mjs",
+    "check:upstream": "node scripts/sync-upstream.mjs --check",
+    "check:core": "node scripts/validate-core.mjs",
+    "check": "npm run build && npm run audit && npm test && npm run report && node --check dist/Lite-Override.js"
   },
   "engines": {
-    "node": ">=16.0.0"
+    "node": ">=24.0.0"
   }
 }

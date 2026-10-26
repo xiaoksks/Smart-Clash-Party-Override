@@ -8,6 +8,10 @@ on:
       - 'custom-overrides.js'
       - 'scripts/**'
       - 'package.json'
+      - '.github/workflows/update-override.yml'
+  pull_request:
+  schedule:
+    - cron: '17 22 * * 0'
   workflow_dispatch:
 
 permissions:
@@ -29,10 +33,29 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
+
+      - name: Refresh pinned upstream snapshot on scheduled/manual runs
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+        run: npm run sync:upstream
+
+      - name: Verify pinned upstream files and detect topology changes
+        run: npm run check:upstream
 
       - name: Build and validate Lite override
         run: npm run check
+
+      - name: Install pinned official Mihomo for configuration validation
+        run: |
+          mkdir -p .build
+          curl --fail --location --retry 3 https://github.com/MetaCubeX/mihomo/releases/download/v1.19.33/mihomo-linux-amd64-compatible-v1.19.33.gz -o .build/mihomo.gz
+          echo "386508bfb1c72c43b6a0eda73708ecdce82546581b0ebcb16366c53757c622b6  .build/mihomo.gz" | sha256sum -c -
+          gzip -dc .build/mihomo.gz > .build/mihomo
+          chmod +x .build/mihomo
+          echo "MIHOMO_BIN=$GITHUB_WORKSPACE/.build/mihomo" >> "$GITHUB_ENV"
+
+      - name: Validate core configurations and Party Smart execution order
+        run: npm run check:core
 
       - name: Publish build summary
         run: npm run report >> "$GITHUB_STEP_SUMMARY"
@@ -42,11 +65,15 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: lite-override-build-diagnostics
-          path: dist/Lite-Override.js
+          path: |
+            dist/
+            .build/upstream-diff.json
+            .build/core-validation/*.log
           if-no-files-found: ignore
 
       - name: Commit generated Lite override
+        if: github.event_name != 'pull_request'
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: 'chore: update Lite override'
-          file_pattern: 'dist/Lite-Override.js'
+          file_pattern: 'dist/ scripts/upstream-snapshot.json'

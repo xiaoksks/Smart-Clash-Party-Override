@@ -1,13 +1,17 @@
 // Configuration spec for Clash Party / Mihomo Lite override.
 // Rules are prepended in order; foreignDnsDomains are resolved with overseas DoH.
 const CUSTOM_OVERRIDE_SPEC = {
-  // Route authoritative mainland China IP ranges directly before service-specific IP rules.
+  // Mainland IP direct routing follows privacy, AI and explicit domain rules.
   // no-resolve is preserved so domain-based routing does not trigger an extra DNS lookup.
   forceChinaIpDirect: true,
 
-  // Explicit direct pre-rules and mainland IPs take priority over WebRTC protection.
-  // Remaining non-CN traffic: reject browser UDP and known STUN/TURN ports in all apps.
+  // strict: block UDP before direct rules, including mainland IPs. DNS goes through TUN.
+  // compatible: block AI/browser UDP and STUN/TURN, allow other apps' QUIC.
   preventWebRtcLeak: true,
+  webRtcMode: 'strict',
+  // select requires Party's built-in Smart override OFF. party-smart lets Party
+  // convert only the foreign url-test group, preserving domestic/non-JP targets.
+  foreignSelection: 'select',
   webRtcBrowserProcesses: [
     'chrome.exe',
     'msedge.exe',
@@ -16,9 +20,26 @@ const CUSTOM_OVERRIDE_SPEC = {
     'opera.exe',
     'vivaldi.exe',
     'chromium.exe',
+    'arc.exe',
+    'zen.exe',
+    'dia.exe',
+    'comet.exe',
+    'atlas.exe',
+    'chrome',
+    'msedge',
+    'firefox',
+    'brave',
+    'Brave Browser',
+    'Google Chrome',
+    'Microsoft Edge',
+    'Safari',
+    'Arc',
+    'Zen',
+    'Dia',
+    'Comet',
   ],
-  webRtcPorts: ['3478', '3479', '5349', '19302', '19305', '19307'],
-  // Reject UDP probes to these domains unless an earlier direct rule or GEOSITE cn exempts them.
+  webRtcPorts: ['3478', '3479', '3480', '3481', '5349', '19302', '19303', '19304', '19305', '19306', '19307', '19308', '19309'],
+  // Probe destinations have no CN exemption. Strict mode also blocks their TCP.
   webRtcDomains: [
     'ippure.com',
     'stun.chat.bilibili.com',
@@ -27,7 +48,7 @@ const CUSTOM_OVERRIDE_SPEC = {
   ],
 
   // Reuse complete upstream providers and only change their routing target.
-  // These explicit overrides take priority over generic WebRTC UDP blocking.
+  // These explicit overrides follow the selected privacy protections.
   // This stays current when upstream adds domains and avoids duplicate inline rules.
   ruleSetTargetOverrides: {
     douyu: 'DIRECT',

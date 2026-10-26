@@ -1,0 +1,10 @@
+Windows Registry Editor Version 5.00
+
+; Removes the values set by browser-webrtc-policy.reg.
+; Restore any pre-existing values from your own backup instead if necessary.
+
+[HKEY_CURRENT_USER\Software\Policies\Google\Chrome]
+"WebRtcIPHandling"=-
+
+[HKEY_CURRENT_USER\Software\Policies\Microsoft\Edge]
+"WebRtcLocalhostIpHandling"=-

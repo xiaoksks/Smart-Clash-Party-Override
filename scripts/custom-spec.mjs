@@ -109,27 +109,25 @@ function normalizeStringMap(value, label) {
 
 export function buildWebRtcProtectionRules(spec) {
   if (!spec.preventWebRtcLeak) return []
-  return [
-    ...spec.webRtcBrowserProcesses.map(process => `AND,((PROCESS-NAME,${process}),(NETWORK,UDP),(NOT,((GEOSITE,cn)))),REJECT`),
-    // Preserve TCP/UDP STUN/TURN blocking for non-CN destinations in all apps.
-    ...spec.webRtcPorts.map(port => `AND,((DST-PORT,${port}),(NOT,((GEOSITE,cn)))),REJECT`),
-    'AND,((DOMAIN-KEYWORD,stun),(NETWORK,UDP),(NOT,((GEOSITE,cn)))),REJECT',
-    ...((spec.webRtcDomains || []).map(domain => `AND,((DOMAIN-SUFFIX,${domain}),(NETWORK,UDP),(NOT,((GEOSITE,cn)))),REJECT`)),
+  const ports = `OR,(${spec.webRtcPorts.map(p => `(DST-PORT,${p})`).join(',')}),REJECT`
+  // Strict mode has no destination, process or CN exemptions. Hijacked DNS is
+  // handled by TUN first; explicit DNS connections remain proxied, never DIRECT.
+  if (spec.webRtcMode === 'strict') return [
+    'AND,((NETWORK,UDP),(DST-PORT,53)),🌐 国外节点',
+    'NETWORK,UDP,REJECT',
+    ports,
+    'AND,((RULE-SET,lite-ai),(DOMAIN-KEYWORD,turn)),REJECT',
+    'DOMAIN-KEYWORD,stun,REJECT',
+    ...(spec.webRtcDomains || []).map(domain => `DOMAIN-SUFFIX,${domain},REJECT`),
   ]
-}
-
-export function buildRuleSetOverrideRules(spec) {
-  return Object.entries(spec.ruleSetTargetOverrides).map(([name, target]) => `RULE-SET,local-${name},${target}`)
-}
-
-export function buildChinaIpDirectRules(enabled) {
-  return enabled
-    ? ['RULE-SET,scki-fused-075-cn-site-ipcidr-no-resolve,DIRECT,no-resolve']
-    : []
-}
-
-export function buildJapanBlockedRules(spec) {
-  return (spec.japanBlockedDomains || []).map(domain => `DOMAIN-SUFFIX,${domain},🚫 日本禁用`)
+  return [
+    'AND,((NETWORK,UDP),(RULE-SET,lite-ai)),REJECT',
+    `AND,((NETWORK,UDP),(PROCESS-NAME-REGEX,(?i)^(?:${[...new Set([...spec.webRtcBrowserProcesses, ...(spec.aiProcesses || [])])].map(p => p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})$)),REJECT`,
+    ports,
+    'AND,((NETWORK,UDP),(DOMAIN-KEYWORD,stun)),REJECT',
+    'AND,((NETWORK,UDP),(DOMAIN-KEYWORD,turn)),REJECT',
+    ...(spec.webRtcDomains || []).map(domain => `AND,((NETWORK,UDP),(DOMAIN-SUFFIX,${domain})),REJECT`),
+  ]
 }
 
 export async function loadCustomSpec() {
@@ -148,6 +146,8 @@ export async function loadCustomSpec() {
   if (typeof spec.preventWebRtcLeak !== 'boolean') {
     throw new Error('preventWebRtcLeak must be a boolean')
   }
+  if (!['strict', 'compatible'].includes(spec.webRtcMode)) throw new Error('webRtcMode must be strict or compatible')
+  if (!['select', 'party-smart'].includes(spec.foreignSelection)) throw new Error('foreignSelection must be select or party-smart')
   assertUniqueStrings(spec.webRtcBrowserProcesses, 'webRtcBrowserProcesses')
   assertUniqueStrings(spec.webRtcPorts, 'webRtcPorts')
   spec.webRtcPorts.forEach(port => {
@@ -189,6 +189,8 @@ export async function loadCustomSpec() {
   return {
     forceChinaIpDirect: spec.forceChinaIpDirect,
     preventWebRtcLeak: spec.preventWebRtcLeak,
+    webRtcMode: spec.webRtcMode,
+    foreignSelection: spec.foreignSelection,
     webRtcBrowserProcesses: Array.from(spec.webRtcBrowserProcesses),
     webRtcPorts: Array.from(spec.webRtcPorts),
     webRtcDomains: cleanWebRtcDomains,

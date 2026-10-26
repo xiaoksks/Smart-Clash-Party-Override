@@ -1,0 +1,1740 @@
+{
+  "revisions": {
+    "scki": "70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd",
+    "meta": "c4d4a91ff5bd2847189d502aa60bd4b0e697753b"
+  },
+  "files": {
+    "local-douyu": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/mihomo-mrs/douyu.mrs",
+      "sha256": "565f09f6126fc1e7b514acb62924f919783bed4b442eb76c01bae4c454fbd5c3",
+      "bytes": 175
+    },
+    "scki-fused-001-direct-domain": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-001-direct-domain.mrs",
+      "sha256": "940a8bda33182199c0f7f608e3af90f4a9e82779fe091f7ae160e9ff237fa00b",
+      "bytes": 364
+    },
+    "scki-fused-002-intl-site-domain": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-002-intl-site-domain.mrs",
+      "sha256": "05ac0dc120126024b6a914895b92ea2cd897679301c447ac4eb74fb678b6cae9",
+      "bytes": 99
+    },
+    "scki-fused-003-payments-domain": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-003-payments-domain.mrs",
+      "sha256": "548ea73257a6714f00c2f250826ca4a15d5c67ef448431737cf4771a57e50fb3",
+      "bytes": 53
+    },
+    "scki-fused-004-ai-domain": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-004-ai-domain.mrs",
+      "sha256": "d6de406718402402fcd6f131c4c760423508edaf8d23c987904b6469e89c97d1",
+      "bytes": 148
+    },
+    "scki-fused-005-cnmedia-domain": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-005-cnmedia-domain.mrs",
+      "sha256": "44bb75304b1eb549d6f9c79c7ed2e7a79842c667d723da68aa0d23f3daabe951",
+      "bytes": 167
+    },
+    "scki-fused-006-cn-site-domain": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-006-cn-site-domain.mrs",
+      "sha256": "786fe5a41621999a5157f23e2c9d305360f72d87d36579c29e67510afc9a4023",
+      "bytes": 133
+    },
+    "scki-fused-007-stream-jpkr-domain": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-007-stream-jpkr-domain.mrs",
+      "sha256": "71e0295f6912072e8b178e872244484833bc9a66cf0305b354c02c9c87ed21b8",
+      "bytes": 91
+    },
+    "scki-fused-008-social-domain": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-008-social-domain.mrs",
+      "sha256": "fbf4b297be68bc5434fc94d642246993c40c13c0c6ddf250a57fb9936a8da7a9",
+      "bytes": 77
+    },
+    "scki-fused-008-social-residual": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-008-social-residual.yaml",
+      "sha256": "e492ca410720a753c9252b01929eb2eb9d6160f0a22135def1e6396767dce3eb",
+      "bytes": 35,
+      "payload": [
+        "PROCESS-NAME,Lemon8"
+      ]
+    },
+    "scki-fused-009-tiktok-domain": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-009-tiktok-domain.mrs",
+      "sha256": "efc8cd3fbc41635688abf731c4fc410891245c2c16c7116bcb17c36bfbf3d459",
+      "bytes": 107
+    },
+    "scki-fused-009-tiktok-residual": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-009-tiktok-residual.yaml",
+      "sha256": "b2375d886d27e3e2b4569afcaeaad02bca79a1fdd3d23abe0ebb6297666b50e0",
+      "bytes": 61,
+      "payload": [
+        "PROCESS-NAME,TikTok",
+        "PROCESS-NAME,CapCut"
+      ]
+    },
+    "scki-fused-011-tools-domain": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-011-tools-domain.mrs",
+      "sha256": "0c76695ebac9848917d952beb2683c03b5c210d9104646a472efcf2eddd8a0cc",
+      "bytes": 132
+    },
+    "scki-fused-012-intl-site-domain": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-012-intl-site-domain.mrs",
+      "sha256": "3dca719874cbcd75a159ee887f4d8a3e5ead3c38b7e42dbfc4075b214e4a7a51",
+      "bytes": 72
+    },
+    "scki-fused-013-ai-domain": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-013-ai-domain.mrs",
+      "sha256": "f75bd63885aa82fa32c8fac02078a2bff365dbf5dc4a0ca4c47b8662e07485eb",
+      "bytes": 75
+    },
+    "scki-fused-014-game-cn-domain": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-014-game-cn-domain.mrs",
+      "sha256": "69842177547df71ab42b3c6d00f36b7608596ed61ea5e49ecf949ece29bd7271",
+      "bytes": 273
+    },
+    "scki-fused-015-microsoft-domain": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-015-microsoft-domain.mrs",
+      "sha256": "9dca355916f88e5d847ad8f602c83a6803c14ef82b90e4e1b90f4cfb8351d537",
+      "bytes": 159
+    },
+    "scki-fused-015-microsoft-residual": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-015-microsoft-residual.yaml",
+      "sha256": "7a182839e8f740e864ceac99ed1bff83ebdd0308f7781edca91e75c4290814e0",
+      "bytes": 47,
+      "payload": [
+        "DOMAIN-KEYWORD,onedriveclucprod"
+      ]
+    },
+    "scki-fused-017-cn-site-domain": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-017-cn-site-domain.mrs",
+      "sha256": "5ad292806616100cb05c465e96c7e92b679d22281dc1caf914e9efc33a8b4381",
+      "bytes": 159
+    },
+    "scki-fused-018-direct-domain": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-018-direct-domain.mrs",
+      "sha256": "2c3fc4d3c1f368cb49a167d51bc10ec482a28c71038955566db255efd93a5205",
+      "bytes": 791
+    },
+    "scki-fused-018-direct-ipcidr-no-resolve": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-018-direct-ipcidr-no-resolve.mrs",
+      "sha256": "4dcd5213906d267121d495b04c44c4a1b425e9e07b0fa78c5fcb04f9972dd4ea",
+      "bytes": 51
+    },
+    "scki-fused-018-direct-residual": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-018-direct-residual.yaml",
+      "sha256": "3b53babd596d872395bc701a8c1e6f6675064f4e07ac666a0a28b0a268e75b93",
+      "bytes": 2689,
+      "payload": [
+        "GEOIP,PRIVATE,no-resolve",
+        "PROCESS-NAME,WorkPro.exe",
+        "PROCESS-NAME,WorkProWebProcess.exe",
+        "PROCESS-NAME,GCUService.exe",
+        "PROCESS-NAME,GCUBridge.exe",
+        "PROCESS-NAME,CCUWinUI.exe",
+        "PROCESS-NAME,HipsDaemon.exe",
+        "PROCESS-NAME,gdphost.exe",
+        "PROCESS-NAME,gehsender.exe",
+        "PROCESS-NAME,GSCService.exe",
+        "PROCESS-NAME,gsupservice.exe",
+        "PROCESS-NAME,gchsvc.exe",
+        "PROCESS-NAME,Weixin.exe",
+        "PROCESS-NAME,WeChatAppEx.exe",
+        "PROCESS-NAME,QQ.exe",
+        "PROCESS-NAME,WeChat.exe",
+        "PROCESS-NAME,Oray.exe",
+        "PROCESS-NAME,OrayService.exe",
+        "PROCESS-NAME,SunloginClient.exe",
+        "PROCESS-NAME,SunloginClient_Desktop.exe",
+        "PROCESS-NAME,SunloginClient_Service.exe",
+        "PROCESS-NAME,AweSun.exe",
+        "PROCESS-NAME,AweSunService.exe",
+        "PROCESS-NAME,NodeBaby.exe",
+        "PROCESS-NAME,Node Baby.exe",
+        "PROCESS-NAME,nblink.exe",
+        "PROCESS-NAME,nblink",
+        "PROCESS-NAME,owjdxb.exe",
+        "PROCESS-NAME,tvnserver.exe",
+        "PROCESS-NAME,tvnserver",
+        "PROCESS-NAME,AnyDesk.exe",
+        "PROCESS-NAME,AnyDesk",
+        "PROCESS-NAME,ToDesk.exe",
+        "PROCESS-NAME,ToDesk_Service.exe",
+        "PROCESS-NAME,ToDesk",
+        "PROCESS-NAME,TeamViewer.exe",
+        "PROCESS-NAME,TeamViewer_Service.exe",
+        "PROCESS-NAME,TeamViewer",
+        "PROCESS-NAME,ZeroTier One.exe",
+        "PROCESS-NAME,zerotier-one.exe",
+        "PROCESS-NAME,zerotier-one_x64.exe",
+        "PROCESS-NAME,zerotier-one",
+        "PROCESS-NAME,Tailscale.exe",
+        "PROCESS-NAME,tailscale.exe",
+        "PROCESS-NAME,tailscaled.exe",
+        "PROCESS-NAME,Tailscale",
+        "PROCESS-NAME,tailscale",
+        "PROCESS-NAME,tailscaled",
+        "PROCESS-NAME,phddns.exe",
+        "PROCESS-NAME,phddns",
+        "PROCESS-NAME,ngrok.exe",
+        "PROCESS-NAME,ngrok",
+        "PROCESS-NAME,frpc.exe",
+        "PROCESS-NAME,frpc",
+        "PROCESS-NAME,frps.exe",
+        "PROCESS-NAME,frps",
+        "PROCESS-NAME,natapp.exe",
+        "PROCESS-NAME,natapp",
+        "PROCESS-NAME,cloudflared.exe",
+        "PROCESS-NAME,cloudflared",
+        "PROCESS-NAME,xmqtunnel.exe",
+        "PROCESS-NAME,xmqtunnel",
+        "PROCESS-NAME,Navicat.exe",
+        "PROCESS-NAME,navicat.exe",
+        "PROCESS-NAME,Navicat Premium.exe",
+        "PROCESS-NAME,Navicat",
+        "PROCESS-NAME,Navicat Premium",
+        "PROCESS-NAME,LeigodAcc.exe",
+        "PROCESS-NAME,LeigodAccel.exe",
+        "PROCESS-NAME,leigodaccel.exe",
+        "PROCESS-NAME,NeteaseUU.exe",
+        "PROCESS-NAME,NeteaseUUBrowser.exe",
+        "PROCESS-NAME,NNer.exe",
+        "PROCESS-NAME,NNerClient.exe",
+        "PROCESS-NAME,UU.exe",
+        "PROCESS-NAME,UUGameBooster.exe",
+        "PROCESS-NAME,UURepair.exe",
+        "PROCESS-NAME,UUService.exe",
+        "PROCESS-NAME,xhjsq.exe",
+        "PROCESS-NAME,XiaoHeiAccelerator.exe",
+        "PROCESS-NAME,xunyou.exe",
+        "PROCESS-NAME,XunYouAcc.exe",
+        "PROCESS-NAME,XunYouUpdate.exe"
+      ]
+    },
+    "scki-fused-019-work-residual": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-019-work-residual.yaml",
+      "sha256": "e5602a76a7f64c1a0cd0e59e32d9a71d46a1cc9558b14026f5599400a93262ee",
+      "bytes": 129,
+      "payload": [
+        "PROCESS-NAME,RustDesk.exe",
+        "PROCESS-NAME,rustdesk.exe",
+        "PROCESS-NAME,RustDesk",
+        "PROCESS-NAME,rustdesk"
+      ]
+    },
+    "scki-fused-020-crypto-domain": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-020-crypto-domain.mrs",
+      "sha256": "5d70ad6e82e825c81e7dc3a459a7404226b0872777cb9ec98fb6884fc36148cd",
+      "bytes": 99
+    },
+    "scki-fused-021-gfw-domain": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-021-gfw-domain.mrs",
+      "sha256": "1f0dcac2e498d0c2f9a3887c3362974c25eb52c3ba71309091330d2978e831d8",
+      "bytes": 103
+    },
+    "scki-fused-022-youtube-domain": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-022-youtube-domain.mrs",
+      "sha256": "9a062b12cd4dd2200f21ddead3dc4ea30270ea5bb330046a9c12d89963b38f74",
+      "bytes": 150
+    },
+    "scki-fused-023-ai-domain": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-023-ai-domain.mrs",
+      "sha256": "b6956ba20144ce4f988baace9872996c81b6afb9b15735a162aff2b418ab69c7",
+      "bytes": 394
+    },
+    "scki-fused-024-google-domain": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-024-google-domain.mrs",
+      "sha256": "7f76a0d949963ed15e6db9d86edad39c28dbdc353f5c2a4ceeedd7c0d825bc88",
+      "bytes": 208
+    },
+    "scki-fused-024-google-residual": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-024-google-residual.yaml",
+      "sha256": "83918f03969936ae4d43b66c4758556b69f5864dd92930764f1ae88f3a3901ef",
+      "bytes": 115,
+      "payload": [
+        "DOMAIN-KEYWORD,colab",
+        "DOMAIN-KEYWORD,developerprofiles",
+        "DOMAIN-KEYWORD,generativelanguage"
+      ]
+    },
+    "scki-fused-025-work-domain": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-025-work-domain.mrs",
+      "sha256": "57aa60a35be23fb48b6011ca74ccb53daffe840d834cfdb4ca7e6c798326e374",
+      "bytes": 55
+    },
+    "scki-fused-026-ai-domain": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-026-ai-domain.mrs",
+      "sha256": "bd9aa648871dba96839dac0bb9fc6131a1a969dc921741da7a0babb1dc4bdd8b",
+      "bytes": 692
+    },
+    "scki-fused-026-ai-ipcidr": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-026-ai-ipcidr.mrs",
+      "sha256": "f395f8f030637bbc9fea291f99ab25d4249522ae2c744e976ac6bd65267c6564",
+      "bytes": 53
+    },
+    "scki-fused-026-ai-residual": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-026-ai-residual.yaml",
+      "sha256": "6b56f685e8612e86cb641991c0c650cc7d58789b39885b7051c2a15bdc11df99",
+      "bytes": 82,
+      "payload": [
+        "DOMAIN-KEYWORD,openaicom-api",
+        "IP-ASN,14061",
+        "IP-ASN,20473"
+      ]
+    },
+    "scki-fused-027-intl-site-domain": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-027-intl-site-domain.mrs",
+      "sha256": "e47e5318027a009e7e41edcfaf22601b7d1178b0c404625887fee952aafe41ae",
+      "bytes": 94
+    },
+    "scki-fused-028-im-domain": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-028-im-domain.mrs",
+      "sha256": "10d5d3ae8a6b5918c95e81b026eb05d4e48ae8818961ec6b37c4ce68f90fcbac",
+      "bytes": 60
+    },
+    "scki-fused-029-work-domain": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-029-work-domain.mrs",
+      "sha256": "00d447efea95634ae0d640294c6bfd20ffb185fcadc3e95eef944d12bf9d1fbb",
+      "bytes": 87
+    },
+    "scki-fused-030-download-domain": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-030-download-domain.mrs",
+      "sha256": "c501d58d046da59746f9614ba467d1afdbb1d646b13488a597978c4b0a8b7800",
+      "bytes": 528
+    },
+    "scki-fused-030-download-ipcidr": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-030-download-ipcidr.mrs",
+      "sha256": "b949967cb3fb796c8c7c456634f3c67167cc9a536425f2946a5c9425cb41c267",
+      "bytes": 123
+    },
+    "scki-fused-030-download-residual": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-030-download-residual.yaml",
+      "sha256": "3ad3d6555396e3cf84b5af8020ffba8613d7a349990ef9afdcb755ea5469d7a9",
+      "bytes": 49,
+      "payload": [
+        "DOMAIN-KEYWORD,lol-wegame-client-"
+      ]
+    },
+    "scki-fused-031-google-domain": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-031-google-domain.mrs",
+      "sha256": "41f28258e7b409f8d14d7bee9cb675b40446a799ead4c134421754dd312e99e7",
+      "bytes": 6557
+    },
+    "scki-fused-031-google-ipcidr-no-resolve": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-031-google-ipcidr-no-resolve.mrs",
+      "sha256": "bbfe7fef5723dd4e1d7a87037d0ba2f0cdcc614eda62d49fe7eaafe24e958997",
+      "bytes": 8300
+    },
+    "scki-fused-032-tools-domain": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-032-tools-domain.mrs",
+      "sha256": "fb1fba97ef198c62701935da54b0a4c934828cd674e363a20e96c32ef09a216a",
+      "bytes": 55
+    },
+    "scki-fused-033-ai-domain": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-033-ai-domain.mrs",
+      "sha256": "9ac1a714ebd39e104a7447e2a4835e170c4a36a65ac6c0366437ab51d86d0ef6",
+      "bytes": 1646
+    },
+    "scki-fused-033-ai-ipcidr": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-033-ai-ipcidr.mrs",
+      "sha256": "84c06aa57a3b55f10f7aec81083f756ca364541c37131db6a281c1fb049e21d6",
+      "bytes": 61
+    },
+    "scki-fused-033-ai-ipcidr-no-resolve": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-033-ai-ipcidr-no-resolve.mrs",
+      "sha256": "03b70d0fe214d834afb5ccd8cbcbb792ffe5d97554be614f7795894a6b46c401",
+      "bytes": 51
+    },
+    "scki-fused-033-ai-residual": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-033-ai-residual.yaml",
+      "sha256": "3a881e5ebbf474ee9aeeb7c144b5a87d9cc9c2d4fa15873bcfa5db04b4478ecb",
+      "bytes": 1166,
+      "payload": [
+        "DOMAIN-KEYWORD,openai",
+        "DOMAIN-KEYWORD,chatgpt",
+        "DOMAIN-KEYWORD,datadoghq",
+        "DOMAIN-KEYWORD,anthropic",
+        "DOMAIN-KEYWORD,claude",
+        "DOMAIN-KEYWORD,grok",
+        "DOMAIN-KEYWORD,bing",
+        "DOMAIN-KEYWORD,copilot",
+        "DOMAIN-KEYWORD,edgeassetservice",
+        "DOMAIN-KEYWORD,gmail",
+        "DOMAIN-KEYWORD,google",
+        "DOMAIN-KEYWORD,goog",
+        "DOMAIN-KEYWORD,antigravity",
+        "PROCESS-NAME,Claude",
+        "PROCESS-NAME,Claude Helper",
+        "PROCESS-NAME,Claude Helper (Renderer)",
+        "PROCESS-NAME,LM Studio",
+        "PROCESS-NAME,grok",
+        "PROCESS-NAME,Code Helper",
+        "PROCESS-NAME,Code Helper (Plugin)",
+        "PROCESS-NAME,Antigravity Helper",
+        "PROCESS-NAME,Antigravity Helper (Renderer)",
+        "PROCESS-NAME,Antigravity Helper (GPU)",
+        "PROCESS-NAME,Antigravity Helper (Plugin)",
+        "PROCESS-NAME,language_server",
+        "PROCESS-NAME,Google Drive",
+        "DOMAIN-KEYWORD,ciciai",
+        "DOMAIN-KEYWORD,dola",
+        "PROCESS-NAME,Cici",
+        "PROCESS-NAME,Cici Helper (Renderer)",
+        "PROCESS-NAME,Cici Helper",
+        "PROCESS-NAME,Trae Helper",
+        "PROCESS-NAME,Trae Helper (Plugin)",
+        "PROCESS-NAME,ai",
+        "PROCESS-NAME,ai-agent",
+        "PROCESS-NAME,ai-completion"
+      ]
+    },
+    "scki-fused-034-google-domain": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-034-google-domain.mrs",
+      "sha256": "edafdd0d9bbafb02acdb7083f3c46dd54eb39358c452661a139d4356358fbdf0",
+      "bytes": 517
+    },
+    "scki-fused-035-ai-domain": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-035-ai-domain.mrs",
+      "sha256": "46fae58f5f72efd2a93a185608f9ff6ab7b680c9f8f4708e7a6de17256e888fc",
+      "bytes": 1699
+    },
+    "scki-fused-035-ai-ipcidr": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-035-ai-ipcidr.mrs",
+      "sha256": "6190ee369f14ca9f6f018a8afa5db7254e70f448d4bc90ce7e9efe7ab935f230",
+      "bytes": 84
+    },
+    "scki-fused-035-ai-residual": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-035-ai-residual.yaml",
+      "sha256": "0f18d0c543a691a61c0d9c56d6991ed6396857b39636a8ee084ea4de5916a50e",
+      "bytes": 1040,
+      "payload": [
+        "DOMAIN-KEYWORD,datadog",
+        "DOMAIN-KEYWORD,sentry",
+        "DOMAIN-KEYWORD,sift",
+        "DOMAIN-KEYWORD,chatgpt-async-webps-prod",
+        "DOMAIN-REGEX,^chatgpt-async-webps-prod-\\S+-\\d+\\.webpubsub\\.azure\\.com$",
+        "PROCESS-NAME,Claude.exe",
+        "PROCESS-NAME,claude",
+        "PROCESS-NAME,claude.exe",
+        "PROCESS-NAME,cowork-svc.exe",
+        "IP-ASN,399358,no-resolve",
+        "PROCESS-NAME,Augment",
+        "PROCESS-NAME,Augment.exe",
+        "PROCESS-NAME,augment",
+        "IP-ASN,14061,no-resolve",
+        "PROCESS-NAME,Cursor",
+        "PROCESS-NAME,Cursor.exe",
+        "PROCESS-NAME,cursor",
+        "PROCESS-NAME,Antigravity",
+        "PROCESS-NAME,Antigravity.exe",
+        "PROCESS-NAME,antigravity",
+        "PROCESS-NAME,ChatGPT",
+        "PROCESS-NAME,ChatGPT.exe",
+        "PROCESS-NAME,Codex",
+        "PROCESS-NAME,Codex.exe",
+        "PROCESS-NAME,chatgpt",
+        "PROCESS-NAME,codex",
+        "IP-ASN,401518,no-resolve",
+        "PROCESS-NAME,Windsurf",
+        "PROCESS-NAME,Windsurf.exe",
+        "PROCESS-NAME,windsurf",
+        "DOMAIN-REGEX,^chatgpt-async-webps-prod-\\\\S+-\\\\d+\\\\.webpubsub\\\\.azure\\\\.com$"
+      ]
+    },
+    "scki-fused-036-crypto-domain": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-036-crypto-domain.mrs",
+      "sha256": "7c8654ee38a0806b3f11171a3970e477fc9896e26a59e3dc37ae538fa0c5943e",
+      "bytes": 2559
+    },
+    "scki-fused-036-crypto-residual": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-036-crypto-residual.yaml",
+      "sha256": "eaaf72cbb63fc859491531ee8f2d141334e7c99c92447e5c593717fbff3de3d3",
+      "bytes": 264,
+      "payload": [
+        "DOMAIN-KEYWORD,binance",
+        "DOMAIN-KEYWORD,bitget",
+        "DOMAIN-KEYWORD,huobi",
+        "DOMAIN-KEYWORD,okx",
+        "DOMAIN-KEYWORD,metamask",
+        "DOMAIN-KEYWORD,moonpay",
+        "PROCESS-NAME,Binance.exe",
+        "PROCESS-NAME,Huobi.exe",
+        "PROCESS-NAME,OKX.exe"
+      ]
+    },
+    "scki-fused-037-payments-domain": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-037-payments-domain.mrs",
+      "sha256": "a2c9feaf89c4989280c67de4867187221de2307ebb5a5fd7b2976d914c52f42f",
+      "bytes": 5083
+    },
+    "scki-fused-037-payments-residual": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-037-payments-residual.yaml",
+      "sha256": "e6f2dcb48798a969b7a41ecbe200976c61a4bb3b1c42225d73fc7507ef9c875a",
+      "bytes": 247,
+      "payload": [
+        "DOMAIN-KEYWORD,paypal",
+        "DOMAIN-KEYWORD,stripe",
+        "DOMAIN-KEYWORD,zellepay",
+        "DOMAIN-KEYWORD,zelle",
+        "DOMAIN-KEYWORD,bankofamerica",
+        "DOMAIN-KEYWORD,transferwise",
+        "DOMAIN-KEYWORD,monzo",
+        "DOMAIN-KEYWORD,revolut"
+      ]
+    },
+    "scki-fused-039-intl-site-domain": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-039-intl-site-domain.mrs",
+      "sha256": "df16998a3e6dfde870490d76710c105268ffcc6ba290c320268c4ce80a174ed9",
+      "bytes": 388
+    },
+    "scki-fused-040-direct-domain": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-040-direct-domain.mrs",
+      "sha256": "11d624ffab525543df90f7d13cb0ccdc1ade9f023b073ad2ba8ef166c775220d",
+      "bytes": 122
+    },
+    "scki-fused-041-im-domain": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-041-im-domain.mrs",
+      "sha256": "0d2274a04821a7b362b6728615a0173808234ad93a65b8beb281104696048fab",
+      "bytes": 1033
+    },
+    "scki-fused-041-im-ipcidr": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-041-im-ipcidr.mrs",
+      "sha256": "3da8bad5888aaf45ed06275527bcce6eb82239d3aaac8fea21883152383dc610",
+      "bytes": 303
+    },
+    "scki-fused-041-im-ipcidr-no-resolve": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-041-im-ipcidr-no-resolve.mrs",
+      "sha256": "d121af95b9aeca3d8c29b2112d5e6685b2a6716383df8ae31b5fbb3408c527b3",
+      "bytes": 145
+    },
+    "scki-fused-041-im-residual": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-041-im-residual.yaml",
+      "sha256": "afa1ee269dee8846bfec33a0b3e29e2d6f21889ee908cd07d93ec1ec3f125036",
+      "bytes": 78,
+      "payload": [
+        "DOMAIN-KEYWORD,whatsapp",
+        "PROCESS-NAME,com.italkbbtv.phone"
+      ]
+    },
+    "scki-fused-042-social-domain": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-042-social-domain.mrs",
+      "sha256": "fbb13346a177ace2c841421f7c6d6bcdaaee13b41413fba730416287591d1763",
+      "bytes": 5924
+    },
+    "scki-fused-042-social-ipcidr": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-042-social-ipcidr.mrs",
+      "sha256": "6e41c4b5dbb2b75f0c04114122d5484729946dbc9fae0861cf377fef1fdf7a8c",
+      "bytes": 175
+    },
+    "scki-fused-042-social-ipcidr-no-resolve": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-042-social-ipcidr-no-resolve.mrs",
+      "sha256": "84c2bd5cc2ccbb0badf0cb155972b5f49b5751fbcbb97501a3346abe1de38d82",
+      "bytes": 955
+    },
+    "scki-fused-042-social-residual": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-042-social-residual.yaml",
+      "sha256": "8379b58eff2a12057e4dba1409cb50e347636d393fe0d5e6a232a3168e027189",
+      "bytes": 116,
+      "payload": [
+        "DOMAIN-KEYWORD,facebook",
+        "DOMAIN-KEYWORD,fbcdn",
+        "IP-ASN,32934",
+        "DOMAIN-KEYWORD,instagram"
+      ]
+    },
+    "scki-fused-043-cn-site-domain": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-043-cn-site-domain.mrs",
+      "sha256": "4ff0a389c0b7a210ba52b308cf070fb6b26235f7408fe308e4efdd1d257fc430",
+      "bytes": 388
+    },
+    "scki-fused-044-social-domain": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-044-social-domain.mrs",
+      "sha256": "9f8741db0089b321e74901058b043fcea5deff92164e1d44a5d539ee097b82e8",
+      "bytes": 195
+    },
+    "scki-fused-045-work-domain": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-045-work-domain.mrs",
+      "sha256": "2d8c1194b63802aea8ee5914f9fa2c23b16b43e110215633f9c69f4fc7b7289e",
+      "bytes": 863
+    },
+    "scki-fused-045-work-ipcidr": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-045-work-ipcidr.mrs",
+      "sha256": "2ffaebe7c18da695c2f023bb67e526a7a3d5c575e5a9cc4d3a2c008067073ec1",
+      "bytes": 105
+    },
+    "scki-fused-045-work-residual": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-045-work-residual.yaml",
+      "sha256": "4d7aecdba33fcfbfe18763f3c4127281c70a879e29ab613e71f205c9bba2b2aa",
+      "bytes": 216,
+      "payload": [
+        "PROCESS-NAME,CrashReport.exe",
+        "PROCESS-NAME,DriverInstaller.exe",
+        "PROCESS-NAME,ToDesk_Session.exe",
+        "PROCESS-NAME,ToDesk_Setup.exe",
+        "PROCESS-NAME,devcon.exe",
+        "PROCESS-NAME,mstsc.exe"
+      ]
+    },
+    "scki-fused-046-direct-domain": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-046-direct-domain.mrs",
+      "sha256": "f6ba44e92924be9c9688cec40ee3bfc2b8a4694dc2554f19c7b84677c68ef2d3",
+      "bytes": 107
+    },
+    "scki-fused-047-cnmedia-domain": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-047-cnmedia-domain.mrs",
+      "sha256": "5f5329b62eb0f4f27d900f15b085e1d89dd01f21c2613835fbc76fcecf86e0b8",
+      "bytes": 523
+    },
+    "scki-fused-048-tiktok-domain": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-048-tiktok-domain.mrs",
+      "sha256": "e89b800565fa72d78901fb96ce4c39cd75860b79f3d28c7d97e148ca5879fedd",
+      "bytes": 497
+    },
+    "scki-fused-049-youtube-domain": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-049-youtube-domain.mrs",
+      "sha256": "fe4b56a7088b64335501ba22de50bd0f6c6b5fa1a993451e7a50c75b48004230",
+      "bytes": 167
+    },
+    "scki-fused-050-netflix-domain": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-050-netflix-domain.mrs",
+      "sha256": "a6fea26ce2168e069fe865f269e86e5e031a51b5b3855fe297e1bc004a3170bd",
+      "bytes": 292
+    },
+    "scki-fused-050-netflix-ipcidr-no-resolve": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-050-netflix-ipcidr-no-resolve.mrs",
+      "sha256": "0e9ea19aff4576a2a2412262db4bc99a69204d08ba6073da9694360190f4df8d",
+      "bytes": 4700
+    },
+    "scki-fused-051-disney-domain": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-051-disney-domain.mrs",
+      "sha256": "01eddb051dbee100127e8a477b59b5816ed4e1019980342cf31775b6ff18f74a",
+      "bytes": 2067
+    },
+    "scki-fused-051-disney-residual": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-051-disney-residual.yaml",
+      "sha256": "3bcbeafdac260712915f805f585b683c5dedff6cd4c56533385149cc4e5fae5c",
+      "bytes": 112,
+      "payload": [
+        "PROCESS-NAME,com.disney.datg.videoplatforms.android.abc",
+        "PROCESS-NAME,com.disney.disneyplus"
+      ]
+    },
+    "scki-fused-052-hbo-max-domain": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-052-hbo-max-domain.mrs",
+      "sha256": "b023f5ff275e3b420f2039a5c63977826e0208894e8434ffaaf0278fd44f83a1",
+      "bytes": 624
+    },
+    "scki-fused-052-hbo-max-residual": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-052-hbo-max-residual.yaml",
+      "sha256": "fe52c969cec679ae8b875dc965a6d3c9042475408ce547cde34ed6f19a341589",
+      "bytes": 43,
+      "payload": [
+        "PROCESS-NAME,com.hbo.hbonow"
+      ]
+    },
+    "scki-fused-053-hulu-domain": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-053-hulu-domain.mrs",
+      "sha256": "e2dcf6e6ffcff53d9a5cb4f65df97582807f9ca4920711c43426dfca6fab7df8",
+      "bytes": 652
+    },
+    "scki-fused-053-hulu-residual": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-053-hulu-residual.yaml",
+      "sha256": "f69b63d808c5b3c3af39d66b9fd2d12eed910583c67be263926a5735dd14dd67",
+      "bytes": 42,
+      "payload": [
+        "PROCESS-NAME,com.hulu.plus"
+      ]
+    },
+    "scki-fused-054-prime-video-domain": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-054-prime-video-domain.mrs",
+      "sha256": "3dd29b29acec3c510fbe30b0e20f02d4783824e1aea1548357a951ba311c2b6c",
+      "bytes": 259
+    },
+    "scki-fused-054-prime-video-residual": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-054-prime-video-residual.yaml",
+      "sha256": "65ba36f8541e8780d5f30e7fe624ebc55f4fff159a771e6a349271e3ba329654",
+      "bytes": 40,
+      "payload": [
+        "DOMAIN-KEYWORD,avoddashs"
+      ]
+    },
+    "scki-fused-055-intl-site-domain": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-055-intl-site-domain.mrs",
+      "sha256": "5d343fac6ad6cb43723b9c6155d8f652772f03d4dbdb777550016a7c47b1dc35",
+      "bytes": 1967
+    },
+    "scki-fused-055-intl-site-ipcidr": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-055-intl-site-ipcidr.mrs",
+      "sha256": "93fda7e4588c7acced45eb1a51460392c18601c8a66e433480af4bd57fa43f67",
+      "bytes": 150
+    },
+    "scki-fused-055-intl-site-residual": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-055-intl-site-residual.yaml",
+      "sha256": "ed25305eccca9112306da6ab9c61264c75fe9acbd49cd8ec2d01875c107d00f7",
+      "bytes": 61,
+      "payload": [
+        "PROCESS-NAME,com.amazon.avod.thirdpartyclient"
+      ]
+    },
+    "scki-fused-056-music-domain": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-056-music-domain.mrs",
+      "sha256": "67b25e9e41a91965e9bbe70a07cf421e4be84f43973f12d58fba21677f164a07",
+      "bytes": 991
+    },
+    "scki-fused-056-music-ipcidr": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-056-music-ipcidr.mrs",
+      "sha256": "2e3f89d2280fb965c9b3629df621ef14cc72c9a79e3c622c9436b96e33d5c384",
+      "bytes": 53
+    },
+    "scki-fused-057-stream-hk-domain": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-057-stream-hk-domain.mrs",
+      "sha256": "6e16ef1c82eb16ed3926f57c4447ab3665239110abcb2aa8b3a3492fa1dd1bb2",
+      "bytes": 650
+    },
+    "scki-fused-057-stream-hk-ipcidr": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-057-stream-hk-ipcidr.mrs",
+      "sha256": "b2dc109d076ca2751d825f010883d53bc128a6c8b1d708f9cb8ca9987a97b33a",
+      "bytes": 103
+    },
+    "scki-fused-057-stream-hk-residual": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-057-stream-hk-residual.yaml",
+      "sha256": "8f2caf47b83ab47221cb89c8d95c1eeff9dd17e8a5d26946af3a9e41b928f116",
+      "bytes": 69,
+      "payload": [
+        "DOMAIN-KEYWORD,nowtv100",
+        "DOMAIN-KEYWORD,rthklive"
+      ]
+    },
+    "scki-fused-058-stream-tw-domain": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-058-stream-tw-domain.mrs",
+      "sha256": "4ba29ddf14ed100005eb47cc375b8b3f1febdcaa01ddf385c7cdffa079a77cb1",
+      "bytes": 361
+    },
+    "scki-fused-058-stream-tw-residual": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-058-stream-tw-residual.yaml",
+      "sha256": "a34928a92501a6071e78c28a747eeb9d4e553b9e379a57fd12cdb55bfd860d5d",
+      "bytes": 93,
+      "payload": [
+        "DOMAIN-KEYWORD,hamivideo.cdn.hinet.net",
+        "PROCESS-NAME,com.linecorp.linetv"
+      ]
+    },
+    "scki-fused-059-stream-jpkr-domain": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-059-stream-jpkr-domain.mrs",
+      "sha256": "1cac3004969613fddae76b9fb96c44fe111ccf8f7448635f612d2823e1b8eeb6",
+      "bytes": 1187
+    },
+    "scki-fused-059-stream-jpkr-ipcidr": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-059-stream-jpkr-ipcidr.mrs",
+      "sha256": "ae64babc1a068a54eeec1b7bcff8a17816b1a0a730138ac9708b115bc9fd79c3",
+      "bytes": 52
+    },
+    "scki-fused-059-stream-jpkr-residual": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-059-stream-jpkr-residual.yaml",
+      "sha256": "9946911b4cda8741b45218de84568aa408480ba53f5af46c1e99e74cddeda07a",
+      "bytes": 95,
+      "payload": [
+        "DOMAIN-KEYWORD,voddazn",
+        "DOMAIN-KEYWORD,japonx",
+        "DOMAIN-KEYWORD,japronx"
+      ]
+    },
+    "scki-fused-060-stream-eu-domain": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-060-stream-eu-domain.mrs",
+      "sha256": "1884d67b14cc328822bfe3b76d7afa1a3f5cefaaf2e0c137d3471394fa5251bf",
+      "bytes": 881
+    },
+    "scki-fused-060-stream-eu-residual": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-060-stream-eu-residual.yaml",
+      "sha256": "f0472300e8dacec9439716ff6b68e2a7ffe1e4d03944d32a5ba330abb6f4ab62",
+      "bytes": 151,
+      "payload": [
+        "DOMAIN-KEYWORD,bskyb",
+        "DOMAIN-KEYWORD,skygo",
+        "DOMAIN-KEYWORD,skyliveuk",
+        "DOMAIN-KEYWORD,bbcfmt",
+        "DOMAIN-KEYWORD,uk-live"
+      ]
+    },
+    "scki-fused-061-stream-other-domain": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-061-stream-other-domain.mrs",
+      "sha256": "190779b27f65c4e6896b2f8334d633568257727e3883b8669dd8c684b2aa6f6f",
+      "bytes": 5171
+    },
+    "scki-fused-061-stream-other-ipcidr": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-061-stream-other-ipcidr.mrs",
+      "sha256": "210454849ed7abd6322db963112b53ea67e8fe6ecc9c2e656fb4f8e62f630b39",
+      "bytes": 259
+    },
+    "scki-fused-061-stream-other-residual": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-061-stream-other-residual.yaml",
+      "sha256": "1948535fb09eaf6c2bd0846d659ca0dc12fb27e886142b1bb197370cfc7860a0",
+      "bytes": 685,
+      "payload": [
+        "PROCESS-NAME,com.viu.pad",
+        "PROCESS-NAME,com.viu.phone",
+        "PROCESS-NAME,com.vuclip.viu",
+        "DOMAIN-KEYWORD,cn-hk-eq-bcache-",
+        "PROCESS-NAME,com.iqiyi.i18n",
+        "PROCESS-NAME,com.iqiyi.i18n.tv",
+        "DOMAIN-KEYWORD,jooxweb-api",
+        "PROCESS-NAME,com.tencent.ibg.joox",
+        "PROCESS-NAME,com.tencent.qqlivei18n",
+        "PROCESS-NAME,com.tencent.qqlivei18n.us",
+        "DOMAIN-KEYWORD,ttvnw",
+        "PROCESS-NAME,tv.twitch.android.app",
+        "PROCESS-NAME,com.cbs.app",
+        "PROCESS-NAME,com.showtime.standalone",
+        "DOMAIN-KEYWORD,discovery.uplynk.com",
+        "DOMAIN-KEYWORD,emby.wtf",
+        "DOMAIN-KEYWORD,jmsooo",
+        "DOMAIN-KEYWORD,odysseyplus",
+        "PROCESS-NAME,com.mb.android"
+      ]
+    },
+    "scki-fused-062-tools-domain": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-062-tools-domain.mrs",
+      "sha256": "d9a6681fd305a03539a0d8436e96b824bac2333e5f302c354224b981a5e705cb",
+      "bytes": 232
+    },
+    "scki-fused-063-google-domain": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-063-google-domain.mrs",
+      "sha256": "6bfc98f35963085b30d5f91935b2aab86a487a630c8aa84aec68d1ed5786f8c2",
+      "bytes": 2250
+    },
+    "scki-fused-064-tools-domain": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-064-tools-domain.mrs",
+      "sha256": "5f154e99854471b7e24f706fc2183ac5a53162f5aa54559bd49a7462981fade5",
+      "bytes": 7923
+    },
+    "scki-fused-064-tools-ipcidr": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-064-tools-ipcidr.mrs",
+      "sha256": "a0accedd735b7ba37cf9ce87d3e8dfdbb17ed7b4e97fd70f8c476bfa6a8dcdaa",
+      "bytes": 183
+    },
+    "scki-fused-064-tools-residual": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-064-tools-residual.yaml",
+      "sha256": "396f0fa5f57b76afca3820161bbc8254717b7bc214494abd8c141925560ba7c5",
+      "bytes": 167,
+      "payload": [
+        "PROCESS-NAME,UnityHub.exe",
+        "DOMAIN-KEYWORD,registry",
+        "DOMAIN-KEYWORD,huggingface",
+        "PROCESS-NAME,OrbStack",
+        "PROCESS-NAME,OrbStack Helper"
+      ]
+    },
+    "scki-fused-065-microsoft-domain": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-065-microsoft-domain.mrs",
+      "sha256": "bd67b4bdc3c5d10a3ecbcf6821b016c150238ca380669e16174b198ce496d8f0",
+      "bytes": 5471
+    },
+    "scki-fused-065-microsoft-residual": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-065-microsoft-residual.yaml",
+      "sha256": "4835a645db1b2f38ead5ccedd835d70d3da932f36e59e3c7bc7ddceb5036dd8e",
+      "bytes": 1892,
+      "payload": [
+        "DOMAIN-KEYWORD,microsoft.com",
+        "DOMAIN-KEYWORD,microsoft365.com",
+        "DOMAIN-KEYWORD,windows.com",
+        "DOMAIN-KEYWORD,windows.net",
+        "DOMAIN-KEYWORD,office.com",
+        "DOMAIN-KEYWORD,office365.com",
+        "DOMAIN-KEYWORD,live.com",
+        "DOMAIN-KEYWORD,live.net",
+        "DOMAIN-KEYWORD,msn.com",
+        "DOMAIN-KEYWORD,bing.com",
+        "DOMAIN-KEYWORD,s-microsoft.com",
+        "DOMAIN-KEYWORD,outlook.com",
+        "DOMAIN-KEYWORD,office.net",
+        "DOMAIN-KEYWORD,onedrive.com",
+        "DOMAIN-KEYWORD,1drv.com",
+        "DOMAIN-KEYWORD,1drv.ms",
+        "DOMAIN-KEYWORD,livefilestore.com",
+        "DOMAIN-KEYWORD,onenote.com",
+        "DOMAIN-KEYWORD,onenote.net",
+        "DOMAIN-KEYWORD,sharepoint.com",
+        "DOMAIN-KEYWORD,skype.com",
+        "DOMAIN-KEYWORD,skypeassets.com",
+        "DOMAIN-KEYWORD,lync.com",
+        "DOMAIN-KEYWORD,microsoftonline.com",
+        "DOMAIN-KEYWORD,microsoftonline-p.com",
+        "DOMAIN-KEYWORD,microsoftonline-p.net",
+        "DOMAIN-KEYWORD,msauth.net",
+        "DOMAIN-KEYWORD,msauthimages.net",
+        "DOMAIN-KEYWORD,msftauth.net",
+        "DOMAIN-KEYWORD,msftauthimages.net",
+        "DOMAIN-KEYWORD,phonefactor.net",
+        "DOMAIN-KEYWORD,msidentity.com",
+        "DOMAIN-KEYWORD,msftidentity.com",
+        "DOMAIN-KEYWORD,microsoftazuread-sso.com",
+        "DOMAIN-KEYWORD,windowsupdate.com",
+        "DOMAIN-KEYWORD,microsoftstore.com",
+        "DOMAIN-KEYWORD,onestore.ms",
+        "DOMAIN-KEYWORD,msftconnecttest.com",
+        "DOMAIN-KEYWORD,msftncsi.com",
+        "DOMAIN-KEYWORD,sharepointonline.com",
+        "DOMAIN-KEYWORD,onmicrosoft.com",
+        "DOMAIN-KEYWORD,microsoftusercontent.com",
+        "DOMAIN-KEYWORD,msedge.net",
+        "DOMAIN-KEYWORD,msocdn.com",
+        "DOMAIN-KEYWORD,aspnetcdn.com",
+        "DOMAIN-KEYWORD,microsoft-com.akamaized.net",
+        "DOMAIN-KEYWORD,msn-com.akamaized.net",
+        "DOMAIN-KEYWORD,informationprotection.azure.com",
+        "DOMAIN-KEYWORD,aadrm.com",
+        "DOMAIN-KEYWORD,virtualearth.net",
+        "DOMAIN-KEYWORD,visualstudio.com",
+        "DOMAIN-KEYWORD,vsassets.io"
+      ]
+    },
+    "scki-fused-066-apple-domain": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-066-apple-domain.mrs",
+      "sha256": "dc5b03018043f11c665b3113d239476c7bf319d65d31f7c4c0c9413333b95943",
+      "bytes": 15832
+    },
+    "scki-fused-066-apple-ipcidr": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-066-apple-ipcidr.mrs",
+      "sha256": "02bbc25da607152726caee9d2b5924548b8e7859b990de6f8f1da6e01bb81b9b",
+      "bytes": 48
+    },
+    "scki-fused-066-apple-residual": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-066-apple-residual.yaml",
+      "sha256": "6836badc6cc4c8f356184b6c397c3e80fdf8e8316a4a005bffb88ba59eeb2819",
+      "bytes": 159,
+      "payload": [
+        "PROCESS-NAME,Music",
+        "PROCESS-NAME,TV",
+        "PROCESS-NAME,LookupViewService",
+        "DOMAIN-KEYWORD,testflight",
+        "PROCESS-NAME,com.apple.geod"
+      ]
+    },
+    "scki-fused-067-download-domain": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-067-download-domain.mrs",
+      "sha256": "18590fa91826053e1689a2eedffea7dceead31205fda2567c5ceef325ae95752",
+      "bytes": 10413
+    },
+    "scki-fused-067-download-ipcidr": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-067-download-ipcidr.mrs",
+      "sha256": "6e90d81a69b25471b8d5fe0ab8182c7f626982b72bcc0d864aceaaf53028688f",
+      "bytes": 200
+    },
+    "scki-fused-067-download-residual": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-067-download-residual.yaml",
+      "sha256": "06e019b5bd8b2cd8bfd170e5b977bb81ece436a880f823a70b40b891aae2be9b",
+      "bytes": 1031,
+      "payload": [
+        "DOMAIN-KEYWORD,aria2",
+        "DOMAIN-KEYWORD,thunder",
+        "DOMAIN-KEYWORD,xlliveud",
+        "DOMAIN-KEYWORD,xunlei",
+        "DOMAIN-KEYWORD,yunpan",
+        "PROCESS-NAME,BitComet",
+        "PROCESS-NAME,BitComet.exe",
+        "PROCESS-NAME,BitComet_x64.exe",
+        "PROCESS-NAME,DownloadService",
+        "PROCESS-NAME,DownloadService.exe",
+        "PROCESS-NAME,Folx",
+        "PROCESS-NAME,Folx.exe",
+        "PROCESS-NAME,NetTransport",
+        "PROCESS-NAME,NetTransport.exe",
+        "PROCESS-NAME,Thunder",
+        "PROCESS-NAME,Thunder.exe",
+        "PROCESS-NAME,Transmission",
+        "PROCESS-NAME,Transmission.exe",
+        "PROCESS-NAME,WebTorrent",
+        "PROCESS-NAME,WebTorrent.exe",
+        "PROCESS-NAME,WebTorrentHelper",
+        "PROCESS-NAME,WebTorrentHelper.exe",
+        "PROCESS-NAME,Weiyun",
+        "PROCESS-NAME,Weiyun.exe",
+        "PROCESS-NAME,aria2c",
+        "PROCESS-NAME,aria2c.exe",
+        "PROCESS-NAME,baidunetdisk.exe",
+        "PROCESS-NAME,fdm",
+        "PROCESS-NAME,fdm.exe",
+        "PROCESS-NAME,qbittorrent",
+        "PROCESS-NAME,qbittorrent.exe",
+        "PROCESS-NAME,uTorrent",
+        "PROCESS-NAME,uTorrent.exe"
+      ]
+    },
+    "scki-fused-068-tracker-domain": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-068-tracker-domain.mrs",
+      "sha256": "b587c0b990dbc4dd408aa21430e0648153a422dc3dd389ecff499afc8adfed65",
+      "bytes": 2655
+    },
+    "scki-fused-068-tracker-ipcidr": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-068-tracker-ipcidr.mrs",
+      "sha256": "d3b192676ae74c57f76f345e77599f0cfeaac349891440a6c2d8d5451bb17b93",
+      "bytes": 277
+    },
+    "scki-fused-068-tracker-residual": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-068-tracker-residual.yaml",
+      "sha256": "9d738a139591f922187e6bb71dcb717d27722da229f6265de5529b9f354faca9",
+      "bytes": 125,
+      "payload": [
+        "DOMAIN-KEYWORD,announce",
+        "DOMAIN-KEYWORD,chdbits",
+        "DOMAIN-KEYWORD,m-team",
+        "DOMAIN-KEYWORD,torrent"
+      ]
+    },
+    "scki-fused-069-gfw-domain": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-069-gfw-domain.mrs",
+      "sha256": "34ab7cdbfe6741012c54cfb03ba5edc8150439bf5298668206769b994e003360",
+      "bytes": 43665
+    },
+    "scki-fused-069-gfw-ipcidr": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-069-gfw-ipcidr.mrs",
+      "sha256": "0c8b722fd343989b46ee6896a85ceff239e9a15771bc48ac266d6bd0d27dda3e",
+      "bytes": 174
+    },
+    "scki-fused-069-gfw-residual": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-069-gfw-residual.yaml",
+      "sha256": "c41d7bdb3854089561c6195ac2d026168296ce31a39f30004bb769808e74f6d1",
+      "bytes": 467,
+      "payload": [
+        "DOMAIN-KEYWORD,1e100",
+        "DOMAIN-KEYWORD,abema",
+        "DOMAIN-KEYWORD,appledaily",
+        "DOMAIN-KEYWORD,avtb",
+        "DOMAIN-KEYWORD,beetalk",
+        "DOMAIN-KEYWORD,blogspot",
+        "DOMAIN-KEYWORD,dropbox",
+        "DOMAIN-KEYWORD,porn",
+        "DOMAIN-KEYWORD,sci-hub",
+        "DOMAIN-KEYWORD,spotify",
+        "DOMAIN-KEYWORD,telegram",
+        "DOMAIN-KEYWORD,twitter",
+        "DOMAIN-KEYWORD,youtube",
+        "DOMAIN-KEYWORD,1drv",
+        "DOMAIN-KEYWORD,onedrive",
+        "DOMAIN-KEYWORD,skydrive"
+      ]
+    },
+    "scki-fused-070-game-cn-domain": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-070-game-cn-domain.mrs",
+      "sha256": "4770eda1d375ed3caffe76cbca9775b30b7d668082877c146380e3c8753ec55d",
+      "bytes": 956
+    },
+    "scki-fused-071-game-intl-domain": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-071-game-intl-domain.mrs",
+      "sha256": "c5cb5ea089b75011090bd15b32a269c0b86115d90f4feb9cdc206300dfe7dbf2",
+      "bytes": 11042
+    },
+    "scki-fused-071-game-intl-ipcidr": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-071-game-intl-ipcidr.mrs",
+      "sha256": "2f8e1f0e4b80e8b31e04e8a7c26474dcf8166c5380f237e8a9d04fba83048127",
+      "bytes": 241
+    },
+    "scki-fused-071-game-intl-residual": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-071-game-intl-residual.yaml",
+      "sha256": "eb61be960f277b345cd6c4cb95c843cca1e5f63da86fa7f74e14a1fee488594c",
+      "bytes": 114,
+      "payload": [
+        "DOMAIN-KEYWORD,steambroadcast",
+        "DOMAIN-KEYWORD,steamstore",
+        "DOMAIN-KEYWORD,steamuserimages"
+      ]
+    },
+    "scki-fused-072-intl-site-domain": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-072-intl-site-domain.mrs",
+      "sha256": "3dcbc851ca987a03dc0826d4d195e0fdf327ec3765d2bbce2ebb04cbec2f74a0",
+      "bytes": 3700
+    },
+    "scki-fused-072-intl-site-ipcidr": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-072-intl-site-ipcidr.mrs",
+      "sha256": "dab720b51a988aa06c347ea634fcc6af7aee366d687152ba8d50096b3fd6840f",
+      "bytes": 301
+    },
+    "scki-fused-072-intl-site-residual": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-072-intl-site-residual.yaml",
+      "sha256": "bffeed38871996adc4c99410c4bd9968f8288ed08221234416581d8d3d41c9c2",
+      "bytes": 3754,
+      "payload": [
+        "DOMAIN-KEYWORD,steeleindustries",
+        "DOMAIN-KEYWORD,koshersurplus",
+        "DOMAIN-KEYWORD,customnightvision",
+        "DOMAIN-KEYWORD,milehighshooting",
+        "DOMAIN-KEYWORD,zbarsupply",
+        "DOMAIN-KEYWORD,boson-systems",
+        "DOMAIN-KEYWORD,tnvc",
+        "DOMAIN-KEYWORD,nightgoggles",
+        "DOMAIN-KEYWORD,willsoptics",
+        "DOMAIN-KEYWORD,actinblack",
+        "DOMAIN-KEYWORD,licentiaarmsco",
+        "DOMAIN-KEYWORD,ownthenight",
+        "DOMAIN-KEYWORD,usnightvision",
+        "DOMAIN-KEYWORD,nocturnalitygear",
+        "DOMAIN-KEYWORD,armysurplusworld",
+        "DOMAIN-KEYWORD,nvdevices",
+        "DOMAIN-KEYWORD,superiortac",
+        "DOMAIN-KEYWORD,modarmory",
+        "DOMAIN-KEYWORD,seethenight",
+        "DOMAIN-KEYWORD,apollogearco",
+        "DOMAIN-KEYWORD,cloudynights",
+        "DOMAIN-KEYWORD,nvincorporated",
+        "DOMAIN-KEYWORD,gooningear",
+        "DOMAIN-KEYWORD,optactical",
+        "DOMAIN-KEYWORD,vf1systems",
+        "DOMAIN-KEYWORD,weaponoutfitters",
+        "DOMAIN-KEYWORD,otnsolutionsgroup",
+        "DOMAIN-KEYWORD,operatormanual",
+        "DOMAIN-KEYWORD,nocturnindustries",
+        "DOMAIN-KEYWORD,lowlightinnovations",
+        "DOMAIN-KEYWORD,ultimatenightvision",
+        "DOMAIN-KEYWORD,corevisionindustries",
+        "DOMAIN-KEYWORD,nightvisionassociation",
+        "DOMAIN-KEYWORD,nightvision4less",
+        "DOMAIN-KEYWORD,jrhenterprises",
+        "DOMAIN-KEYWORD,nvisionoptics",
+        "DOMAIN-KEYWORD,acnightvisionllc",
+        "DOMAIN-KEYWORD,hcctac",
+        "DOMAIN-KEYWORD,emergingtacticalsolutions",
+        "DOMAIN-KEYWORD,rtkllc",
+        "DOMAIN-KEYWORD,armyrecognition",
+        "DOMAIN-KEYWORD,adsinc",
+        "DOMAIN-KEYWORD,strategicdark",
+        "DOMAIN-KEYWORD,skdtac",
+        "DOMAIN-KEYWORD,nightsolutionsllc",
+        "DOMAIN-KEYWORD,sportsmansfinest",
+        "DOMAIN-KEYWORD,blackphasetactical",
+        "DOMAIN-KEYWORD,integrityfirearms",
+        "DOMAIN-KEYWORD,vcoptics",
+        "DOMAIN-KEYWORD,nightfalloptics",
+        "DOMAIN-KEYWORD,nightvisionnetwork",
+        "DOMAIN-KEYWORD,fullmetaljacket",
+        "DOMAIN-KEYWORD,nightopstactical",
+        "DOMAIN-KEYWORD,sureshotnightvision",
+        "DOMAIN-KEYWORD,nightvisionuniverse",
+        "DOMAIN-KEYWORD,tasnightcorp",
+        "DOMAIN-KEYWORD,advancednightvision",
+        "DOMAIN-KEYWORD,highendarms",
+        "DOMAIN-KEYWORD,aea-arms",
+        "DOMAIN-KEYWORD,ampedairsoft",
+        "DOMAIN-KEYWORD,callahansystems01",
+        "DOMAIN-KEYWORD,customnightvision.com",
+        "DOMAIN-KEYWORD,gearcentralsupply",
+        "DOMAIN-KEYWORD,gp-armory",
+        "DOMAIN-KEYWORD,hztactical",
+        "DOMAIN-KEYWORD,nicksnightvision",
+        "DOMAIN-KEYWORD,nighthawkvision",
+        "DOMAIN-KEYWORD,nightvisionguys",
+        "DOMAIN-KEYWORD,nycteasystemsllc",
+        "DOMAIN-KEYWORD,parsonsprecision",
+        "DOMAIN-KEYWORD,relicraptor",
+        "DOMAIN-KEYWORD,strictlyoffensivekit",
+        "DOMAIN-KEYWORD,tagfirearms",
+        "DOMAIN-KEYWORD,techsavvyoptics",
+        "DOMAIN-KEYWORD,mockingbirdprecision",
+        "DOMAIN-KEYWORD,northerntacticaldefense",
+        "DOMAIN-KEYWORD,l3harris",
+        "DOMAIN-KEYWORD,elbitsystems",
+        "DOMAIN-KEYWORD,trijicon",
+        "DOMAIN-KEYWORD,coldharboursupply",
+        "DOMAIN-KEYWORD,nightsolutions",
+        "DOMAIN-KEYWORD,eurooptic",
+        "DOMAIN-KEYWORD,scopelist",
+        "DOMAIN-KEYWORD,opticsplanet",
+        "DOMAIN-KEYWORD,thehide.tv",
+        "DOMAIN-KEYWORD,snipershide",
+        "DOMAIN-KEYWORD,silencertalk",
+        "DOMAIN-KEYWORD,.g2.com",
+        "DOMAIN-KEYWORD,unibeast.com",
+        "DOMAIN-KEYWORD,tonymacx86.com",
+        "DOMAIN-KEYWORD,aqara-camera-usa",
+        "DOMAIN-KEYWORD,aqara-camera-ru",
+        "DOMAIN-KEYWORD,aqara-camera-kr",
+        "DOMAIN-KEYWORD,aqara-camera-ger",
+        "DOMAIN-KEYWORD,aqara-camera-au",
+        "DOMAIN-KEYWORD,aqara-camera-sg",
+        "DOMAIN-KEYWORD,adobe",
+        "PROCESS-NAME,mega.privacy.android.app",
+        "DOMAIN-KEYWORD,pornhub",
+        "DOMAIN-KEYWORD,missav",
+        "DOMAIN-KEYWORD,hanime",
+        "DOMAIN-KEYWORD,khanacademy",
+        "DOMAIN-KEYWORD,khanacademykids",
+        "DOMAIN-KEYWORD,seesaw",
+        "DOMAIN-KEYWORD,getepic",
+        "DOMAIN-KEYWORD,overdrive"
+      ]
+    },
+    "scki-fused-073-payments-domain": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-073-payments-domain.mrs",
+      "sha256": "d95850db36b3d7fb3ba5cae8aaf5dd80a760c74b122885e23f7a3dc84febc44c",
+      "bytes": 174
+    },
+    "scki-fused-074-cnmedia-domain": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-074-cnmedia-domain.mrs",
+      "sha256": "b9e444f3ccdf723730db87dd680e60888fcbecd06ad729d230eb9074a50b545d",
+      "bytes": 21449
+    },
+    "scki-fused-074-cnmedia-ipcidr": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-074-cnmedia-ipcidr.mrs",
+      "sha256": "b79df65e202b3ef590f42d87f5e5100a357c8b11462e82d664faa2e26b2eb824",
+      "bytes": 2800
+    },
+    "scki-fused-074-cnmedia-residual": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-074-cnmedia-residual.yaml",
+      "sha256": "0eeca768ccd49568a5bf01115dff4d02aedb02a2c554ce0c3261dc9b7f8e24e9",
+      "bytes": 379,
+      "payload": [
+        "DOMAIN-KEYWORD,tencentvideo",
+        "DOMAIN-KEYWORD,qiyi",
+        "PROCESS-NAME,com.qiyi.video",
+        "PROCESS-NAME,com.zhiliaoapp.musically",
+        "DOMAIN-KEYWORD,weibo",
+        "DOMAIN-KEYWORD,nivod",
+        "DOMAIN-KEYWORD,olevod",
+        "DOMAIN-KEYWORD,gifshow.com",
+        "DOMAIN-KEYWORD,ksapisrv.com",
+        "DOMAIN-KEYWORD,app-analytics-services",
+        "DOMAIN-KEYWORD,acs.m.goofish.com"
+      ]
+    },
+    "scki-fused-075-cn-site-domain": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-075-cn-site-domain.mrs",
+      "sha256": "cf85b069fd75f2e319e42786443aa19d4e91f942b0c915e0c76ad78db466277a",
+      "bytes": 554710
+    },
+    "scki-fused-075-cn-site-ipcidr-no-resolve": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-075-cn-site-ipcidr-no-resolve.mrs",
+      "sha256": "d95b3d125f6c74ce3c15e19ef794f142de91e21c3b8fb7767e76aebfabff5149",
+      "bytes": 37538
+    },
+    "scki-fused-076-direct-domain": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-076-direct-domain.mrs",
+      "sha256": "1730e75a1f37d0c9e55b0e25c02c0e7b7e3a61ef627a13013f41dd4290604523",
+      "bytes": 50
+    },
+    "scki-fused-077-cn-site-domain": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-077-cn-site-domain.mrs",
+      "sha256": "87bd877cb0ced158261691983a07e260dd093f4887ba85010a7176caed019d2a",
+      "bytes": 108
+    },
+    "scki-fused-077-cn-site-residual": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-077-cn-site-residual.yaml",
+      "sha256": "6133b8fe15b7d219c7f66daf70bec0913d002bfbb4a82ff3202e2acdaf359f61",
+      "bytes": 72,
+      "payload": [
+        "DOMAIN-KEYWORD,aqara-camera-cn",
+        "GEOIP,CN,no-resolve"
+      ]
+    },
+    "scki-fused-078-intl-site-domain": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-078-intl-site-domain.mrs",
+      "sha256": "72f04a47797a2f2f60f12630bc4911623f692dd9795e465f4b4d748801543a3a",
+      "bytes": 91690
+    },
+    "scki-fused-078-intl-site-ipcidr": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-078-intl-site-ipcidr.mrs",
+      "sha256": "dff1642ec54908d9f871ba758dbac92bfe9e16b1d388b4be87d462048e6db293",
+      "bytes": 328
+    },
+    "scki-fused-078-intl-site-ipcidr-no-resolve": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-078-intl-site-ipcidr-no-resolve.mrs",
+      "sha256": "0b03a71e3422e950f23da42dc28786e4ee59886f450b8dd48d41c081384c7fcf",
+      "bytes": 6450
+    },
+    "scki-fused-078-intl-site-residual": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-078-intl-site-residual.yaml",
+      "sha256": "f38987d2c019349366104b6ab99fea342fe5e098bb8ff0361566d85a93a1f5bf",
+      "bytes": 6465,
+      "payload": [
+        "GEOIP,ID,no-resolve",
+        "GEOIP,HK,no-resolve",
+        "GEOIP,JP,no-resolve",
+        "GEOIP,TW,no-resolve",
+        "GEOIP,KR,no-resolve",
+        "GEOIP,KP,no-resolve",
+        "GEOIP,MN,no-resolve",
+        "GEOIP,MO,no-resolve",
+        "GEOIP,SG,no-resolve",
+        "GEOIP,TH,no-resolve",
+        "GEOIP,VN,no-resolve",
+        "GEOIP,MM,no-resolve",
+        "GEOIP,LA,no-resolve",
+        "GEOIP,PH,no-resolve",
+        "GEOIP,MY,no-resolve",
+        "GEOIP,BN,no-resolve",
+        "GEOIP,KH,no-resolve",
+        "GEOIP,CX,no-resolve",
+        "GEOIP,IN,no-resolve",
+        "GEOIP,AF,no-resolve",
+        "GEOIP,PK,no-resolve",
+        "GEOIP,BD,no-resolve",
+        "GEOIP,LK,no-resolve",
+        "GEOIP,BT,no-resolve",
+        "GEOIP,MV,no-resolve",
+        "GEOIP,IO,no-resolve",
+        "GEOIP,NP,no-resolve",
+        "GEOIP,KZ,no-resolve",
+        "GEOIP,TM,no-resolve",
+        "GEOIP,TJ,no-resolve",
+        "GEOIP,UZ,no-resolve",
+        "GEOIP,KG,no-resolve",
+        "GEOIP,TR,no-resolve",
+        "GEOIP,IL,no-resolve",
+        "GEOIP,AE,no-resolve",
+        "GEOIP,SA,no-resolve",
+        "GEOIP,YE,no-resolve",
+        "GEOIP,IQ,no-resolve",
+        "GEOIP,IR,no-resolve",
+        "GEOIP,SY,no-resolve",
+        "GEOIP,AM,no-resolve",
+        "GEOIP,JO,no-resolve",
+        "GEOIP,LB,no-resolve",
+        "GEOIP,KW,no-resolve",
+        "GEOIP,OM,no-resolve",
+        "GEOIP,QA,no-resolve",
+        "GEOIP,BH,no-resolve",
+        "GEOIP,PS,no-resolve",
+        "GEOIP,AZ,no-resolve",
+        "GEOIP,GE,no-resolve",
+        "GEOIP,US,no-resolve",
+        "GEOIP,CA,no-resolve",
+        "GEOIP,PM,no-resolve",
+        "GEOIP,GL,no-resolve",
+        "GEOIP,JM,no-resolve",
+        "GEOIP,DO,no-resolve",
+        "GEOIP,CU,no-resolve",
+        "GEOIP,MQ,no-resolve",
+        "GEOIP,BS,no-resolve",
+        "GEOIP,BM,no-resolve",
+        "GEOIP,AI,no-resolve",
+        "GEOIP,TT,no-resolve",
+        "GEOIP,KN,no-resolve",
+        "GEOIP,DM,no-resolve",
+        "GEOIP,AG,no-resolve",
+        "GEOIP,LC,no-resolve",
+        "GEOIP,TC,no-resolve",
+        "GEOIP,AW,no-resolve",
+        "GEOIP,VG,no-resolve",
+        "GEOIP,VC,no-resolve",
+        "GEOIP,MS,no-resolve",
+        "GEOIP,MF,no-resolve",
+        "GEOIP,BL,no-resolve",
+        "GEOIP,GP,no-resolve",
+        "GEOIP,GD,no-resolve",
+        "GEOIP,KY,no-resolve",
+        "GEOIP,BZ,no-resolve",
+        "GEOIP,SV,no-resolve",
+        "GEOIP,GT,no-resolve",
+        "GEOIP,HN,no-resolve",
+        "GEOIP,NI,no-resolve",
+        "GEOIP,CR,no-resolve",
+        "GEOIP,PA,no-resolve",
+        "GEOIP,HT,no-resolve",
+        "GEOIP,MX,no-resolve",
+        "GEOIP,PR,no-resolve",
+        "GEOIP,VI,no-resolve",
+        "GEOIP,SX,no-resolve",
+        "GEOIP,CW,no-resolve",
+        "GEOIP,BQ,no-resolve",
+        "GEOIP,BB,no-resolve",
+        "GEOIP,BR,no-resolve",
+        "GEOIP,AR,no-resolve",
+        "GEOIP,CL,no-resolve",
+        "GEOIP,GY,no-resolve",
+        "GEOIP,GF,no-resolve",
+        "GEOIP,SR,no-resolve",
+        "GEOIP,PY,no-resolve",
+        "GEOIP,UY,no-resolve",
+        "GEOIP,FK,no-resolve",
+        "GEOIP,VE,no-resolve",
+        "GEOIP,EC,no-resolve",
+        "GEOIP,CO,no-resolve",
+        "GEOIP,BO,no-resolve",
+        "GEOIP,PE,no-resolve",
+        "GEOIP,GB,no-resolve",
+        "GEOIP,DE,no-resolve",
+        "GEOIP,FR,no-resolve",
+        "GEOIP,NL,no-resolve",
+        "GEOIP,IT,no-resolve",
+        "GEOIP,ES,no-resolve",
+        "GEOIP,PT,no-resolve",
+        "GEOIP,IE,no-resolve",
+        "GEOIP,DK,no-resolve",
+        "GEOIP,SE,no-resolve",
+        "GEOIP,NO,no-resolve",
+        "GEOIP,FI,no-resolve",
+        "GEOIP,IS,no-resolve",
+        "GEOIP,CH,no-resolve",
+        "GEOIP,AT,no-resolve",
+        "GEOIP,BE,no-resolve",
+        "GEOIP,LU,no-resolve",
+        "GEOIP,CY,no-resolve",
+        "GEOIP,GR,no-resolve",
+        "GEOIP,SH,no-resolve",
+        "GEOIP,SJ,no-resolve",
+        "GEOIP,AX,no-resolve",
+        "GEOIP,GI,no-resolve",
+        "GEOIP,MT,no-resolve",
+        "GEOIP,FO,no-resolve",
+        "GEOIP,MC,no-resolve",
+        "GEOIP,AD,no-resolve",
+        "GEOIP,LI,no-resolve",
+        "GEOIP,JE,no-resolve",
+        "GEOIP,IM,no-resolve",
+        "GEOIP,GG,no-resolve",
+        "GEOIP,VA,no-resolve",
+        "GEOIP,SM,no-resolve",
+        "GEOIP,PL,no-resolve",
+        "GEOIP,HU,no-resolve",
+        "GEOIP,CZ,no-resolve",
+        "GEOIP,UA,no-resolve",
+        "GEOIP,RU,no-resolve",
+        "GEOIP,EE,no-resolve",
+        "GEOIP,LV,no-resolve",
+        "GEOIP,BG,no-resolve",
+        "GEOIP,AL,no-resolve",
+        "GEOIP,BY,no-resolve",
+        "GEOIP,SI,no-resolve",
+        "GEOIP,ME,no-resolve",
+        "GEOIP,HR,no-resolve",
+        "GEOIP,BA,no-resolve",
+        "GEOIP,RS,no-resolve",
+        "GEOIP,RO,no-resolve",
+        "GEOIP,MK,no-resolve",
+        "GEOIP,SK,no-resolve",
+        "GEOIP,MD,no-resolve",
+        "GEOIP,XK,no-resolve",
+        "GEOIP,LT,no-resolve",
+        "GEOIP,AU,no-resolve",
+        "GEOIP,NZ,no-resolve",
+        "GEOIP,PW,no-resolve",
+        "GEOIP,CK,no-resolve",
+        "GEOIP,TL,no-resolve",
+        "GEOIP,MH,no-resolve",
+        "GEOIP,FM,no-resolve",
+        "GEOIP,PG,no-resolve",
+        "GEOIP,SB,no-resolve",
+        "GEOIP,TV,no-resolve",
+        "GEOIP,NR,no-resolve",
+        "GEOIP,VU,no-resolve",
+        "GEOIP,NC,no-resolve",
+        "GEOIP,NF,no-resolve",
+        "GEOIP,FJ,no-resolve",
+        "GEOIP,PF,no-resolve",
+        "GEOIP,PN,no-resolve",
+        "GEOIP,KI,no-resolve",
+        "GEOIP,TK,no-resolve",
+        "GEOIP,TO,no-resolve",
+        "GEOIP,WF,no-resolve",
+        "GEOIP,WS,no-resolve",
+        "GEOIP,NU,no-resolve",
+        "GEOIP,MP,no-resolve",
+        "GEOIP,GU,no-resolve",
+        "GEOIP,UM,no-resolve",
+        "GEOIP,AS,no-resolve",
+        "GEOIP,CC,no-resolve",
+        "GEOIP,AQ,no-resolve",
+        "GEOIP,TF,no-resolve",
+        "GEOIP,GS,no-resolve",
+        "GEOIP,EG,no-resolve",
+        "GEOIP,LY,no-resolve",
+        "GEOIP,EH,no-resolve",
+        "GEOIP,TN,no-resolve",
+        "GEOIP,MA,no-resolve",
+        "GEOIP,DZ,no-resolve",
+        "GEOIP,SD,no-resolve",
+        "GEOIP,ZA,no-resolve",
+        "GEOIP,NA,no-resolve",
+        "GEOIP,LS,no-resolve",
+        "GEOIP,SZ,no-resolve",
+        "GEOIP,BW,no-resolve",
+        "GEOIP,RE,no-resolve",
+        "GEOIP,NG,no-resolve",
+        "GEOIP,NE,no-resolve",
+        "GEOIP,BF,no-resolve",
+        "GEOIP,ML,no-resolve",
+        "GEOIP,MR,no-resolve",
+        "GEOIP,SN,no-resolve",
+        "GEOIP,GM,no-resolve",
+        "GEOIP,GW,no-resolve",
+        "GEOIP,GN,no-resolve",
+        "GEOIP,SL,no-resolve",
+        "GEOIP,LR,no-resolve",
+        "GEOIP,GH,no-resolve",
+        "GEOIP,TG,no-resolve",
+        "GEOIP,BJ,no-resolve",
+        "GEOIP,CV,no-resolve",
+        "GEOIP,CI,no-resolve",
+        "GEOIP,KE,no-resolve",
+        "GEOIP,ET,no-resolve",
+        "GEOIP,ER,no-resolve",
+        "GEOIP,RW,no-resolve",
+        "GEOIP,SO,no-resolve",
+        "GEOIP,UG,no-resolve",
+        "GEOIP,BI,no-resolve",
+        "GEOIP,TZ,no-resolve",
+        "GEOIP,ZW,no-resolve",
+        "GEOIP,SS,no-resolve",
+        "GEOIP,DJ,no-resolve",
+        "GEOIP,SC,no-resolve",
+        "GEOIP,MG,no-resolve",
+        "GEOIP,ZM,no-resolve",
+        "GEOIP,MW,no-resolve",
+        "GEOIP,MU,no-resolve",
+        "GEOIP,MZ,no-resolve",
+        "GEOIP,KM,no-resolve",
+        "GEOIP,YT,no-resolve",
+        "GEOIP,CM,no-resolve",
+        "GEOIP,CF,no-resolve",
+        "GEOIP,TD,no-resolve",
+        "GEOIP,CG,no-resolve",
+        "GEOIP,GQ,no-resolve",
+        "GEOIP,GA,no-resolve",
+        "GEOIP,ST,no-resolve",
+        "GEOIP,AO,no-resolve",
+        "GEOIP,CD,no-resolve",
+        "GEOIP,CLOUDFLARE,no-resolve"
+      ]
+    },
+    "scki-fused-079-im-residual": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-079-im-residual.yaml",
+      "sha256": "7b60f761ec9ba8a876183c2117fbde4f071b769c589dcf0fae0487e12fa8125c",
+      "bytes": 41,
+      "payload": [
+        "GEOIP,TELEGRAM,no-resolve"
+      ]
+    },
+    "scki-fused-080-netflix-residual": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-080-netflix-residual.yaml",
+      "sha256": "575f04da869bb7bc37960506ba83c640e86659b54a700774d03e1222b23076bd",
+      "bytes": 40,
+      "payload": [
+        "GEOIP,NETFLIX,no-resolve"
+      ]
+    },
+    "scki-fused-081-social-residual": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-081-social-residual.yaml",
+      "sha256": "9cc17ddb5c9018583ea5113e7a0404050a47371ad1e7517590a8384adb4fb24f",
+      "bytes": 72,
+      "payload": [
+        "GEOIP,FACEBOOK,no-resolve",
+        "GEOIP,TWITTER,no-resolve"
+      ]
+    },
+    "scki-fused-082-google-residual": {
+      "url": "https://raw.githubusercontent.com/IvanSolis1989/Smart-Config-Kit/70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd/rulesets/generated/fused/mihomo/scki-fused-082-google-residual.yaml",
+      "sha256": "fa7500fcb0cc80a55ed312e90fa091b4a49616fc92cfe917bdae34bde4b1b9b6",
+      "bytes": 39,
+      "payload": [
+        "GEOIP,GOOGLE,no-resolve"
+      ]
+    }
+  },
+  "aiDomains": [
+    "+.agentclientprotocol.com",
+    "+.ai.studio",
+    "+.aicode.googleapis.com",
+    "+.aida.googleapis.com",
+    "+.aisandbox-pa.googleapis.com",
+    "+.aistudio.google.com",
+    "+.ant.dev",
+    "+.anthropic.com",
+    "+.anthropic.team",
+    "+.antigravity-unleash.goog",
+    "+.antigravity.google",
+    "+.antspace.dev",
+    "+.anythingllm.com",
+    "+.arena.ai",
+    "+.bard.google.com",
+    "+.cerebras.ai",
+    "+.chat.com",
+    "+.chatbotclaude.com",
+    "+.chatgpt.com",
+    "+.chatgpt.livekit.cloud",
+    "+.chatgpt.site",
+    "+.chutes.ai",
+    "+.cici.com",
+    "+.ciciai.com",
+    "+.ciciaicdn.com",
+    "+.clau.de",
+    "+.claude.ai",
+    "+.claude.app",
+    "+.claude.com",
+    "+.claude.dev",
+    "+.claude.new",
+    "+.claude.site",
+    "+.claudeacademy.com",
+    "+.claudemcpclient.com",
+    "+.claudemcpcontent.com",
+    "+.claudepages.dev",
+    "+.claudestudio.com",
+    "+.claudeusercontent.com",
+    "+.clawhub.ai",
+    "+.clipdrop.co",
+    "+.codeium.com",
+    "+.codeiumdata.com",
+    "+.coderabbit.ai",
+    "+.coderabbit.gallery.vsassets.io",
+    "+.cohere.ai",
+    "+.cohere.com",
+    "+.comfy.org",
+    "+.comfyci.org",
+    "+.comfyregistry.org",
+    "+.copilot-stg.com",
+    "+.copilot.cloud.microsoft",
+    "+.copilot.com",
+    "+.copilot.microsoft.com",
+    "+.coze.com",
+    "+.crewai.com",
+    "+.crixet.com",
+    "+.cursor-cdn.com",
+    "+.cursor.com",
+    "+.cursor.sh",
+    "+.cursorapi.com",
+    "+.cursorvm.com",
+    "+.deepmind.com",
+    "+.deepmind.google",
+    "+.deepwiki.com",
+    "+.deepwiki.org",
+    "+.devin.ai",
+    "+.diabrowser.com",
+    "+.diabrowser.engineering",
+    "+.dify.ai",
+    "+.dola.com",
+    "+.dreamgen.com",
+    "+.duck.ai",
+    "+.elevenlabs.com",
+    "+.elevenlabs.io",
+    "+.envato-static.com",
+    "+.envato.com",
+    "+.envatousercontent.com",
+    "+.flow.google",
+    "+.flow.google.com",
+    "+.gateway.ai.cloudflare.com",
+    "+.geller-pa.googleapis.com",
+    "+.gemini.google",
+    "+.gemini.google.com",
+    "+.gemini.gstatic.com",
+    "+.generativeai.google",
+    "+.generativelanguage.googleapis.com",
+    "+.githubcopilot.com",
+    "+.grazie.ai",
+    "+.grazie.aws.intellij.net",
+    "+.grok.com",
+    "+.grok.x.com",
+    "+.grokipedia.com",
+    "+.groq.com",
+    "+.h2o.ai",
+    "+.hf.co",
+    "+.hf.space",
+    "+.host.livekit.cloud",
+    "+.huggingface.co",
+    "+.jasper.ai",
+    "+.jetbrains.ai",
+    "+.jules.google",
+    "+.jules.google.com",
+    "+.kimi.ai",
+    "+.kiro.dev",
+    "+.labs.google",
+    "+.labs.google.com",
+    "+.labstailwind.pa.googleapis.com",
+    "+.langchain.com",
+    "+.liveperson.net",
+    "+.lmstudio.ai",
+    "+.lovart.ai",
+    "+.lpsnmedia.net",
+    "+.magnific.com",
+    "+.makersuite.google.com",
+    "+.manus.im",
+    "+.manuscdn.com",
+    "+.marscode.com",
+    "+.meta.ai",
+    "+.metaaivm.com",
+    "+.midjourney.com",
+    "+.minimax.io",
+    "+.mistral.ai",
+    "+.moonshot.ai",
+    "+.mozilla.ai",
+    "+.muse.ai",
+    "+.notebook.google",
+    "+.notebook.google.com",
+    "+.notebooklm.google",
+    "+.notebooklm.google.com",
+    "+.notegpt.io",
+    "+.novelai.net",
+    "+.oaistatic.com",
+    "+.oaistatsig.com",
+    "+.oaiusercontent.com",
+    "+.ollama.com",
+    "+.opal.google",
+    "+.opal.google.com",
+    "+.openai.com",
+    "+.openai.com.cdn.cloudflare.net",
+    "+.openai.org",
+    "+.openart.ai",
+    "+.openclaw.ai",
+    "+.opencode.ai",
+    "+.openrouter.ai",
+    "+.openspec.dev",
+    "+.oystermercury.top",
+    "+.perplexity.ai",
+    "+.perplexity.com",
+    "+.plannotator.ai",
+    "+.poe.com",
+    "+.poecdn.net",
+    "+.pplx.ai",
+    "+.proactivebackend-pa.googleapis.com",
+    "+.qoder.com",
+    "+.robinfrontend-pa.googleapis.com",
+    "+.sider.ai",
+    "+.sora.com",
+    "+.spicywriter.com",
+    "+.stitch.withgoogle.com",
+    "+.syntx.ai",
+    "+.talkai.info",
+    "+.tapnow.ai",
+    "+.themeforest.net",
+    "+.trae.ai",
+    "+.tripo3d.ai",
+    "+.turn.livekit.cloud",
+    "+.typesafe.ai",
+    "+.windsurf.build",
+    "+.windsurf.com",
+    "+.x.ai",
+    "+.youmind.ai",
+    "+.youmind.com",
+    "+.youmind.site",
+    "ai.google.dev",
+    "alkalicore-pa.clients6.google.com",
+    "alkalimakersuite-pa.clients6.google.com",
+    "antigravity-pa.googleapis.com",
+    "antigravity.googleapis.com",
+    "browser-intake-datadoghq.com",
+    "cloudaicompanion.googleapis.com",
+    "cloudcode-pa.googleapis.com",
+    "copilot-proxy.githubusercontent.com",
+    "copilot-telemetry-service.githubusercontent.com",
+    "copilot-telemetry.githubusercontent.com",
+    "copilot-workspace.githubnext.com",
+    "copilotprodattachments.blob.core.windows.net",
+    "daily-cloudcode-pa.googleapis.com",
+    "geminiweb-pa.clients.google.com",
+    "geminiweb-pa.clients6.google.com",
+    "notebooklm-pa.googleapis.com",
+    "notebooklm.googleapis.com",
+    "o33249.ingest.sentry.io",
+    "o33249.ingest.us.sentry.io",
+    "openai.qualtrics.com",
+    "openaiapi-site.azureedge.net",
+    "openaiassets.blob.core.windows.net",
+    "openaicom-api-bdcpf8c6d2e9atf6.z01.azurefd.net",
+    "openaicom.imgix.net",
+    "openaicomproductionae4b.blob.core.windows.net",
+    "ppl-ai-file-upload.s3.amazonaws.com",
+    "pplx-res.cloudinary.com",
+    "production-openaicom-storage.azureedge.net",
+    "servd-anthropic-website.b-cdn.net",
+    "webchannel-alkalimakersuite-pa.clients6.google.com"
+  ],
+  "aiSource": {
+    "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/c4d4a91ff5bd2847189d502aa60bd4b0e697753b/geo/geosite/category-ai-!cn.list",
+    "sha256": "090eb370eabfb94592e3c24ba35f1eec3c9d93c51858e19e1851a0144a4c8e8a",
+    "bytes": 3871
+  }
+}

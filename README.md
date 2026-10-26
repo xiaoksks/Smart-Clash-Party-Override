@@ -1,99 +1,130 @@
-# Clash Party / Mihomo Override - Lite 极简版
+# Clash Party / Mihomo Lite Override
 
-简洁、清爽且高性能的 Clash / Mihomo 覆写脚本。专注于**极致的「三核心策略组」分流体验**，彻底摒弃繁琐多余的几十个子分流组与测速组，全本地自主构建与维护。
+保留三个策略组，集中维护分流、DNS 与海外 AI 连接保护。默认使用严格 WebRTC 模式，优先覆盖未知客户端、未知域名及直接 IP 连接。
 
----
+本版验证环境为 **Clash Party v2.0.4 的脚本执行流程、Mihomo v1.19.33**。导入前更新内核。普通 Mihomo 也可使用手动选择模式；`party-smart` 模式需要 Clash Party 的 Smart 内核。
 
-## 策略组设计
+## 导入与客户端设置
 
-- **🌐 国外节点**（`select`）：汇总订阅中的所有境外可用节点，平铺自选，接管绝大多数海外网站与服务流量。
-- **🚫 日本禁用**（`select`）：**专为访问「屏蔽日本 IP / 日本无法使用」的站点打造**。
-  - **自动排除所有日本节点**，智能筛选出香港、台湾、新加坡、美国、欧洲等非日节点供自由选择。
-  - **解决 403 痛点**：许多 ACG 资源站、生肉漫画、同人分享与成人流媒体（如 `hgamefree.info`、`missav.ai`、`rawkuma.com`、`18comic.vip` 等）为了规避日本严苛的《著作权法》追诉或防取证，会在 Cloudflare WAF 端主动屏蔽日本 IP（直接返回 403 Forbidden）。本策略组将此类流量精准导向非日节点，彻底消除打不开的问题。
-  - 尾部附带 `DIRECT` 选项，即使机场没有非日节点也能兜底直连。
-- **🇨🇳 国内节点**（`select`）：接管中国大陆网站、国内音视频、游戏与权威 IP 流量。
-  - **`DIRECT`（首项默认）**：日常状态下国内流量高速本地直连。
-  - **`🌐 国外节点`（内嵌选项）**：将国内节点切换至国外节点，即可让分配到该组的流量走代理；迅雷进程等显式 `DIRECT` 规则仍保持直连。
-  - （若订阅含有国内专线或回国节点，亦会自动列入国内可选列表）。
+覆写链接：
 
----
-
-## 核心特性
-
-- **三组极简，界面清爽**：告别客户端里翻不完的业务组（Netflix、YouTube、Spotify 等），境外通用、避日专用、国内直连分工明确。
-- **WebRTC 防泄漏（直连优先）**：
-  - 明确配置的直连前置规则（包括斗鱼、迅雷等进程与指定网站）及大陆权威 IP 规则优先放行，不进行 WebRTC 拦截。
-  - 对剩余非 `geosite:cn` 目的流量，保留常见 STUN/TURN 端口（`3478`, `3479`, `5349`, `19302`, `19305`, `19307`）的 TCP/UDP 拦截，覆盖浏览器以外的软件。
-  - 对列出的浏览器拦截剩余非国内目的 UDP；同时拦截非国内 STUN 关键字及指定探测域名的 UDP。国内目标继续允许 WebRTC 与 QUIC。
-  - 国内域名豁免依赖 `geosite:cn` 分类，不跟随国内策略组的实际选择；将国内组切到代理时，该豁免仍保留。规则按每条连接的目标匹配，直连网页调用境外 STUN 服务器仍可能被拦截；未列出的软件使用非常见端口、直接 IP 或未识别域名时，也可能无法覆盖。
-- **迅雷进程直连**：针对迅雷客户端生态（`Thunder.exe` 等）前置匹配并保留 `DIRECT`，即使将国内策略组切换至国外节点，匹配这些进程的流量仍通过本机网络直连，不经过机场节点。流量仍经 TUN 接管，不提供绕过虚拟网卡或降低 CPU 开销的保证。
-- **国内人机验证码与滑块服务秒级直连**：腾讯验证码、极验、顶象等国内验证码基础设施前置直连，消除登录鉴权时的死循环与超时。
-- **Windows NCSI 联网探针秒级直连**：微软系统连通性检测（`msftconnecttest.com`、`msftncsi.com`）前置强制直连，开机 5ms 即可获取连通响应，立即标记网络正常。
-- **国内权威 IP 与域名秒解**：中国大陆权威 IP 集合强制直连；国内域名（`geosite:cn`）与引导 DNS 采用纯 UDP `223.5.5.5`（阿里 DNS），彻底移除容易超时的 `doh.pub`。
-- **Fake-IP 缓存持久化**：开启 `store-fake-ip`，防止重启客户端后浏览器缓存的虚拟 IP 映射丢失。
-- **AI / ChatGPT 生态链出口统一**：ChatGPT、OpenAI、Sora、Claude、Arkose 人机验证、Statsig 特性标志等前置统一归流至海外节点，消除第三方 CDN 与人机验证 IP 分裂导致的验证死循环。
-- **不包含广告拦截规则**：生成配置不注入广告拦截规则组。
-
----
-
-## 客户端导入链接
-
-> 导入前请确认客户端为 Mihomo / Clash.Meta 内核（如 Mihomo Party、Clash Verge Rev 等）。
-
-- **GitHub Raw 订阅覆写链接**：
-  ```text
-  https://raw.githubusercontent.com/xiaoksks/Smart-Clash-Party-Override/main/dist/Lite-Override.js
-  ```
-
----
-
-## 客户端导入指南
-
-### Mihomo Party
-
-1. 左侧菜单 → **覆写（Override）** → 右上角 ➕。
-2. 类型选择 **JavaScript（.js）**。
-3. 名称填写：`Lite-Override`。
-4. 内容：填入上方 GitHub Raw 导入链接（或直接复制 `dist/Lite-Override.js` 全文粘贴）。
-5. 保存。
-6. 返回「订阅」页面，右键你的订阅 → **编辑** → **启用覆写** → 勾选 `Lite-Override` → 保存。
-7. 切换到该订阅，点击「**连接**」。
-
-### Clash Verge Rev
-
-1. 左侧 → **脚本（Scripts）** → ➕ **新建脚本** → **在线脚本**（或本地脚本）。
-2. 填入上方 GitHub Raw 导入链接，保存。
-3. **订阅（Profiles）** → 右上角 ⋯ → **扩展管理（Extensions）** → 勾选刚才添加的脚本。
-4. 重启内核（Ctrl/Cmd + R）。
-
----
-
-## 本地构建与审计
-
-修改 `custom-overrides.js` 自定义配置后，可直接在本地编译与审计：
-
-```bash
-# 构建 Lite 覆写文件
-npm run build
-
-# 执行结构断言与合规审计
-npm run audit
-
-# 输出当前规则与分流概要
-npm run report
-
-# 全量一键编译与审计检查
-npm run check
+```text
+https://raw.githubusercontent.com/xiaoksks/Smart-Clash-Party-Override/main/dist/Lite-Override.js
 ```
 
----
+1. 在 Clash Party 的普通订阅模式中，添加 JavaScript 覆写并绑定订阅。**v2.0.4 简易模式有独立的配置生成流程，会跳过这类 JavaScript 覆写，不能用来运行本脚本。**
+2. 默认 `foreignSelection: 'select'`：关闭客户端的**内置 Smart 覆写**。否则客户端会在本脚本之后创建 Smart Group 并重写国内及非日规则。仅选择 Smart 内核不等于必须开启内置 Smart 覆写。
+3. 使用本脚本管理 DNS：关闭客户端的 **DNS 覆写**，保留 DNS 覆写保护。新版保护只检查原始订阅，不能阻止 JavaScript 改写 DNS；开启客户端 DNS 覆写又可能在脚本之后覆盖脚本配置。
+4. 应用配置，确认 **TUN 已实际运行**、严格路由启用，DNS 劫持包含 UDP/TCP 53。仅开启系统代理无法保护不遵循代理设置的应用。
+5. 在最终运行配置中确认只有三个策略组，存在 `lite-ai`，默认规则开头为 DNS 代理和 `NETWORK,UDP,REJECT`。不要同时启用会在之后改写 DNS、TUN 或规则目标的其他覆写。
 
-## 常见问题
+脚本不会修改客户端设置、操作系统防火墙或浏览器策略。保存脚本也不代表上述应用开关已经设置正确。
 
-### Clash Party 获取当前 IP 失败
-若「网络信息」里的 IPSB 等查询源显示获取失败，通常是查询域名被误分流或 DNS 超时。本项目已在 `custom-overrides.js` 前置处理常见 IP 查询域名：国外查询源走国外代理，国内兜底查询源走国内直连。
+## 三个策略组
 
-### ChatGPT / OpenAI 网页加载或操作卡顿
-ChatGPT 网页高度依赖 Cloudflare 边缘节点、实时 HTTP/3 (QUIC) 竞态探测、Statsig 特性标志和 Arkose 人机安全验证。本项目已在规则层完成了全链条统一出口。若在部分网络环境下仍偶发卡顿，推荐：
-1. **关闭浏览器 QUIC 协议**：在 Chrome / Edge 浏览器地址栏打开 `chrome://flags`，搜索 `Experimental QUIC protocol` 设置为 `Disabled`，强制使用稳定的 TCP 隧道加载，可彻底消除静态资源与打字卡顿。
-2. **清理浏览器旧 Host 缓存**：访问 `chrome://net-internals/#sockets` 点击 `Flush socket pools`，重置可能遗留的旧连接。
+| 策略组 | 行为 |
+| --- | --- |
+| 🌐 国外节点 | 手动选择境外节点；海外 AI、开发服务及最终兜底走此组。没有可用节点时拒绝，避免自动直连。 |
+| 🚫 日本禁用 | 根据节点名称过滤日本及国内回国节点。静态节点与动态代理集合均生效；无非日节点时才使用 DIRECT 兜底，不再重新加入日本节点。 |
+| 🇨🇳 国内节点 | 默认 DIRECT，可选国外组及识别到的国内回国节点。迅雷 TCP 进程规则和大陆 IP 的显式 DIRECT 不跟随组切换。 |
+
+支持只有 `proxy-providers` 的订阅，通过 `use`、名称过滤及 `empty-fallback` 动态构建组。节点地区由名称判断，需要机场正确标注；无法根据名称验证真实出口国家。代理集合引用的旧策略组会被修正，只有代理集合时通过 DIRECT 引导下载订阅。
+
+## AI 与 WebRTC 保护
+
+`scripts/ai-services.json` 维护 52 个产品及服务类别，包括 OpenAI / ChatGPT / Codex / Sora、Gemini / AI Studio / Gemini CLI / NotebookLM、Claude / Claude Code、Microsoft / GitHub Copilot、Grok、Perplexity、Mistral、Meta AI、Poe、Cursor、Windsurf、Kiro、Junie、Hugging Face、OpenRouter，以及主流图像、视频和音频 AI 服务。
+
+清单合并固定提交的 MetaCubeX `category-ai-!cn` 数据与自定义依赖，目前生成 **296 个 AI 及关联服务域名匹配项**。此数字不等于全部底层分流域名数，也不代表每一个未来域名都已登记。社区的境外 AI 分类可能包含中国厂商的海外服务。
+
+AI 网页、API、认证与资源域名共用同一 `lite-ai` 集合及海外出口。已知原生客户端进程也前置代理，保护它们使用的自定义服务地址；Gemini CLI 等共享 `node` 运行时无法靠进程名准确区分，未知域名仍由海外 `MATCH` 和代理 DoH 承接。
+
+### 默认 strict 模式
+
+```js
+preventWebRtcLeak: true,
+webRtcMode: 'strict',
+```
+
+- 在进程直连、国内域名及大陆 IP 规则之前，阻断所有剩余 UDP；没有国内目的地址豁免。直接 IP、改名客户端、未知应用与未知端口同样受限。
+- UDP 53 由 TUN DNS 劫持处理；落入路由的 UDP 53 只能走海外组，不允许直连。
+- 合并限制常见 STUN/TURN 的 TCP/UDP 端口，阻断 STUN 域名及已登记 AI TURN 域名。
+- 未知程序直接连接公网 IP 的 TCP 流量也优先代理，防止未携带域名的 TCP TURN 落入大陆 IP 直连；局域网和显式进程直连例外保留。
+- 开启严格 TUN 路由，移除订阅中的 TUN 路由/进程排除项；内核和 DNS 关闭 IPv6。客户端仍可能在脚本之后添加内核自身的必要路由排除项。
+- 删除生成配置的强制 DIRECT 10086 监听入口，其他监听器移除强制出口，让流量经过规则。
+
+**代价：浏览器 QUIC、迅雷 UDP/P2P、游戏、会议及部分 AI 实时语音会受到影响。** HTTPS/TCP 通常仍可使用；语音能否回退 TCP 取决于产品自身。严格模式不会为国内软件放行 UDP。
+
+### compatible 模式
+
+将 `webRtcMode` 改为 `'compatible'` 后重新构建：仍阻断登记 AI 域名、浏览器和已知 AI 进程的 UDP，以及已知 STUN/TURN；其他应用可以使用 QUIC。此模式对未登记客户端和非常规端口没有严格模式相同的覆盖范围。
+
+`preventWebRtcLeak: false` 会移除这些限制，也会移除旧基线中残留的 UDP/443 拦截。请勿把该模式当成防泄漏模式。
+
+### 浏览器端配置与验证边界
+
+Clash 无法判断一个 STUN 请求由哪个网页发起，也不能阻止网页在本机生成或读取 ICE host candidate。要限制网页看到本地地址，需要配合浏览器端设置：
+
+- Chrome：`WebRtcIPHandling = disable_non_proxied_udp`。
+- Edge：`WebRtcLocalhostIpHandling = disable_non_proxied_udp`。
+- Windows 可手动检查并导入 [浏览器策略文件](docs/browser-webrtc-policy.reg)，完全退出并重启浏览器，再在 `chrome://policy` / `edge://policy` 检查策略是否被当前配置文件接受。已有按网址设置或组织策略可能影响结果。
+- Firefox 可在 `about:config` 将 `media.peerconnection.enabled` 设为 `false`，彻底关闭 WebRTC；这会停用依赖它的通话功能。其他浏览器需要使用各自有效的 WebRTC 限制设置。
+
+策略值来源：[Chrome 隐私 API](https://developer.chrome.com/docs/extensions/reference/api/privacy)、[Microsoft Edge 策略文档](https://learn.microsoft.com/en-us/deployedge/microsoft-edge-policies/WebRtcLocalhostIpHandling)。[撤销文件](docs/browser-webrtc-policy-undo.reg) 只移除这两个值；如果原来已有值，应恢复自己的备份。
+
+这些配置降低受控路径上的泄漏风险，**不承诺任何环境中绝对零泄漏**。TUN 未启动、应用强制绑定物理网卡、系统 IPv6 绕过、其他 VPN/排除路由、浏览器忽略策略或内核退出，都需要操作系统防火墙或额外网络隔离处理。本项目不安装系统级 kill switch。
+
+更新后，应关闭旧连接并测试：网页访问出口、ICE host/srflx/relay 候选、直接 IPv4/IPv6、TCP/UDP 的 STUN/TURN。测试时同时观察客户端连接匹配和物理网卡抓包；没有收集到候选也可能只是测试服务器不可达，不能单独证明零泄漏。
+
+## DNS 与规则性能
+
+- 默认未知域名使用加密 DoH，并通过选中的国外组连接；AI 显式域名覆盖继承的国内解析策略，避免大陆 CDN 地址导致直连或 DNS 出口分裂。
+- 国内域名集合复用于 DNS policy，规则集之间保持分流顺序；原有企业/内网 DNS 策略保留，AI 保留域名除外。
+- 代理节点域名使用独立国内 DNS 引导解析，避免“先有代理才能解析代理节点”的依赖循环。
+- 非日站点的 DNS 使用非日策略组；网站及资源依赖应同时登记在 `japanBlockedDomains`，不会自动把第三方 CDN 的所有租户都划到非日组。
+- Fake-IP 使用 `rule` 模式。AI 优先返回 Fake-IP；局域网、NCSI 等协议例外返回真实 IP。移除 Docker、Bing 等宽泛的真实 IP 豁免。
+- 保留 MRS 的域名/IP 紧凑表示；将已校验的 classical 规则内联，并只在**相邻且出口相同**的区段合并，保留国内外例外顺序。
+- 对 IP 补充规则使用 `no-resolve`，避免仅为匹配 IP 规则额外解析域名；删除最后一条国内规则之后与最终 MATCH 同出口的 8 条规则及闲置 provider。
+- 开启选择与 Fake-IP 持久化。不注入广告拦截规则。
+
+本次生成结果：**223 条入口规则、114 个规则集，其中 101 个远程 MRS、13 个内联集合**，最新统计见 [build-report.json](dist/build-report.json)。原版为 342 条入口规则、144 个远程规则文件。这些是结构与请求数量的减少，不能直接换算成网速或延迟提升百分比。
+
+## 构建、审计与上游同步
+
+需要 Node.js 24+ 和 Git；运行覆写本身不需要 Node、Git 或外部模块。
+
+```bash
+npm run build            # 离线、可重复构建 JS 和 build-report.json
+npm run audit            # 检查生成文件、引用、DNS、TUN 和幂等性
+npm test                 # 隐私与分流回归测试
+npm run report           # 输出真实格式统计与上游版本
+npm run check            # 完整离线检查
+npm run sync:upstream    # 同步整份固定提交快照，校验内容并记录 SHA256
+npm run check:upstream   # 联网验证固定文件及最新上游清单结构
+npm run check:core       # 设置 MIHOMO_BIN 后执行真实内核与 Party 兼容验证
+```
+
+PowerShell 内核校验示例：
+
+```powershell
+$env:MIHOMO_BIN = 'D:\tools\mihomo.exe'
+npm run check:core
+```
+
+`scripts/upstream-snapshot.json` 同时记录两个上游提交、远程文件 SHA256、classical 内容和 AI 域名列表。构建阶段不依赖网络；运行配置不再使用带版本查询参数的漂移 `main` URL。
+
+GitHub Actions 在推送/PR 时验证，在每周及手动触发时更新快照；全量审计和内核检查通过后才提交产物。若上游增加、删除或改名规则集，任务输出 `.build/upstream-diff.json` 并停止发布，必须审查新规则的类别与优先级后更新 `base-data.json`。不会依据编号猜测分流策略。上游继续提供 YAML/MRS 双格式以及广告集合，不视为需要新增的业务集合。
+
+新增 AI 产品或依赖请修改 `scripts/ai-services.json`，记录来源及精确域名。自建网关可加入 `foreignDnsDomains`，它也会进入前置海外集合。非日镜像、认证与 CDN 域名加入 `japanBlockedDomains`。所有修改后运行 `npm run check`；文件推送到仓库后，在线导入链接才会取得新版本。
+
+## 可选 Party Smart 模式
+
+将 `foreignSelection` 改为 `'party-smart'`，重新构建并启用客户端 Smart 内核及内置 Smart 覆写。脚本只将国外组预设为 `url-test`，并提前固定其 Smart 名称；Party 随后的转换只处理该组，不会把国内或非日规则重定向过去，也不会破坏 DNS 中的 `#组名` 引用。
+
+已通过官方 v2.0.4 脚本的静态节点与代理集合执行顺序测试。其他客户端或后续 Party 版本需要重新校验；默认手动模式始终保留 `select`。
+
+## 数据来源
+
+- [Smart-Config-Kit](https://github.com/IvanSolis1989/Smart-Config-Kit)：基础规则与斗鱼域名集合。
+- [MetaCubeX/meta-rules-dat](https://github.com/MetaCubeX/meta-rules-dat)：境外 AI 域名分类。
+- [Mihomo 文档](https://wiki.metacubex.one/config/dns/)：DNS、Fake-IP 与规则集合语法。
+- [Clash Party v2.0.4 配置流程](https://github.com/mihomo-party-org/clash-party/blob/v2.0.4/src/main/core/factory.ts)及 [Smart 覆写实现](https://github.com/mihomo-party-org/clash-party/blob/v2.0.4/src/main/config/smartOverride.ts)：客户端兼容验证依据。

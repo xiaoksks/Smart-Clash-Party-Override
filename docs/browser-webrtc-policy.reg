@@ -1,0 +1,11 @@
+Windows Registry Editor Version 5.00
+
+; Optional browser-side protection. Review/import manually, then fully restart.
+; Verify the effective setting in chrome://policy and edge://policy.
+; Source references and limitations are documented in README.md.
+
+[HKEY_CURRENT_USER\Software\Policies\Google\Chrome]
+"WebRtcIPHandling"="disable_non_proxied_udp"
+
+[HKEY_CURRENT_USER\Software\Policies\Microsoft\Edge]
+"WebRtcLocalhostIpHandling"="disable_non_proxied_udp"
