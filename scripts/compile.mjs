@@ -67,7 +67,11 @@ export function compileOverride({ spec, base, snapshot, catalog, runtime }) {
   })
   const chinaIp = spec.forceChinaIpDirect ? ['RULE-SET,scki-fused-075-cn-site-ipcidr-no-resolve,DIRECT,no-resolve'] : []
   const processRules = aiProcesses.length ? [`PROCESS-NAME-REGEX,(?i)^(?:${aiProcesses.map(p => p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})$,${FOREIGN}`] : []
+  // Keep literal DIRECT targets and emit before all privacy/domain/IP rules.
+  // Normalizing these app overrides would make Dota depend on domestic selection.
+  const appRules = Object.entries(spec.processTargetOverrides || {}).map(([name, target]) => `PROCESS-NAME,${name},${target}`)
   const priority = [
+    ...appRules,
     ...privacy,
     `RULE-SET,lite-ai,${FOREIGN}`,
     ...processRules,

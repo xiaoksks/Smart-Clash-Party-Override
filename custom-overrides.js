@@ -5,10 +5,22 @@ const CUSTOM_OVERRIDE_SPEC = {
   // no-resolve is preserved so domain-based routing does not trigger an extra DNS lookup.
   forceChinaIpDirect: true,
 
-  // strict: block UDP before direct rules, including mainland IPs. DNS goes through TUN.
+  // strict: block UDP after explicit process overrides, before other direct rules.
   // compatible: block AI/browser UDP and STUN/TURN, allow other apps' QUIC.
   preventWebRtcLeak: true,
   webRtcMode: 'strict',
+  // Explicit app routes precede privacy/CDN/IP rules for both TCP and UDP.
+  // Dota 2 is used on mainland servers; DIRECT must not follow the domestic group.
+  // Steam's own connections (including downloads) always use the foreign group.
+  processTargetOverrides: {
+    'dota2.exe': 'DIRECT',
+    dota2: 'DIRECT',
+    'steam.exe': '🌐 国外节点',
+    steam: '🌐 国外节点',
+    'steamwebhelper.exe': '🌐 国外节点',
+    steamwebhelper: '🌐 国外节点',
+    'SteamService.exe': '🌐 国外节点',
+  },
   // select requires Party's built-in Smart override OFF. party-smart lets Party
   // convert only the foreign url-test group, preserving domestic/non-JP targets.
   foreignSelection: 'select',
@@ -184,7 +196,11 @@ const CUSTOM_OVERRIDE_SPEC = {
     'DOMAIN-SUFFIX,stream-io-api.com,🌐 国外网站',
     'DOMAIN-SUFFIX,stream-io-video.com,🌐 国外网站',
 
-    // Steam download/CDN domains stay DIRECT; store/account/community follow upstream.
+    // Login/community are explicitly proxied, including CM (not a download CDN).
+    'DOMAIN-SUFFIX,steampowered.com,🌐 国外节点',
+    'DOMAIN-SUFFIX,steamcommunity.com,🌐 国外节点',
+    'DOMAIN-SUFFIX,steam-chat.com,🌐 国外节点',
+    // CDN fallback for connections not identified as Steam; process overrides win.
     'DOMAIN-SUFFIX,steamcdn-a.akamaihd.net,DIRECT',
     'DOMAIN-SUFFIX,steampipe.akamaized.net,DIRECT',
     'DOMAIN-SUFFIX,steampipe-kr.akamaized.net,DIRECT',
@@ -196,7 +212,6 @@ const CUSTOM_OVERRIDE_SPEC = {
     'DOMAIN-SUFFIX,cdn-ali.content.steamchina.com,DIRECT',
     'DOMAIN-SUFFIX,cdn-qc.content.steamchina.com,DIRECT',
     'DOMAIN-SUFFIX,cdn-ws.content.steamchina.com,DIRECT',
-    'DOMAIN-SUFFIX,cm.steampowered.com,DIRECT',
     'DOMAIN-SUFFIX,dl.steam.clngaa.com,DIRECT',
     'DOMAIN-SUFFIX,dl.steam.ksyna.com,DIRECT',
     'DOMAIN-SUFFIX,st.dl.bscstorage.net,DIRECT',

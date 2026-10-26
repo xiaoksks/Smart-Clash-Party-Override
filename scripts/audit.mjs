@@ -61,7 +61,11 @@ export async function auditLiteOverride() {
   assert.ok(result.dns.nameserver.every(ns => ns.endsWith('#' + expected.report.foreignGroupName)))
   if (inputs.spec.preventWebRtcLeak) {
     assert.ok(result.listeners.every(listener => listener.proxy !== 'DIRECT'))
-    if (inputs.spec.webRtcMode === 'strict') assert.equal(result.rules[1], 'NETWORK,UDP,REJECT')
+    if (inputs.spec.webRtcMode === 'strict') {
+      const appCount = Object.keys(inputs.spec.processTargetOverrides).length
+      assert.equal(result.rules[appCount], `AND,((NETWORK,UDP),(DST-PORT,53)),${expected.report.foreignGroupName}`)
+      assert.equal(result.rules[appCount + 1], 'NETWORK,UDP,REJECT')
+    }
   }
   assert.deepEqual(runOverride(code, result), result, 'Override must be idempotent')
   console.log(`Audit passed: 3 groups, ${result.rules.length} rules, ${Object.keys(providers).length} referenced providers`)

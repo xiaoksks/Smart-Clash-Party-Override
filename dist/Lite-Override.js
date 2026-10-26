@@ -2,6 +2,13 @@
 const LITE_FOREIGN_GROUP = "🌐 国外节点"
 
 const LITE_RULES = [
+  "PROCESS-NAME,dota2.exe,DIRECT",
+  "PROCESS-NAME,dota2,DIRECT",
+  "PROCESS-NAME,steam.exe,🌐 国外节点",
+  "PROCESS-NAME,steam,🌐 国外节点",
+  "PROCESS-NAME,steamwebhelper.exe,🌐 国外节点",
+  "PROCESS-NAME,steamwebhelper,🌐 国外节点",
+  "PROCESS-NAME,SteamService.exe,🌐 国外节点",
   "AND,((NETWORK,UDP),(DST-PORT,53)),🌐 国外节点",
   "NETWORK,UDP,REJECT",
   "OR,((DST-PORT,3478),(DST-PORT,3479),(DST-PORT,3480),(DST-PORT,3481),(DST-PORT,5349),(DST-PORT,19302),(DST-PORT,19303),(DST-PORT,19304),(DST-PORT,19305),(DST-PORT,19306),(DST-PORT,19307),(DST-PORT,19308),(DST-PORT,19309)),REJECT",
@@ -38,7 +45,6 @@ const LITE_RULES = [
   "DOMAIN-SUFFIX,cdn-ali.content.steamchina.com,🇨🇳 国内节点",
   "DOMAIN-SUFFIX,cdn-qc.content.steamchina.com,🇨🇳 国内节点",
   "DOMAIN-SUFFIX,cdn-ws.content.steamchina.com,🇨🇳 国内节点",
-  "DOMAIN-SUFFIX,cm.steampowered.com,🇨🇳 国内节点",
   "DOMAIN-SUFFIX,dl.steam.clngaa.com,🇨🇳 国内节点",
   "DOMAIN-SUFFIX,dl.steam.ksyna.com,🇨🇳 国内节点",
   "DOMAIN-SUFFIX,st.dl.bscstorage.net,🇨🇳 国内节点",
@@ -105,6 +111,9 @@ const LITE_RULES = [
   "DOMAIN-SUFFIX,ifconfig.me,🌐 国外节点",
   "DOMAIN-SUFFIX,challenges.cloudflare.com,🌐 国外节点",
   "DOMAIN-SUFFIX,turnstile.cloudflare.com,🌐 国外节点",
+  "DOMAIN-SUFFIX,steampowered.com,🌐 国外节点",
+  "DOMAIN-SUFFIX,steamcommunity.com,🌐 国外节点",
+  "DOMAIN-SUFFIX,steam-chat.com,🌐 国外节点",
   "AND,((NETWORK,TCP),(DOMAIN-REGEX,^$),(NOT,((GEOIP,PRIVATE,no-resolve)))),🌐 国外节点",
   "RULE-SET,scki-fused-075-cn-site-ipcidr-no-resolve,DIRECT,no-resolve",
   "RULE-SET,scki-fused-001-direct-domain,🇨🇳 国内节点",
@@ -2584,6 +2593,15 @@ const LITE_OPTIONS = {
   "ruleSetTargetOverrides": {
     "douyu": "DIRECT"
   },
+  "processTargetOverrides": {
+    "dota2.exe": "DIRECT",
+    "dota2": "DIRECT",
+    "steam.exe": "🌐 国外节点",
+    "steam": "🌐 国外节点",
+    "steamwebhelper.exe": "🌐 国外节点",
+    "steamwebhelper": "🌐 国外节点",
+    "SteamService.exe": "🌐 国外节点"
+  },
   "preRules": [
     "PROCESS-NAME,QQ.exe,DIRECT",
     "PROCESS-NAME,Thunder.exe,DIRECT",
@@ -2630,6 +2648,9 @@ const LITE_OPTIONS = {
     "DOMAIN-SUFFIX,mux.com,🌐 国外网站",
     "DOMAIN-SUFFIX,stream-io-api.com,🌐 国外网站",
     "DOMAIN-SUFFIX,stream-io-video.com,🌐 国外网站",
+    "DOMAIN-SUFFIX,steampowered.com,🌐 国外节点",
+    "DOMAIN-SUFFIX,steamcommunity.com,🌐 国外节点",
+    "DOMAIN-SUFFIX,steam-chat.com,🌐 国外节点",
     "DOMAIN-SUFFIX,steamcdn-a.akamaihd.net,DIRECT",
     "DOMAIN-SUFFIX,steampipe.akamaized.net,DIRECT",
     "DOMAIN-SUFFIX,steampipe-kr.akamaized.net,DIRECT",
@@ -2641,7 +2662,6 @@ const LITE_OPTIONS = {
     "DOMAIN-SUFFIX,cdn-ali.content.steamchina.com,DIRECT",
     "DOMAIN-SUFFIX,cdn-qc.content.steamchina.com,DIRECT",
     "DOMAIN-SUFFIX,cdn-ws.content.steamchina.com,DIRECT",
-    "DOMAIN-SUFFIX,cm.steampowered.com,DIRECT",
     "DOMAIN-SUFFIX,dl.steam.clngaa.com,DIRECT",
     "DOMAIN-SUFFIX,dl.steam.ksyna.com,DIRECT",
     "DOMAIN-SUFFIX,st.dl.bscstorage.net,DIRECT",

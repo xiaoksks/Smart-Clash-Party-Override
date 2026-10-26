@@ -110,8 +110,9 @@ function normalizeStringMap(value, label) {
 export function buildWebRtcProtectionRules(spec) {
   if (!spec.preventWebRtcLeak) return []
   const ports = `OR,(${spec.webRtcPorts.map(p => `(DST-PORT,${p})`).join(',')}),REJECT`
-  // Strict mode has no destination, process or CN exemptions. Hijacked DNS is
-  // handled by TUN first; explicit DNS connections remain proxied, never DIRECT.
+  // Explicit app routes are emitted before these guards. All other clients have
+  // no destination, process or CN exemptions in strict mode. Hijacked DNS is
+  // handled by TUN first; remaining explicit DNS connections stay proxied.
   if (spec.webRtcMode === 'strict') return [
     'AND,((NETWORK,UDP),(DST-PORT,53)),🌐 国外节点',
     'NETWORK,UDP,REJECT',
@@ -176,6 +177,15 @@ export async function loadCustomSpec() {
     }
   })
   const ruleSetTargetOverrides = normalizeStringMap(spec.ruleSetTargetOverrides, 'ruleSetTargetOverrides')
+  const processTargetOverrides = normalizeStringMap(spec.processTargetOverrides || {}, 'processTargetOverrides')
+  for (const [name, target] of Object.entries(processTargetOverrides)) {
+    if (name !== name.trim() || /[,\r\n/\\]/.test(name)) {
+      throw new Error(`Invalid processTargetOverrides process name: ${name}`)
+    }
+    if (!['DIRECT', '🌐 国外节点'].includes(target)) {
+      throw new Error(`Invalid processTargetOverrides target "${target}" for "${name}"`)
+    }
+  }
   for (const [name, target] of Object.entries(ruleSetTargetOverrides)) {
     if (!/^[a-z0-9][a-z0-9-]*$/i.test(name)) {
       throw new Error(`Invalid ruleSetTargetOverrides name "${name}" (expected letters, digits, or hyphens)`)
@@ -196,6 +206,7 @@ export async function loadCustomSpec() {
     webRtcDomains: cleanWebRtcDomains,
     japanBlockedDomains: cleanJapanBlockedDomains,
     ruleSetTargetOverrides,
+    processTargetOverrides,
     preRules: Array.from(spec.preRules),
     foreignDnsDomains: Array.from(spec.foreignDnsDomains),
   }

@@ -11,6 +11,38 @@ const strict = compile({ webRtcMode: 'strict', preventWebRtcLeak: true, foreignS
 const fixture = runOverride(strict.code, fixtureConfig())
 const cn = { 'scki-fused-075-cn-site-ipcidr-no-resolve': { behavior: 'classical', payload: ['IP-CIDR,223.5.5.0/24,no-resolve'] } }
 
+test('Dota 2 stays DIRECT and Steam stays proxied before UDP, CDN and mainland rules in every mode', () => {
+  for (const patch of [{}, { webRtcMode: 'compatible' }, { preventWebRtcLeak: false }, { foreignSelection: 'party-smart' }]) {
+    const result = runOverride(compile(patch).code, fixtureConfig())
+    const foreign = result['proxy-groups'][0].name
+    // The domestic selection must never control Dota's explicit DIRECT route.
+    result['proxy-groups'][2].proxies = [foreign]
+    for (const [process, target] of [
+      ['dota2.exe', 'DIRECT'], ['DOTA2.EXE', 'DIRECT'], ['dota2', 'DIRECT'],
+      ['steam.exe', foreign], ['steam', foreign], ['steamwebhelper.exe', foreign],
+      ['steamwebhelper', foreign], ['SteamService.exe', foreign],
+    ]) {
+      for (const network of ['TCP', 'UDP']) {
+        for (const host of ['', 'cm.steampowered.com', 'cdn.steamcontent.com', 'relay.steamserver.net']) {
+          for (const port of [443, 3478, 4380, 27015, 27050, 61000]) {
+            assert.equal(route(result, { process, network, host, port, ip: '223.5.5.5' }, cn), target,
+              `${JSON.stringify(patch)} / ${process} / ${network} / ${host} / ${port}`)
+          }
+        }
+      }
+    }
+  }
+})
+
+test('Steam login domains use the proxy even without process identification', () => {
+  for (const host of ['cm.steampowered.com', 'store.steampowered.com', 'login.steamcommunity.com', 'steam-chat.com']) {
+    assert.equal(route(fixture, { host, network: 'TCP', port: 443, ip: '223.5.5.5' }, cn), FOREIGN, host)
+  }
+  for (const process of ['not-dota2.exe', 'dota2-helper.exe', 'not-steam.exe', 'game.exe', 'chrome.exe', '']) {
+    assert.equal(route(fixture, { process, network: 'UDP', port: 27015, ip: '223.5.5.5' }, cn), 'REJECT', process)
+  }
+})
+
 test('strict blocks unknown clients, CN destinations, arbitrary ports and IPv6 before direct rules', () => {
   for (const process of ['chrome.exe', 'Codex.exe', 'node.exe', 'renamed-ai.exe', 'Thunder.exe', '']) {
     for (const ip of ['223.5.5.5', '192.168.1.1', '203.0.113.20', '2001:db8::1']) {

@@ -16,7 +16,7 @@ https://raw.githubusercontent.com/xiaoksks/Smart-Clash-Party-Override/main/dist/
 2. 默认 `foreignSelection: 'select'`：关闭客户端的**内置 Smart 覆写**。否则客户端会在本脚本之后创建 Smart Group 并重写国内及非日规则。仅选择 Smart 内核不等于必须开启内置 Smart 覆写。
 3. 使用本脚本管理 DNS：关闭客户端的 **DNS 覆写**，保留 DNS 覆写保护。新版保护只检查原始订阅，不能阻止 JavaScript 改写 DNS；开启客户端 DNS 覆写又可能在脚本之后覆盖脚本配置。
 4. 应用配置，确认 **TUN 已实际运行**、严格路由启用，DNS 劫持包含 UDP/TCP 53。仅开启系统代理无法保护不遵循代理设置的应用。
-5. 在最终运行配置中确认只有三个策略组，存在 `lite-ai`，默认规则开头为 DNS 代理和 `NETWORK,UDP,REJECT`。不要同时启用会在之后改写 DNS、TUN 或规则目标的其他覆写。
+5. 在最终运行配置中确认只有三个策略组，存在 `lite-ai`，规则开头为 Dota 2 / Steam 进程例外，随后是 DNS 代理和 `NETWORK,UDP,REJECT`。不要同时启用会在之后改写 DNS、TUN 或规则目标的其他覆写。
 
 脚本不会修改客户端设置、操作系统防火墙或浏览器策略。保存脚本也不代表上述应用开关已经设置正确。
 
@@ -29,6 +29,18 @@ https://raw.githubusercontent.com/xiaoksks/Smart-Clash-Party-Override/main/dist/
 | 🇨🇳 国内节点 | 默认 DIRECT，可选国外组及识别到的国内回国节点。迅雷 TCP 进程规则和大陆 IP 的显式 DIRECT 不跟随组切换。 |
 
 支持只有 `proxy-providers` 的订阅，通过 `use`、名称过滤及 `empty-fallback` 动态构建组。节点地区由名称判断，需要机场正确标注；无法根据名称验证真实出口国家。代理集合引用的旧策略组会被修正，只有代理集合时通过 DIRECT 引导下载订阅。
+
+## Steam 代理与 Dota 2 国服直连
+
+默认在 `processTargetOverrides` 中设置以下进程例外，优先于 UDP 拦截、CDN 域名和大陆 IP 规则；strict、compatible 及关闭保护时均生效：
+
+- `dota2.exe` / `dota2` 的 TCP、UDP 固定走 `DIRECT`，不跟随「🇨🇳 国内节点」选择。此配置按进程整体直连，适用于国服使用场景，不自动识别游戏内选择的服务器地区。
+- `steam.exe` / `steam`、`steamwebhelper.exe` / `steamwebhelper`、`SteamService.exe` 的 TCP、UDP 走「🌐 国外节点」，包括 Steam 客户端下载。Steam 主进程的连接与 Dota 2 游戏进程分别匹配。
+- 未识别到 Steam 进程时，`steampowered.com`（包括 CM 登录服务器）、`steamcommunity.com`、`steam-chat.com` 的 TCP 仍优先代理；原有 CDN 域名继续按国内规则处理。
+
+需要运行 TUN 并使用规则模式，确保内核能识别发起连接的进程。更新后重新应用覆写并重启 Steam / Dota 2，清除旧连接；在客户端连接面板确认 `dota2.exe → DIRECT`、`steam.exe / steamwebhelper.exe → 🌐 国外节点`。Steam UDP 需要所选代理节点支持 UDP。其他程序仍受原有 WebRTC 保护约束，不按游戏端口全局放行。
+
+Steam 游戏流量使用 UDP，参见 [Steam 官方端口说明](https://help.steampowered.com/en/faqs/view/2EA8-4D75-DA21-31EB)；规则按优先顺序匹配，参见 [Mihomo 进程规则](https://wiki.metacubex.one/config/rules/#process-name)。
 
 ## AI 与 WebRTC 保护
 
@@ -45,14 +57,14 @@ preventWebRtcLeak: true,
 webRtcMode: 'strict',
 ```
 
-- 在进程直连、国内域名及大陆 IP 规则之前，阻断所有剩余 UDP；没有国内目的地址豁免。直接 IP、改名客户端、未知应用与未知端口同样受限。
-- UDP 53 由 TUN DNS 劫持处理；落入路由的 UDP 53 只能走海外组，不允许直连。
+- Dota 2 / Steam 显式进程例外优先，其余流量在普通进程直连、国内域名及大陆 IP 规则之前阻断所有剩余 UDP；没有通用的国内目的地址豁免。直接 IP、改名客户端、未知应用与未知端口同样受限。
+- UDP 53 由 TUN DNS 劫持处理；除显式进程例外外，落入路由的 UDP 53 只能走海外组，不允许直连。
 - 合并限制常见 STUN/TURN 的 TCP/UDP 端口，阻断 STUN 域名及已登记 AI TURN 域名。
 - 未知程序直接连接公网 IP 的 TCP 流量也优先代理，防止未携带域名的 TCP TURN 落入大陆 IP 直连；局域网和显式进程直连例外保留。
 - 开启严格 TUN 路由，移除订阅中的 TUN 路由/进程排除项；内核和 DNS 关闭 IPv6。客户端仍可能在脚本之后添加内核自身的必要路由排除项。
 - 删除生成配置的强制 DIRECT 10086 监听入口，其他监听器移除强制出口，让流量经过规则。
 
-**代价：浏览器 QUIC、迅雷 UDP/P2P、游戏、会议及部分 AI 实时语音会受到影响。** HTTPS/TCP 通常仍可使用；语音能否回退 TCP 取决于产品自身。严格模式不会为国内软件放行 UDP。
+**代价：浏览器 QUIC、迅雷 UDP/P2P、其他游戏、会议及部分 AI 实时语音会受到影响。** HTTPS/TCP 通常仍可使用；语音能否回退 TCP 取决于产品自身。严格模式仅按上述显式进程例外放行，不为国内软件普遍放行 UDP。
 
 ### compatible 模式
 
@@ -86,7 +98,7 @@ Clash 无法判断一个 STUN 请求由哪个网页发起，也不能阻止网�
 - 对 IP 补充规则使用 `no-resolve`，避免仅为匹配 IP 规则额外解析域名；删除最后一条国内规则之后与最终 MATCH 同出口的 8 条规则及闲置 provider。
 - 开启选择与 Fake-IP 持久化。不注入广告拦截规则。
 
-本次生成结果：**223 条入口规则、114 个规则集，其中 101 个远程 MRS、13 个内联集合**，最新统计见 [build-report.json](dist/build-report.json)。原版为 342 条入口规则、144 个远程规则文件。这些是结构与请求数量的减少，不能直接换算成网速或延迟提升百分比。
+本次生成结果：**232 条入口规则、114 个规则集，其中 101 个远程 MRS、13 个内联集合**，最新统计见 [build-report.json](dist/build-report.json)。原版为 342 条入口规则、144 个远程规则文件。这些是结构与请求数量的减少，不能直接换算成网速或延迟提升百分比。
 
 ## 构建、审计与上游同步
 
