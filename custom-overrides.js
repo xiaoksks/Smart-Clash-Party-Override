@@ -1,26 +1,26 @@
 // Configuration spec for Clash Party / Mihomo Lite override.
 // Rules are prepended in order; foreignDnsDomains are resolved with overseas DoH.
 const CUSTOM_OVERRIDE_SPEC = {
-  // Mainland IP direct routing follows privacy, AI and explicit domain rules.
+  // Mainland IP direct routing follows AI/browser guards and service exceptions,
+  // but precedes the remaining strict UDP and hostname-less TCP fallback.
   // no-resolve is preserved so domain-based routing does not trigger an extra DNS lookup.
   forceChinaIpDirect: true,
 
-  // strict: block UDP after explicit process overrides, before other direct rules.
+  // strict: block remaining UDP after domestic games/downloads and China IP DIRECT.
   // compatible: block AI/browser UDP and STUN/TURN, allow other apps' QUIC.
   preventWebRtcLeak: true,
   webRtcMode: 'strict',
-  // Explicit app routes precede privacy/CDN/IP rules for both TCP and UDP.
-  // Dota 2 is used on mainland servers; DIRECT must not follow the domestic group.
-  // Steam's own connections (including downloads) always use the foreign group.
+  // Process supplements for games using unlisted hosts or direct overseas IPs.
+  // Domestic game domains/providers and mainland IPs are handled as a category.
   processTargetOverrides: {
     'dota2.exe': 'DIRECT',
     dota2: 'DIRECT',
-    'steam.exe': '🌐 国外节点',
-    steam: '🌐 国外节点',
-    'steamwebhelper.exe': '🌐 国外节点',
-    steamwebhelper: '🌐 国外节点',
-    'SteamService.exe': '🌐 国外节点',
+    'ZenlessZoneZero.exe': 'DIRECT',
+    'YuanShen.exe': 'DIRECT',
+    'StarRail.exe': 'DIRECT',
   },
+  // Entire upstream mainland-game categories remain DIRECT, independent of UI selection.
+  directRuleSets: ['scki-fused-014-game-cn-domain', 'scki-fused-070-game-cn-domain'],
   // select requires Party's built-in Smart override OFF. party-smart lets Party
   // convert only the foreign url-test group, preserving domestic/non-JP targets.
   foreignSelection: 'select',
@@ -200,7 +200,9 @@ const CUSTOM_OVERRIDE_SPEC = {
     'DOMAIN-SUFFIX,steampowered.com,🌐 国外节点',
     'DOMAIN-SUFFIX,steamcommunity.com,🌐 国外节点',
     'DOMAIN-SUFFIX,steam-chat.com,🌐 国外节点',
-    // CDN fallback for connections not identified as Steam; process overrides win.
+    'DOMAIN-SUFFIX,steamusercontent.com,🌐 国外节点',
+    'DOMAIN-SUFFIX,steamuserimages-a.akamaihd.net,🌐 国外节点',
+    // Downloads stay DIRECT even when requested by steam.exe / steamwebhelper.exe.
     'DOMAIN-SUFFIX,steamcdn-a.akamaihd.net,DIRECT',
     'DOMAIN-SUFFIX,steampipe.akamaized.net,DIRECT',
     'DOMAIN-SUFFIX,steampipe-kr.akamaized.net,DIRECT',

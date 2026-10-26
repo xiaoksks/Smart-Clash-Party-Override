@@ -3,18 +3,16 @@ import { buildWebRtcProtectionRules } from './custom-spec.mjs'
 export const FOREIGN = '🌐 国外节点'
 export const DOMESTIC = '🇨🇳 国内节点'
 export const NON_JP = '🚫 日本禁用'
-const THUNDER = /^(thunder(?:\.exe)?|thunderplatform\.exe|downloadservice\.exe|xlserviceplatform\.exe|xllite\.exe|downloadsdkserver\.exe)$/i
 
 export function targetOf(rule) {
   const parts = rule.split(',')
   return parts.at(-1) === 'no-resolve' ? parts.at(-2) : parts.at(-1)
 }
 
-function normalize(rule, preserveThunder = false) {
+function normalize(rule) {
   const parts = rule.split(',')
   const index = parts.at(-1) === 'no-resolve' ? parts.length - 2 : parts.length - 1
   const target = parts[index]
-  if (preserveThunder && parts[0] === 'PROCESS-NAME' && THUNDER.test(parts[1]) && target === 'DIRECT') return rule
   if (['DIRECT', DOMESTIC, '🇨🇳 常用网站', '📺 国内媒体', '🕹️ 国内游戏', '🏠 国内网站', '📺 国内流媒体'].includes(target)) parts[index] = DOMESTIC
   else if ([NON_JP, '日本禁用', '🚫 非日节点', '非日节点'].includes(target)) parts[index] = NON_JP
   else if (!['REJECT', 'REJECT-DROP', 'PASS'].includes(target)) parts[index] = FOREIGN
@@ -57,37 +55,45 @@ export function compileOverride({ spec, base, snapshot, catalog, runtime }) {
     return !covered
   }
 
-  const directPreRules = spec.preRules.filter(r => ['DIRECT', DOMESTIC].includes(targetOf(r))).map(r => normalize(r, true))
+  // Explicit local DIRECT means DIRECT; only the upstream domestic categories
+  // that have no explicit override follow the selectable domestic group.
+  const directPreRules = spec.preRules.filter(r => ['DIRECT', DOMESTIC].includes(targetOf(r)))
   const foreignPreRules = spec.preRules.filter(r => !['DIRECT', DOMESTIC].includes(targetOf(r))).map(r => normalize(r)).filter(retainDomainRule)
   const aiProcesses = [...new Set(catalog.services.flatMap(s => s.processes || []))]
   const privacy = buildWebRtcProtectionRules({ ...spec, aiProcesses })
+  const directSets = new Set(spec.directRuleSets || [])
+  const gameRules = [...directSets].map(name => {
+    if (!providers[name]) throw new Error(`Missing DIRECT rule-set: ${name}`)
+    return `RULE-SET,${name},DIRECT${providers[name].behavior === 'ipcidr' ? ',no-resolve' : ''}`
+  })
   const localRules = Object.entries(spec.ruleSetTargetOverrides).map(([name, target]) => {
     if (!providers[`local-${name}`]) throw new Error(`Missing rule-set override provider: local-${name}`)
     return `RULE-SET,local-${name},${target}`
   })
   const chinaIp = spec.forceChinaIpDirect ? ['RULE-SET,scki-fused-075-cn-site-ipcidr-no-resolve,DIRECT,no-resolve'] : []
   const processRules = aiProcesses.length ? [`PROCESS-NAME-REGEX,(?i)^(?:${aiProcesses.map(p => p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})$,${FOREIGN}`] : []
-  // Keep literal DIRECT targets and emit before all privacy/domain/IP rules.
-  // Normalizing these app overrides would make Dota depend on domestic selection.
+  // Process supplements retain literal targets after AI/browser safeguards.
   const appRules = Object.entries(spec.processTargetOverrides || {}).map(([name, target]) => `PROCESS-NAME,${name},${target}`)
   const priority = [
-    ...appRules,
-    ...privacy,
+    ...privacy.beforeDirect,
     `RULE-SET,lite-ai,${FOREIGN}`,
     ...processRules,
     `RULE-SET,lite-non-jp,${NON_JP}`,
+    ...appRules,
     ...localRules,
     ...directPreRules,
     ...foreignPreRules,
-    // WebRTC TCP/TURN may dial public IPs without a hostname. Do not let those
-    // unknown clients fall through to mainland-IP DIRECT in strict mode. Keep
-    // LAN access and explicit user process overrides such as Thunder intact.
+    ...gameRules,
+    ...chinaIp,
+    ...privacy.afterDirect,
+    // Only remaining unknown public IPs use this fallback. Mainland server IPs
+    // must already have matched DIRECT, including unlisted domestic games.
     ...(spec.preventWebRtcLeak && spec.webRtcMode === 'strict'
       ? [`AND,((NETWORK,TCP),(DOMAIN-REGEX,^$),(NOT,((GEOIP,PRIVATE,no-resolve)))),${FOREIGN}`] : []),
-    ...chinaIp,
   ]
   // Remove legacy QUIC rules: privacy mode is the sole owner of UDP blocking.
   const baseline = base.baselineRules.filter(r => !r.startsWith('MATCH,') &&
+    !(r.startsWith('RULE-SET,') && directSets.has(r.split(',')[1])) &&
     !(r.includes('(DST-PORT,443)') && r.includes('(NETWORK,UDP)'))).map(r => {
     const normalized = normalize(r)
     const parts = normalized.split(',')

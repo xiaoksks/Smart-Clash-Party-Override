@@ -108,27 +108,26 @@ function normalizeStringMap(value, label) {
 }
 
 export function buildWebRtcProtectionRules(spec) {
-  if (!spec.preventWebRtcLeak) return []
-  const ports = `OR,(${spec.webRtcPorts.map(p => `(DST-PORT,${p})`).join(',')}),REJECT`
-  // Explicit app routes are emitted before these guards. All other clients have
-  // no destination, process or CN exemptions in strict mode. Hijacked DNS is
-  // handled by TUN first; remaining explicit DNS connections stay proxied.
-  if (spec.webRtcMode === 'strict') return [
-    'AND,((NETWORK,UDP),(DST-PORT,53)),🌐 国外节点',
-    'NETWORK,UDP,REJECT',
-    ports,
-    'AND,((RULE-SET,lite-ai),(DOMAIN-KEYWORD,turn)),REJECT',
-    'DOMAIN-KEYWORD,stun,REJECT',
-    ...(spec.webRtcDomains || []).map(domain => `DOMAIN-SUFFIX,${domain},REJECT`),
+  if (!spec.preventWebRtcLeak) return { beforeDirect: [], afterDirect: [] }
+  const portMatcher = `OR,(${spec.webRtcPorts.map(p => `(DST-PORT,${p})`).join(',')})`
+  const ports = `${portMatcher},REJECT`
+  const client = `PROCESS-NAME-REGEX,(?i)^(?:${[...new Set([...spec.webRtcBrowserProcesses, ...(spec.aiProcesses || [])])].map(p => p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})$`
+  const strict = spec.webRtcMode === 'strict'
+  const probes = [
+    ...(strict ? ['AND,((RULE-SET,lite-ai),(DOMAIN-KEYWORD,turn)),REJECT', 'DOMAIN-KEYWORD,stun,REJECT']
+      : ['AND,((NETWORK,UDP),(DOMAIN-KEYWORD,stun)),REJECT', 'AND,((NETWORK,UDP),(DOMAIN-KEYWORD,turn)),REJECT']),
+    ...(spec.webRtcDomains || []).map(domain => strict ? `DOMAIN-SUFFIX,${domain},REJECT` : `AND,((NETWORK,UDP),(DOMAIN-SUFFIX,${domain})),REJECT`),
   ]
-  return [
+  // Known AI/browser traffic is guarded before every domestic exception. The
+  // catch-all UDP restriction is separate so games and downloads can use DIRECT.
+  const beforeDirect = [
+    ...(strict ? ['AND,((NETWORK,UDP),(DST-PORT,53)),🌐 国外节点'] : []),
     'AND,((NETWORK,UDP),(RULE-SET,lite-ai)),REJECT',
-    `AND,((NETWORK,UDP),(PROCESS-NAME-REGEX,(?i)^(?:${[...new Set([...spec.webRtcBrowserProcesses, ...(spec.aiProcesses || [])])].map(p => p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})$)),REJECT`,
-    ports,
-    'AND,((NETWORK,UDP),(DOMAIN-KEYWORD,stun)),REJECT',
-    'AND,((NETWORK,UDP),(DOMAIN-KEYWORD,turn)),REJECT',
-    ...(spec.webRtcDomains || []).map(domain => `AND,((NETWORK,UDP),(DOMAIN-SUFFIX,${domain})),REJECT`),
+    `AND,((NETWORK,UDP),(${client})),REJECT`,
+    `AND,((OR,((RULE-SET,lite-ai),(${client}))),(${portMatcher})),REJECT`,
+    ...probes,
   ]
+  return { beforeDirect, afterDirect: [ports, ...(strict ? ['NETWORK,UDP,REJECT'] : [])] }
 }
 
 export async function loadCustomSpec() {
@@ -178,6 +177,9 @@ export async function loadCustomSpec() {
   })
   const ruleSetTargetOverrides = normalizeStringMap(spec.ruleSetTargetOverrides, 'ruleSetTargetOverrides')
   const processTargetOverrides = normalizeStringMap(spec.processTargetOverrides || {}, 'processTargetOverrides')
+  const directRuleSets = spec.directRuleSets || []
+  assertUniqueStrings(directRuleSets, 'directRuleSets')
+  if (directRuleSets.some(name => !/^[a-z0-9][a-z0-9-]*$/i.test(name))) throw new Error('Invalid directRuleSets name')
   for (const [name, target] of Object.entries(processTargetOverrides)) {
     if (name !== name.trim() || /[,\r\n/\\]/.test(name)) {
       throw new Error(`Invalid processTargetOverrides process name: ${name}`)
@@ -207,6 +209,7 @@ export async function loadCustomSpec() {
     japanBlockedDomains: cleanJapanBlockedDomains,
     ruleSetTargetOverrides,
     processTargetOverrides,
+    directRuleSets: Array.from(directRuleSets),
     preRules: Array.from(spec.preRules),
     foreignDnsDomains: Array.from(spec.foreignDnsDomains),
   }

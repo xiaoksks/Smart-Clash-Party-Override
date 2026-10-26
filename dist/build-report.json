@@ -1,9 +1,9 @@
 {
-  "rules": 232,
-  "providers": 114,
+  "rules": 233,
+  "providers": 112,
   "providerFormats": {
     "mrs": 101,
-    "inline": 13
+    "inline": 11
   },
   "aiServices": 52,
   "aiDomains": 296,
@@ -12,11 +12,12 @@
   "foreignSelection": "select",
   "foreignGroupName": "🌐 国外节点",
   "trimmedTailRules": 8,
-  "mergedClassicalRuns": 7,
+  "mergedClassicalRuns": 6,
   "subsumedDomainRules": 22,
   "removedProviders": [
     "scki-fused-008-social-residual",
     "scki-fused-009-tiktok-residual",
+    "scki-fused-015-microsoft-residual",
     "scki-fused-024-google-residual",
     "scki-fused-026-ai-residual",
     "scki-fused-030-download-residual",
@@ -55,7 +56,7 @@
     "scki-fused-081-social-residual",
     "scki-fused-082-google-residual"
   ],
-  "dnsProviderPolicies": 83,
+  "dnsProviderPolicies": 82,
   "revisions": {
     "scki": "70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd",
     "meta": "c4d4a91ff5bd2847189d502aa60bd4b0e697753b"

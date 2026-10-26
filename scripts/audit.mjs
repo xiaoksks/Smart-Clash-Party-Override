@@ -62,9 +62,14 @@ export async function auditLiteOverride() {
   if (inputs.spec.preventWebRtcLeak) {
     assert.ok(result.listeners.every(listener => listener.proxy !== 'DIRECT'))
     if (inputs.spec.webRtcMode === 'strict') {
-      const appCount = Object.keys(inputs.spec.processTargetOverrides).length
-      assert.equal(result.rules[appCount], `AND,((NETWORK,UDP),(DST-PORT,53)),${expected.report.foreignGroupName}`)
-      assert.equal(result.rules[appCount + 1], 'NETWORK,UDP,REJECT')
+      assert.equal(result.rules[0], `AND,((NETWORK,UDP),(DST-PORT,53)),${expected.report.foreignGroupName}`)
+      const rejectIndex = result.rules.indexOf('NETWORK,UDP,REJECT')
+      assert.ok(rejectIndex > result.rules.indexOf('RULE-SET,scki-fused-075-cn-site-ipcidr-no-resolve,DIRECT,no-resolve'))
+      for (const name of inputs.spec.directRuleSets) {
+        const directIndex = result.rules.indexOf(`RULE-SET,${name},DIRECT`)
+        assert.ok(directIndex >= 0 && directIndex < rejectIndex)
+        assert.ok(!result.rules.includes(`RULE-SET,${name},🇨🇳 国内节点`))
+      }
     }
   }
   assert.deepEqual(runOverride(code, result), result, 'Override must be idempotent')

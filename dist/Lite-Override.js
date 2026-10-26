@@ -2,16 +2,10 @@
 const LITE_FOREIGN_GROUP = "🌐 国外节点"
 
 const LITE_RULES = [
-  "PROCESS-NAME,dota2.exe,DIRECT",
-  "PROCESS-NAME,dota2,DIRECT",
-  "PROCESS-NAME,steam.exe,🌐 国外节点",
-  "PROCESS-NAME,steam,🌐 国外节点",
-  "PROCESS-NAME,steamwebhelper.exe,🌐 国外节点",
-  "PROCESS-NAME,steamwebhelper,🌐 国外节点",
-  "PROCESS-NAME,SteamService.exe,🌐 国外节点",
   "AND,((NETWORK,UDP),(DST-PORT,53)),🌐 国外节点",
-  "NETWORK,UDP,REJECT",
-  "OR,((DST-PORT,3478),(DST-PORT,3479),(DST-PORT,3480),(DST-PORT,3481),(DST-PORT,5349),(DST-PORT,19302),(DST-PORT,19303),(DST-PORT,19304),(DST-PORT,19305),(DST-PORT,19306),(DST-PORT,19307),(DST-PORT,19308),(DST-PORT,19309)),REJECT",
+  "AND,((NETWORK,UDP),(RULE-SET,lite-ai)),REJECT",
+  "AND,((NETWORK,UDP),(PROCESS-NAME-REGEX,(?i)^(?:chrome\\.exe|msedge\\.exe|firefox\\.exe|brave\\.exe|opera\\.exe|vivaldi\\.exe|chromium\\.exe|arc\\.exe|zen\\.exe|dia\\.exe|comet\\.exe|atlas\\.exe|chrome|msedge|firefox|brave|Brave Browser|Google Chrome|Microsoft Edge|Safari|Arc|Zen|Dia|Comet|Codex\\.exe|codex|ChatGPT\\.exe|ChatGPT|Antigravity\\.exe|Antigravity|Claude\\.exe|Claude|claude|Copilot\\.exe|copilot|copilot\\.exe|Comet\\.exe|Cursor\\.exe|Cursor|cursor|Windsurf\\.exe|Windsurf|junie|junie\\.exe|Kiro\\.exe|Kiro|kiro-cli|kiro-cli\\.exe|TabNine\\.exe|TabNine|Replit\\.exe|Replit|Warp\\.exe|Warp|Notion\\.exe|Notion|Grammarly\\.exe|Grammarly)$)),REJECT",
+  "AND,((OR,((RULE-SET,lite-ai),(PROCESS-NAME-REGEX,(?i)^(?:chrome\\.exe|msedge\\.exe|firefox\\.exe|brave\\.exe|opera\\.exe|vivaldi\\.exe|chromium\\.exe|arc\\.exe|zen\\.exe|dia\\.exe|comet\\.exe|atlas\\.exe|chrome|msedge|firefox|brave|Brave Browser|Google Chrome|Microsoft Edge|Safari|Arc|Zen|Dia|Comet|Codex\\.exe|codex|ChatGPT\\.exe|ChatGPT|Antigravity\\.exe|Antigravity|Claude\\.exe|Claude|claude|Copilot\\.exe|copilot|copilot\\.exe|Comet\\.exe|Cursor\\.exe|Cursor|cursor|Windsurf\\.exe|Windsurf|junie|junie\\.exe|Kiro\\.exe|Kiro|kiro-cli|kiro-cli\\.exe|TabNine\\.exe|TabNine|Replit\\.exe|Replit|Warp\\.exe|Warp|Notion\\.exe|Notion|Grammarly\\.exe|Grammarly)$))),(OR,((DST-PORT,3478),(DST-PORT,3479),(DST-PORT,3480),(DST-PORT,3481),(DST-PORT,5349),(DST-PORT,19302),(DST-PORT,19303),(DST-PORT,19304),(DST-PORT,19305),(DST-PORT,19306),(DST-PORT,19307),(DST-PORT,19308),(DST-PORT,19309)))),REJECT",
   "AND,((RULE-SET,lite-ai),(DOMAIN-KEYWORD,turn)),REJECT",
   "DOMAIN-KEYWORD,stun,REJECT",
   "DOMAIN-SUFFIX,ippure.com,REJECT",
@@ -21,8 +15,13 @@ const LITE_RULES = [
   "RULE-SET,lite-ai,🌐 国外节点",
   "PROCESS-NAME-REGEX,(?i)^(?:Codex\\.exe|codex|ChatGPT\\.exe|ChatGPT|Antigravity\\.exe|Antigravity|Claude\\.exe|Claude|claude|Copilot\\.exe|copilot|copilot\\.exe|Comet\\.exe|Comet|Cursor\\.exe|Cursor|cursor|Windsurf\\.exe|Windsurf|junie|junie\\.exe|Kiro\\.exe|Kiro|kiro-cli|kiro-cli\\.exe|TabNine\\.exe|TabNine|Replit\\.exe|Replit|Warp\\.exe|Warp|Notion\\.exe|Notion|Grammarly\\.exe|Grammarly)$,🌐 国外节点",
   "RULE-SET,lite-non-jp,🚫 日本禁用",
+  "PROCESS-NAME,dota2.exe,DIRECT",
+  "PROCESS-NAME,dota2,DIRECT",
+  "PROCESS-NAME,ZenlessZoneZero.exe,DIRECT",
+  "PROCESS-NAME,YuanShen.exe,DIRECT",
+  "PROCESS-NAME,StarRail.exe,DIRECT",
   "RULE-SET,local-douyu,DIRECT",
-  "PROCESS-NAME,QQ.exe,🇨🇳 国内节点",
+  "PROCESS-NAME,QQ.exe,DIRECT",
   "PROCESS-NAME,Thunder.exe,DIRECT",
   "PROCESS-NAME,ThunderPlatform.exe,DIRECT",
   "PROCESS-NAME,DownloadService.exe,DIRECT",
@@ -30,76 +29,76 @@ const LITE_RULES = [
   "PROCESS-NAME,xllite.exe,DIRECT",
   "PROCESS-NAME,DownloadSDKServer.exe,DIRECT",
   "PROCESS-NAME,Thunder,DIRECT",
-  "DOMAIN-SUFFIX,msftconnecttest.com,🇨🇳 国内节点",
-  "DOMAIN-SUFFIX,msftncsi.com,🇨🇳 国内节点",
-  "DOMAIN,ip.cip.cc,🇨🇳 国内节点",
-  "DOMAIN,myip.ipip.net,🇨🇳 国内节点",
-  "DOMAIN-SUFFIX,steamcdn-a.akamaihd.net,🇨🇳 国内节点",
-  "DOMAIN-SUFFIX,steampipe.akamaized.net,🇨🇳 国内节点",
-  "DOMAIN-SUFFIX,steampipe-kr.akamaized.net,🇨🇳 国内节点",
-  "DOMAIN-SUFFIX,steampipe-partner.akamaized.net,🇨🇳 国内节点",
-  "DOMAIN-SUFFIX,steamcontent.com,🇨🇳 国内节点",
-  "DOMAIN-SUFFIX,steamcontent.tnkjmec.com,🇨🇳 国内节点",
-  "DOMAIN-SUFFIX,steamserver.net,🇨🇳 国内节点",
-  "DOMAIN-SUFFIX,steamstatic.com,🇨🇳 国内节点",
-  "DOMAIN-SUFFIX,cdn-ali.content.steamchina.com,🇨🇳 国内节点",
-  "DOMAIN-SUFFIX,cdn-qc.content.steamchina.com,🇨🇳 国内节点",
-  "DOMAIN-SUFFIX,cdn-ws.content.steamchina.com,🇨🇳 国内节点",
-  "DOMAIN-SUFFIX,dl.steam.clngaa.com,🇨🇳 国内节点",
-  "DOMAIN-SUFFIX,dl.steam.ksyna.com,🇨🇳 国内节点",
-  "DOMAIN-SUFFIX,st.dl.bscstorage.net,🇨🇳 国内节点",
-  "DOMAIN-SUFFIX,st.dl.eccdnx.com,🇨🇳 国内节点",
-  "DOMAIN-SUFFIX,st.dl.pinyuncloud.com,🇨🇳 国内节点",
-  "DOMAIN-SUFFIX,steampowered.com.8686c.com,🇨🇳 国内节点",
-  "DOMAIN-SUFFIX,steamstatic.com.8686c.com,🇨🇳 国内节点",
-  "DOMAIN-SUFFIX,wmsjsteam.com,🇨🇳 国内节点",
-  "DOMAIN-SUFFIX,xz.pphimalayanrt.com,🇨🇳 国内节点",
-  "DOMAIN-SUFFIX,mihoyo.com,🇨🇳 国内节点",
-  "DOMAIN-SUFFIX,miyoushe.com,🇨🇳 国内节点",
-  "DOMAIN-SUFFIX,yuanshen.com,🇨🇳 国内节点",
-  "DOMAIN-SUFFIX,bhsr.com,🇨🇳 国内节点",
-  "DOMAIN-SUFFIX,zenlesszonezero.com,🇨🇳 国内节点",
-  "DOMAIN-SUFFIX,juequling.com,🇨🇳 国内节点",
-  "DOMAIN,game.163.com,🇨🇳 国内节点",
-  "DOMAIN-SUFFIX,gm.163.com,🇨🇳 国内节点",
-  "DOMAIN-SUFFIX,ds.163.com,🇨🇳 国内节点",
-  "DOMAIN-SUFFIX,nie.163.com,🇨🇳 国内节点",
-  "DOMAIN-SUFFIX,netease.com,🇨🇳 国内节点",
-  "DOMAIN-SUFFIX,wegame.com,🇨🇳 国内节点",
-  "DOMAIN-SUFFIX,wegame.com.cn,🇨🇳 国内节点",
-  "DOMAIN-SUFFIX,perfect-world.com,🇨🇳 国内节点",
-  "DOMAIN-SUFFIX,wanmei.com,🇨🇳 国内节点",
-  "DOMAIN-SUFFIX,xd.com,🇨🇳 国内节点",
-  "DOMAIN-SUFFIX,taptap.com,🇨🇳 国内节点",
-  "DOMAIN-SUFFIX,taptap.io,🇨🇳 国内节点",
-  "DOMAIN-SUFFIX,papegames.com,🇨🇳 国内节点",
-  "DOMAIN-SUFFIX,hypergryph.com,🇨🇳 国内节点",
-  "DOMAIN-SUFFIX,gryphline.com,🇨🇳 国内节点",
-  "DOMAIN-SUFFIX,lilith.com,🇨🇳 国内节点",
-  "DOMAIN-SUFFIX,gitee.com,🇨🇳 国内节点",
-  "DOMAIN-SUFFIX,xunlei.com,🇨🇳 国内节点",
-  "DOMAIN-SUFFIX,xunlei.cn,🇨🇳 国内节点",
-  "DOMAIN-SUFFIX,xunleix.com,🇨🇳 国内节点",
-  "DOMAIN-SUFFIX,sandai.net,🇨🇳 国内节点",
-  "DOMAIN-SUFFIX,thunderurl.com,🇨🇳 国内节点",
-  "DOMAIN-SUFFIX,thundercdn.com,🇨🇳 国内节点",
-  "DOMAIN-SUFFIX,kanimg.com,🇨🇳 国内节点",
-  "DOMAIN-SUFFIX,kankan.com,🇨🇳 国内节点",
-  "DOMAIN-SUFFIX,00cdn.com,🇨🇳 国内节点",
-  "DOMAIN-SUFFIX,88cdn.com,🇨🇳 国内节点",
-  "DOMAIN-SUFFIX,p2cdn.com,🇨🇳 国内节点",
-  "DOMAIN-SUFFIX,8uri.cn,🇨🇳 国内节点",
-  "DOMAIN-SUFFIX,xycloud.com,🇨🇳 国内节点",
-  "DOMAIN-SUFFIX,xycdn.com,🇨🇳 国内节点",
-  "DOMAIN-SUFFIX,xlpan.com,🇨🇳 国内节点",
-  "DOMAIN-SUFFIX,tcsecq.com,🇨🇳 国内节点",
-  "DOMAIN-SUFFIX,007.qq.com,🇨🇳 国内节点",
-  "DOMAIN-SUFFIX,tcaptcha.qq.com,🇨🇳 国内节点",
-  "DOMAIN-SUFFIX,captcha.qq.com,🇨🇳 国内节点",
-  "DOMAIN-SUFFIX,tcaptcha.gtimg.com,🇨🇳 国内节点",
-  "DOMAIN-SUFFIX,captcha.gtimg.com,🇨🇳 国内节点",
-  "DOMAIN-SUFFIX,geetest.com,🇨🇳 国内节点",
-  "DOMAIN-SUFFIX,dingxiang-inc.com,🇨🇳 国内节点",
+  "DOMAIN-SUFFIX,msftconnecttest.com,DIRECT",
+  "DOMAIN-SUFFIX,msftncsi.com,DIRECT",
+  "DOMAIN,ip.cip.cc,DIRECT",
+  "DOMAIN,myip.ipip.net,DIRECT",
+  "DOMAIN-SUFFIX,steamcdn-a.akamaihd.net,DIRECT",
+  "DOMAIN-SUFFIX,steampipe.akamaized.net,DIRECT",
+  "DOMAIN-SUFFIX,steampipe-kr.akamaized.net,DIRECT",
+  "DOMAIN-SUFFIX,steampipe-partner.akamaized.net,DIRECT",
+  "DOMAIN-SUFFIX,steamcontent.com,DIRECT",
+  "DOMAIN-SUFFIX,steamcontent.tnkjmec.com,DIRECT",
+  "DOMAIN-SUFFIX,steamserver.net,DIRECT",
+  "DOMAIN-SUFFIX,steamstatic.com,DIRECT",
+  "DOMAIN-SUFFIX,cdn-ali.content.steamchina.com,DIRECT",
+  "DOMAIN-SUFFIX,cdn-qc.content.steamchina.com,DIRECT",
+  "DOMAIN-SUFFIX,cdn-ws.content.steamchina.com,DIRECT",
+  "DOMAIN-SUFFIX,dl.steam.clngaa.com,DIRECT",
+  "DOMAIN-SUFFIX,dl.steam.ksyna.com,DIRECT",
+  "DOMAIN-SUFFIX,st.dl.bscstorage.net,DIRECT",
+  "DOMAIN-SUFFIX,st.dl.eccdnx.com,DIRECT",
+  "DOMAIN-SUFFIX,st.dl.pinyuncloud.com,DIRECT",
+  "DOMAIN-SUFFIX,steampowered.com.8686c.com,DIRECT",
+  "DOMAIN-SUFFIX,steamstatic.com.8686c.com,DIRECT",
+  "DOMAIN-SUFFIX,wmsjsteam.com,DIRECT",
+  "DOMAIN-SUFFIX,xz.pphimalayanrt.com,DIRECT",
+  "DOMAIN-SUFFIX,mihoyo.com,DIRECT",
+  "DOMAIN-SUFFIX,miyoushe.com,DIRECT",
+  "DOMAIN-SUFFIX,yuanshen.com,DIRECT",
+  "DOMAIN-SUFFIX,bhsr.com,DIRECT",
+  "DOMAIN-SUFFIX,zenlesszonezero.com,DIRECT",
+  "DOMAIN-SUFFIX,juequling.com,DIRECT",
+  "DOMAIN,game.163.com,DIRECT",
+  "DOMAIN-SUFFIX,gm.163.com,DIRECT",
+  "DOMAIN-SUFFIX,ds.163.com,DIRECT",
+  "DOMAIN-SUFFIX,nie.163.com,DIRECT",
+  "DOMAIN-SUFFIX,netease.com,DIRECT",
+  "DOMAIN-SUFFIX,wegame.com,DIRECT",
+  "DOMAIN-SUFFIX,wegame.com.cn,DIRECT",
+  "DOMAIN-SUFFIX,perfect-world.com,DIRECT",
+  "DOMAIN-SUFFIX,wanmei.com,DIRECT",
+  "DOMAIN-SUFFIX,xd.com,DIRECT",
+  "DOMAIN-SUFFIX,taptap.com,DIRECT",
+  "DOMAIN-SUFFIX,taptap.io,DIRECT",
+  "DOMAIN-SUFFIX,papegames.com,DIRECT",
+  "DOMAIN-SUFFIX,hypergryph.com,DIRECT",
+  "DOMAIN-SUFFIX,gryphline.com,DIRECT",
+  "DOMAIN-SUFFIX,lilith.com,DIRECT",
+  "DOMAIN-SUFFIX,gitee.com,DIRECT",
+  "DOMAIN-SUFFIX,xunlei.com,DIRECT",
+  "DOMAIN-SUFFIX,xunlei.cn,DIRECT",
+  "DOMAIN-SUFFIX,xunleix.com,DIRECT",
+  "DOMAIN-SUFFIX,sandai.net,DIRECT",
+  "DOMAIN-SUFFIX,thunderurl.com,DIRECT",
+  "DOMAIN-SUFFIX,thundercdn.com,DIRECT",
+  "DOMAIN-SUFFIX,kanimg.com,DIRECT",
+  "DOMAIN-SUFFIX,kankan.com,DIRECT",
+  "DOMAIN-SUFFIX,00cdn.com,DIRECT",
+  "DOMAIN-SUFFIX,88cdn.com,DIRECT",
+  "DOMAIN-SUFFIX,p2cdn.com,DIRECT",
+  "DOMAIN-SUFFIX,8uri.cn,DIRECT",
+  "DOMAIN-SUFFIX,xycloud.com,DIRECT",
+  "DOMAIN-SUFFIX,xycdn.com,DIRECT",
+  "DOMAIN-SUFFIX,xlpan.com,DIRECT",
+  "DOMAIN-SUFFIX,tcsecq.com,DIRECT",
+  "DOMAIN-SUFFIX,007.qq.com,DIRECT",
+  "DOMAIN-SUFFIX,tcaptcha.qq.com,DIRECT",
+  "DOMAIN-SUFFIX,captcha.qq.com,DIRECT",
+  "DOMAIN-SUFFIX,tcaptcha.gtimg.com,DIRECT",
+  "DOMAIN-SUFFIX,captcha.gtimg.com,DIRECT",
+  "DOMAIN-SUFFIX,geetest.com,DIRECT",
+  "DOMAIN-SUFFIX,dingxiang-inc.com,DIRECT",
   "DOMAIN-SUFFIX,ip.sb,🌐 国外节点",
   "DOMAIN-SUFFIX,ipify.org,🌐 国外节点",
   "DOMAIN-SUFFIX,ipinfo.io,🌐 国外节点",
@@ -114,8 +113,14 @@ const LITE_RULES = [
   "DOMAIN-SUFFIX,steampowered.com,🌐 国外节点",
   "DOMAIN-SUFFIX,steamcommunity.com,🌐 国外节点",
   "DOMAIN-SUFFIX,steam-chat.com,🌐 国外节点",
-  "AND,((NETWORK,TCP),(DOMAIN-REGEX,^$),(NOT,((GEOIP,PRIVATE,no-resolve)))),🌐 国外节点",
+  "DOMAIN-SUFFIX,steamusercontent.com,🌐 国外节点",
+  "DOMAIN-SUFFIX,steamuserimages-a.akamaihd.net,🌐 国外节点",
+  "RULE-SET,scki-fused-014-game-cn-domain,DIRECT",
+  "RULE-SET,scki-fused-070-game-cn-domain,DIRECT",
   "RULE-SET,scki-fused-075-cn-site-ipcidr-no-resolve,DIRECT,no-resolve",
+  "OR,((DST-PORT,3478),(DST-PORT,3479),(DST-PORT,3480),(DST-PORT,3481),(DST-PORT,5349),(DST-PORT,19302),(DST-PORT,19303),(DST-PORT,19304),(DST-PORT,19305),(DST-PORT,19306),(DST-PORT,19307),(DST-PORT,19308),(DST-PORT,19309)),REJECT",
+  "NETWORK,UDP,REJECT",
+  "AND,((NETWORK,TCP),(DOMAIN-REGEX,^$),(NOT,((GEOIP,PRIVATE,no-resolve)))),🌐 国外节点",
   "RULE-SET,scki-fused-001-direct-domain,🇨🇳 国内节点",
   "RULE-SET,scki-fused-002-intl-site-domain,🌐 国外节点",
   "RULE-SET,scki-fused-003-payments-domain,🌐 国外节点",
@@ -128,10 +133,8 @@ const LITE_RULES = [
   "RULE-SET,scki-fused-011-tools-domain,🌐 国外节点",
   "RULE-SET,scki-fused-012-intl-site-domain,🌐 国外节点",
   "RULE-SET,scki-fused-013-ai-domain,🌐 国外节点",
-  "RULE-SET,lite-classical-1,🌐 国外节点",
-  "RULE-SET,scki-fused-014-game-cn-domain,🇨🇳 国内节点",
   "RULE-SET,scki-fused-015-microsoft-domain,🌐 国外节点",
-  "RULE-SET,scki-fused-015-microsoft-residual,🌐 国外节点",
+  "RULE-SET,lite-classical-1,🌐 国外节点",
   "RULE-SET,scki-fused-017-cn-site-domain,🇨🇳 国内节点",
   "DST-PORT,7680,REJECT",
   "RULE-SET,scki-fused-018-direct-domain,🇨🇳 国内节点",
@@ -219,20 +222,18 @@ const LITE_RULES = [
   "RULE-SET,scki-fused-068-tracker-ipcidr,🌐 国外节点,no-resolve",
   "RULE-SET,scki-fused-069-gfw-domain,🌐 国外节点",
   "RULE-SET,scki-fused-069-gfw-ipcidr,🌐 国外节点,no-resolve",
-  "RULE-SET,lite-classical-5,🌐 国外节点",
-  "RULE-SET,scki-fused-070-game-cn-domain,🇨🇳 国内节点",
   "RULE-SET,scki-fused-071-game-intl-domain,🌐 国外节点",
   "RULE-SET,scki-fused-071-game-intl-ipcidr,🌐 国外节点,no-resolve",
   "RULE-SET,scki-fused-072-intl-site-domain,🌐 国外节点",
   "RULE-SET,scki-fused-072-intl-site-ipcidr,🌐 国外节点,no-resolve",
   "RULE-SET,scki-fused-073-payments-domain,🌐 国外节点",
-  "RULE-SET,lite-classical-6,🌐 国外节点",
+  "RULE-SET,lite-classical-5,🌐 国外节点",
   "RULE-SET,scki-fused-074-cnmedia-domain,🇨🇳 国内节点",
   "RULE-SET,scki-fused-074-cnmedia-ipcidr,🇨🇳 国内节点,no-resolve",
   "RULE-SET,scki-fused-075-cn-site-domain,🇨🇳 国内节点",
   "RULE-SET,scki-fused-076-direct-domain,🇨🇳 国内节点",
   "RULE-SET,scki-fused-077-cn-site-domain,🇨🇳 国内节点",
-  "RULE-SET,lite-classical-7,🇨🇳 国内节点",
+  "RULE-SET,lite-classical-6,🇨🇳 国内节点",
   "MATCH,🌐 国外节点"
 ]
 
@@ -362,14 +363,6 @@ const LITE_RULE_PROVIDERS = {
     "path": "./ruleset/lite/scki-fused-015-microsoft-domain-9dca355916f8.mrs",
     "interval": 604800,
     "proxy": "🌐 国外节点"
-  },
-  "scki-fused-015-microsoft-residual": {
-    "type": "inline",
-    "behavior": "classical",
-    "format": "yaml",
-    "payload": [
-      "DOMAIN-KEYWORD,onedriveclucprod"
-    ]
   },
   "scki-fused-017-cn-site-domain": {
     "type": "http",
@@ -1640,7 +1633,8 @@ const LITE_RULE_PROVIDERS = {
     "payload": [
       "PROCESS-NAME,Lemon8",
       "PROCESS-NAME,TikTok",
-      "PROCESS-NAME,CapCut"
+      "PROCESS-NAME,CapCut",
+      "DOMAIN-KEYWORD,onedriveclucprod"
     ]
   },
   "lite-classical-2": {
@@ -1917,14 +1911,7 @@ const LITE_RULE_PROVIDERS = {
       "DOMAIN-KEYWORD,youtube",
       "DOMAIN-KEYWORD,1drv",
       "DOMAIN-KEYWORD,onedrive",
-      "DOMAIN-KEYWORD,skydrive"
-    ]
-  },
-  "lite-classical-6": {
-    "type": "inline",
-    "behavior": "classical",
-    "format": "yaml",
-    "payload": [
+      "DOMAIN-KEYWORD,skydrive",
       "DOMAIN-KEYWORD,steambroadcast",
       "DOMAIN-KEYWORD,steamstore",
       "DOMAIN-KEYWORD,steamuserimages",
@@ -2036,7 +2023,7 @@ const LITE_RULE_PROVIDERS = {
       "DOMAIN-KEYWORD,overdrive"
     ]
   },
-  "lite-classical-7": {
+  "lite-classical-6": {
     "type": "inline",
     "behavior": "classical",
     "format": "yaml",
@@ -2160,6 +2147,14 @@ const LITE_DNS_POLICY = [
     "domestic": true
   },
   {
+    "name": "scki-fused-014-game-cn-domain",
+    "domestic": true
+  },
+  {
+    "name": "scki-fused-070-game-cn-domain",
+    "domestic": true
+  },
+  {
     "name": "scki-fused-001-direct-domain",
     "domestic": true
   },
@@ -2208,15 +2203,11 @@ const LITE_DNS_POLICY = [
     "domestic": false
   },
   {
-    "name": "scki-fused-014-game-cn-domain",
-    "domestic": true
-  },
-  {
     "name": "scki-fused-015-microsoft-domain",
     "domestic": false
   },
   {
-    "name": "scki-fused-015-microsoft-residual",
+    "name": "lite-classical-1",
     "domestic": false
   },
   {
@@ -2436,14 +2427,6 @@ const LITE_DNS_POLICY = [
     "domestic": false
   },
   {
-    "name": "lite-classical-5",
-    "domestic": false
-  },
-  {
-    "name": "scki-fused-070-game-cn-domain",
-    "domestic": true
-  },
-  {
     "name": "scki-fused-071-game-intl-domain",
     "domestic": false
   },
@@ -2456,7 +2439,7 @@ const LITE_DNS_POLICY = [
     "domestic": false
   },
   {
-    "name": "lite-classical-6",
+    "name": "lite-classical-5",
     "domestic": false
   },
   {
@@ -2476,7 +2459,7 @@ const LITE_DNS_POLICY = [
     "domestic": true
   },
   {
-    "name": "lite-classical-7",
+    "name": "lite-classical-6",
     "domestic": true
   }
 ]
@@ -2596,12 +2579,14 @@ const LITE_OPTIONS = {
   "processTargetOverrides": {
     "dota2.exe": "DIRECT",
     "dota2": "DIRECT",
-    "steam.exe": "🌐 国外节点",
-    "steam": "🌐 国外节点",
-    "steamwebhelper.exe": "🌐 国外节点",
-    "steamwebhelper": "🌐 国外节点",
-    "SteamService.exe": "🌐 国外节点"
+    "ZenlessZoneZero.exe": "DIRECT",
+    "YuanShen.exe": "DIRECT",
+    "StarRail.exe": "DIRECT"
   },
+  "directRuleSets": [
+    "scki-fused-014-game-cn-domain",
+    "scki-fused-070-game-cn-domain"
+  ],
   "preRules": [
     "PROCESS-NAME,QQ.exe,DIRECT",
     "PROCESS-NAME,Thunder.exe,DIRECT",
@@ -2651,6 +2636,8 @@ const LITE_OPTIONS = {
     "DOMAIN-SUFFIX,steampowered.com,🌐 国外节点",
     "DOMAIN-SUFFIX,steamcommunity.com,🌐 国外节点",
     "DOMAIN-SUFFIX,steam-chat.com,🌐 国外节点",
+    "DOMAIN-SUFFIX,steamusercontent.com,🌐 国外节点",
+    "DOMAIN-SUFFIX,steamuserimages-a.akamaihd.net,🌐 国外节点",
     "DOMAIN-SUFFIX,steamcdn-a.akamaihd.net,DIRECT",
     "DOMAIN-SUFFIX,steampipe.akamaized.net,DIRECT",
     "DOMAIN-SUFFIX,steampipe-kr.akamaized.net,DIRECT",

@@ -11,45 +11,74 @@ const strict = compile({ webRtcMode: 'strict', preventWebRtcLeak: true, foreignS
 const fixture = runOverride(strict.code, fixtureConfig())
 const cn = { 'scki-fused-075-cn-site-ipcidr-no-resolve': { behavior: 'classical', payload: ['IP-CIDR,223.5.5.0/24,no-resolve'] } }
 
-test('Dota 2 stays DIRECT and Steam stays proxied before UDP, CDN and mainland rules in every mode', () => {
+test('domestic game processes, full game categories and mainland server IPs stay DIRECT in every mode', () => {
+  const games = {
+    'scki-fused-014-game-cn-domain': { behavior: 'domain', payload: ['+.wegame.com', '+.game.qq.com', '+.new-game-fixture.test'] },
+    'scki-fused-070-game-cn-domain': { behavior: 'domain', payload: ['+.mihoyo.com', '+.zenlesszonezero.com', '+.netease.com', '+.wanmei.com', 'dota2.wmsj.cn', '+.cm.steampowered.com', '+.steamcontent.com'] },
+  }
   for (const patch of [{}, { webRtcMode: 'compatible' }, { preventWebRtcLeak: false }, { foreignSelection: 'party-smart' }]) {
     const result = runOverride(compile(patch).code, fixtureConfig())
     const foreign = result['proxy-groups'][0].name
-    // The domestic selection must never control Dota's explicit DIRECT route.
     result['proxy-groups'][2].proxies = [foreign]
-    for (const [process, target] of [
-      ['dota2.exe', 'DIRECT'], ['DOTA2.EXE', 'DIRECT'], ['dota2', 'DIRECT'],
-      ['steam.exe', foreign], ['steam', foreign], ['steamwebhelper.exe', foreign],
-      ['steamwebhelper', foreign], ['SteamService.exe', foreign],
-    ]) {
+    for (const process of ['dota2.exe', 'DOTA2.EXE', 'dota2', 'ZenlessZoneZero.exe', 'YuanShen.exe', 'StarRail.exe']) {
       for (const network of ['TCP', 'UDP']) {
-        for (const host of ['', 'cm.steampowered.com', 'cdn.steamcontent.com', 'relay.steamserver.net']) {
+        for (const host of ['', 'unknown-game-server.test']) {
           for (const port of [443, 3478, 4380, 27015, 27050, 61000]) {
-            assert.equal(route(result, { process, network, host, port, ip: '223.5.5.5' }, cn), target,
+            assert.equal(route(result, { process, network, host, port, ip: '203.0.113.20' }, cn), 'DIRECT',
               `${JSON.stringify(patch)} / ${process} / ${network} / ${host} / ${port}`)
           }
         }
       }
     }
+    for (const network of ['TCP', 'UDP']) {
+      for (const host of ['dispatch.juequling.com', 'sdk.mihoyo.com', 'zenlesszonezero.com', 'wegame.com',
+        'game.qq.com', 'game.163.com', 'netease.com', 'wanmei.com', 'dota2.wmsj.cn', 'new-game-fixture.test']) {
+        assert.equal(route(result, { host, network, port: 27015, ip: '203.0.113.20' }, games), 'DIRECT', host)
+      }
+      for (const process of ['unlisted-game.exe', '']) {
+        for (const port of [443, 3478, 27015, 61000]) {
+          assert.equal(route(result, { process, host: '', network, port, ip: '223.5.5.5' }, cn), 'DIRECT')
+        }
+      }
+    }
+    for (const name of Object.keys(games)) {
+      assert.deepEqual(result.dns['nameserver-policy']['rule-set:' + name], ['223.5.5.5', '223.6.6.6'])
+    }
   }
 })
 
-test('Steam login domains use the proxy even without process identification', () => {
-  for (const host of ['cm.steampowered.com', 'store.steampowered.com', 'login.steamcommunity.com', 'steam-chat.com']) {
-    assert.equal(route(fixture, { host, network: 'TCP', port: 443, ip: '223.5.5.5' }, cn), FOREIGN, host)
+test('Steam downloads stay DIRECT while login and community use the proxy regardless of Steam process', () => {
+  for (const patch of [{}, { webRtcMode: 'compatible' }, { preventWebRtcLeak: false }, { foreignSelection: 'party-smart' }]) {
+    const result = runOverride(compile(patch).code, fixtureConfig())
+    result['proxy-groups'][2].proxies = [result['proxy-groups'][0].name]
+    const games = { 'scki-fused-070-game-cn-domain': { behavior: 'domain', payload: ['+.cm.steampowered.com', '+.steamcontent.com', '+.steamusercontent.com'] } }
+    for (const process of ['steam.exe', 'steamwebhelper.exe', 'SteamService.exe', '']) {
+      for (const host of ['cm.steampowered.com', 'store.steampowered.com', 'login.steamcommunity.com', 'steam-chat.com', 'steamusercontent.com', 'steamuserimages-a.akamaihd.net']) {
+        assert.equal(route(result, { process, host, network: 'TCP', port: 443, ip: '223.5.5.5' }, { ...cn, ...games }), result['proxy-groups'][0].name, host)
+      }
+      for (const host of ['cdn.steamcontent.com', 'steamcdn-a.akamaihd.net', 'cdn-ali.content.steamchina.com', 'dl.steam.clngaa.com']) {
+        for (const network of ['TCP', 'UDP']) assert.equal(route(result, { process, host, network, port: 443, ip: '203.0.113.20' }, games), 'DIRECT', host)
+      }
+    }
+    assert.deepEqual(result.dns['nameserver-policy']['+.steamcontent.com'], ['223.5.5.5', '223.6.6.6'])
+    assert.ok(result.dns['nameserver-policy']['+.steamcommunity.com'].every(ns => ns.endsWith('#' + result['proxy-groups'][0].name)))
   }
-  for (const process of ['not-dota2.exe', 'dota2-helper.exe', 'not-steam.exe', 'game.exe', 'chrome.exe', '']) {
-    assert.equal(route(fixture, { process, network: 'UDP', port: 27015, ip: '223.5.5.5' }, cn), 'REJECT', process)
+  for (const process of ['not-dota2.exe', 'dota2-helper.exe', 'not-steam.exe', 'game.exe', '']) {
+    assert.equal(route(fixture, { process, network: 'UDP', port: 27015, ip: '203.0.113.20' }, cn), 'REJECT', process)
   }
 })
 
-test('strict blocks unknown clients, CN destinations, arbitrary ports and IPv6 before direct rules', () => {
-  for (const process of ['chrome.exe', 'Codex.exe', 'node.exe', 'renamed-ai.exe', 'Thunder.exe', '']) {
+test('strict guards AI/browser UDP even on domestic games/CDNs and blocks remaining foreign UDP', () => {
+  for (const process of ['chrome.exe', 'Codex.exe']) {
     for (const ip of ['223.5.5.5', '192.168.1.1', '203.0.113.20', '2001:db8::1']) {
       for (const port of [443, 3478, 5349, 27015, 61000]) {
         assert.equal(route(fixture, { process, network: 'UDP', host: 'unlisted-ai.test', ip, port }, cn), 'REJECT')
       }
     }
+  }
+  for (const host of ['cdn.steamcontent.com', 'sdk.mihoyo.com', 'juequling.com', 'unknown.test']) {
+    assert.equal(route(fixture, { process: 'chrome.exe', host, network: 'UDP', ip: '223.5.5.5', port: 443 }, cn), 'REJECT')
+    assert.equal(route(fixture, { host: 'api.openai.com', network: 'UDP', ip: '223.5.5.5', port: 443 }, cn), 'REJECT')
   }
   assert.equal(route(fixture, { network: 'UDP', ip: '223.5.5.5', port: 53 }, cn), FOREIGN)
 })
@@ -84,10 +113,10 @@ test('all catalog service patterns participate in both routing and DNS', () => {
 
 test('TCP STUN and AI TURN cannot bypass protection using CN ranges', () => {
   for (const port of [3478, 3479, 3480, 3481, 5349, 19302, 19309]) {
-    assert.equal(route(fixture, { host: 'relay.test', network: 'TCP', port, ip: '223.5.5.5' }, cn), 'REJECT')
+    assert.equal(route(fixture, { process: 'chrome.exe', host: 'relay.test', network: 'TCP', port, ip: '223.5.5.5' }, cn), 'REJECT')
   }
   assert.equal(route(fixture, { host: 'turn.livekit.cloud', network: 'TCP', port: 443 }), 'REJECT')
-  assert.equal(route(fixture, { host: '', process: 'unknown-ai.exe', ip: '223.5.5.5', network: 'TCP', port: 443 }, cn), FOREIGN)
+  assert.equal(route(fixture, { host: '', process: 'unknown-ai.exe', ip: '203.0.113.20', network: 'TCP', port: 443 }, cn), FOREIGN)
   assert.equal(route(fixture, { host: '', process: 'Thunder.exe', ip: '223.5.5.5', network: 'TCP', port: 443 }, cn), 'DIRECT')
   assert.equal(route(fixture, { host: '', process: 'chrome.exe', ip: '192.168.1.1', network: 'TCP', port: 80 }, cn), DOMESTIC)
 })
@@ -135,7 +164,7 @@ test('classical merging and tail pruning preserve precedence across domestic exc
   const baselineRules = [`RULE-SET,first,${FOREIGN}`, `RULE-SET,domain,${FOREIGN}`, `RULE-SET,second,${FOREIGN}`, `RULE-SET,domestic,${DOMESTIC}`, `RULE-SET,last,${FOREIGN}`]
   const snapshot = { revisions: inputs.snapshot.revisions, aiDomains: inputs.snapshot.aiDomains,
     files: Object.fromEntries(Object.entries(providers).map(([name, provider]) => [name, { payload: provider.payload, sha256: '0'.repeat(64), url: 'https://example.test/file.mrs' }])) }
-  const optimized = compileOverride({ ...inputs, spec: { ...inputs.spec, preventWebRtcLeak: false, preRules: [], ruleSetTargetOverrides: {}, forceChinaIpDirect: false },
+  const optimized = compileOverride({ ...inputs, spec: { ...inputs.spec, preventWebRtcLeak: false, preRules: [], directRuleSets: [], ruleSetTargetOverrides: {}, forceChinaIpDirect: false },
     base: { ...inputs.base, ruleProviders: providers, baselineRules }, snapshot })
   const result = runOverride(optimized.code, fixtureConfig())
   const extra = { domain: { behavior: 'domain', payload: ['+.domain.test'] } }
@@ -165,7 +194,7 @@ test('strict removes inherited TUN exclusions and DIRECT listeners, preserves TC
   assert.equal(result.listeners.find(l => l.name === 'custom').proxy, undefined)
   assert.ok(!result.listeners.some(l => l.port === 10086))
   assert.equal(route(result, { process: 'Thunder.exe', host: 'download.test', network: 'TCP', port: 443 }), 'DIRECT')
-  assert.equal(route(result, { process: 'QQ.exe', host: 'qq.com', network: 'TCP', port: 443 }), DOMESTIC)
+  assert.equal(route(result, { process: 'QQ.exe', host: 'qq.com', network: 'TCP', port: 443 }), 'DIRECT')
 })
 
 test('IP supplements use no-resolve and no foreign-only tail is left before MATCH', () => {
