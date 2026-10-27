@@ -6,6 +6,7 @@ import { promisify } from 'node:util'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { ROOT } from './custom-spec.mjs'
+import { parseDomainList } from './domestic-policy.mjs'
 
 const exec = promisify(execFile)
 const SNAPSHOT = path.join(ROOT, 'scripts/upstream-snapshot.json')
@@ -38,6 +39,18 @@ export function parsePayload(text) {
     if (typeof value !== 'string' || !value.includes(',')) throw new Error(`Invalid classical rule: ${item}`)
     return value
   })
+}
+
+export async function fetchDomesticSources(metaRevision) {
+  const definition = JSON.parse(await readFile(path.join(ROOT, 'scripts/domestic-services.json'), 'utf8'))
+  const records = await Promise.all(definition.sources.map(async ({ category }) => {
+    const url = `https://raw.githubusercontent.com/${META}/${metaRevision}/geo/geosite/${encodeURIComponent(category)}.list`
+    const bytes = await fetchBytes(url)
+    const patterns = parseDomainList(bytes.toString('utf8'))
+    if (!patterns.length) throw new Error(`Empty mainland source: ${category}`)
+    return [category, { url, sha256: digest(bytes), bytes: bytes.length, patterns }]
+  }))
+  return Object.fromEntries(records)
 }
 
 async function revision(repo, branch) {
@@ -98,12 +111,14 @@ export async function syncUpstream({ check = false } = {}) {
   const aiBytes = await fetchBytes(aiUrl)
   result.aiSource = { url: aiUrl, sha256: digest(aiBytes), bytes: aiBytes.length }
   result.aiDomains = [...new Set(aiBytes.toString('utf8').split(/\r?\n/).map(s => s.trim()).filter(s => s && !s.startsWith('#')))].sort()
+  result.domesticSources = await fetchDomesticSources(revisions.meta)
   if (result.aiDomains.length < 100 || result.aiDomains.some(d => !/^(?:\+\.)?[a-z0-9_.-]+$/i.test(d))) throw new Error('Invalid upstream AI domain list')
   result.files = Object.fromEntries(Object.entries(result.files).sort(([a], [b]) => a.localeCompare(b)))
   if (check) {
     if (previous.aiSource.sha256 !== result.aiSource.sha256) throw new Error('AI snapshot hash mismatch')
     if (JSON.stringify(previous.aiDomains) !== JSON.stringify(result.aiDomains)) throw new Error('AI payload differs from pinned source')
-    console.log(`Verified ${entries.length} upstream files + ${result.aiDomains.length} AI patterns (SHA256).`)
+    if (JSON.stringify(previous.domesticSources) !== JSON.stringify(result.domesticSources)) throw new Error('Mainland source/hash mismatch; run npm run sync:upstream')
+    console.log(`Verified ${entries.length} upstream files + ${result.aiDomains.length} AI patterns + ${Object.keys(result.domesticSources).length} mainland lists (SHA256).`)
     if (scki !== revisions.scki || meta !== revisions.meta) console.log('New upstream revision available; run npm run sync:upstream to review/update the complete snapshot.')
   } else {
     await writeFile(SNAPSHOT, JSON.stringify(result, null, 2) + '\n')

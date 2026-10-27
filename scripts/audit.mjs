@@ -19,6 +19,12 @@ export async function auditLiteOverride() {
   const names = new Set(groups.map(g => g.name))
   const builtins = ['DIRECT', 'REJECT', 'REJECT-DROP', 'PASS']
   const providers = result['rule-providers']
+  const foreignCategoryIndex = result.rules.findIndex(r => r === `RULE-SET,scki-fused-002-intl-site-domain,${expected.report.foreignGroupName}`)
+  for (const name of ['lite-domestic-direct', 'lite-domestic-services']) {
+    const index = result.rules.findIndex(r => r.startsWith(`RULE-SET,${name},`))
+    assert.ok(index > 0 && index < foreignCategoryIndex, 'Mainland overlay must precede mixed business categories')
+    assert.ok(!providers[name].payload.some(p => ['+.cn', '+.com', '+.com.cn', '+.edu.cn'].includes(p)))
+  }
   const used = new Set()
   assert.equal(new Set(result.rules).size, result.rules.length, 'Duplicate entry rules')
   assert.equal(result.rules.at(-1), `MATCH,${expected.report.foreignGroupName}`)

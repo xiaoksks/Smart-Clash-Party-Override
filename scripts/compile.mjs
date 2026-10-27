@@ -1,4 +1,5 @@
 import { buildWebRtcProtectionRules } from './custom-spec.mjs'
+import { buildDomesticPolicy } from './domestic-policy.mjs'
 
 export const FOREIGN = '🌐 国外节点'
 export const DOMESTIC = '🇨🇳 国内节点'
@@ -23,7 +24,7 @@ function noResolve(rule) {
   return /^(GEOIP|IP-ASN|IP-CIDR|IP-CIDR6),/.test(rule) && !rule.endsWith(',no-resolve') ? rule + ',no-resolve' : rule
 }
 
-export function compileOverride({ spec, base, snapshot, catalog, runtime }) {
+export function compileOverride({ spec, base, snapshot, catalog, domestic, runtime }) {
   const providers = structuredClone(base.ruleProviders)
   // Immutable URLs and classical payloads are validated/updated as one snapshot.
   for (const [name, provider] of Object.entries(providers)) {
@@ -43,6 +44,10 @@ export function compileOverride({ spec, base, snapshot, catalog, runtime }) {
   const aiDomains = [...new Set([...snapshot.aiDomains, ...catalog.services.flatMap(s => s.domains), ...spec.foreignDnsDomains])].sort()
   providers['lite-ai'] = { type: 'inline', behavior: 'domain', format: 'yaml', payload: aiDomains }
   providers['lite-non-jp'] = { type: 'inline', behavior: 'domain', format: 'yaml', payload: spec.japanBlockedDomains.map(d => '+.' + d) }
+  const mainland = buildDomesticPolicy(domestic, snapshot.domesticSources)
+  providers['lite-domestic-direct'] = { type: 'inline', behavior: 'domain', format: 'yaml', payload: mainland.direct }
+  providers['lite-domestic-services'] = { type: 'inline', behavior: 'domain', format: 'yaml', payload: mainland.services }
+  providers['lite-foreign-exceptions'] = { type: 'inline', behavior: 'domain', format: 'yaml', payload: mainland.foreignExceptions }
   const subsumedDomainRules = new Set()
   function retainDomainRule(rule) {
     const parts = rule.split(',')
@@ -83,7 +88,10 @@ export function compileOverride({ spec, base, snapshot, catalog, runtime }) {
     ...localRules,
     ...directPreRules,
     ...foreignPreRules,
+    `RULE-SET,lite-foreign-exceptions,${FOREIGN}`,
     ...gameRules,
+    'RULE-SET,lite-domestic-direct,DIRECT',
+    `RULE-SET,lite-domestic-services,${DOMESTIC}`,
     ...chinaIp,
     ...privacy.afterDirect,
     // Only remaining unknown public IPs use this fallback. Mainland server IPs
@@ -150,6 +158,7 @@ export function compileOverride({ spec, base, snapshot, catalog, runtime }) {
     rules: rules.length, providers: Object.keys(finalProviders).length,
     providerFormats: Object.values(finalProviders).reduce((counts, p) => { const k = p.type === 'inline' ? 'inline' : p.format; counts[k] = (counts[k] || 0) + 1; return counts }, {}),
     aiServices: catalog.services.length, aiDomains: aiDomains.length, aiProcesses: aiProcesses.length,
+    domesticDirectDomains: mainland.direct.length, domesticServiceDomains: mainland.services.length,
     webRtcMode: spec.preventWebRtcLeak ? spec.webRtcMode : 'off', foreignSelection: spec.foreignSelection, foreignGroupName,
     trimmedTailRules: trimmed, mergedClassicalRuns: merged, subsumedDomainRules: subsumedDomainRules.size, removedProviders,
     dnsProviderPolicies: dnsPolicy.length, revisions: snapshot.revisions,

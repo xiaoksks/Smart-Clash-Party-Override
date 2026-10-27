@@ -4,12 +4,45 @@ import { loadBuildInputs } from './build.mjs'
 import { compileOverride, FOREIGN, DOMESTIC, NON_JP } from './compile.mjs'
 import { fixtureConfig, runOverride, route, matchesDomain } from './test-helpers.mjs'
 import { parsePayload } from './sync-upstream.mjs'
+import { buildDomesticPolicy } from './domestic-policy.mjs'
 
 const inputs = await loadBuildInputs()
 const compile = patch => compileOverride({ ...inputs, spec: { ...inputs.spec, ...patch } })
 const strict = compile({ webRtcMode: 'strict', preventWebRtcLeak: true, foreignSelection: 'select' })
 const fixture = runOverride(strict.code, fixtureConfig())
 const cn = { 'scki-fused-075-cn-site-ipcidr-no-resolve': { behavior: 'classical', payload: ['IP-CIDR,223.5.5.0/24,no-resolve'] } }
+
+test('reviewed mainland domains precede mixed foreign sets without relying on real IP resolution', () => {
+  const direct = ['www.4399.com', 'www.9game.cn', 'bnet.163.com', 'blz.nosdn.127.net', 'down.qq.com', 'dldir1.qq.com']
+  const services = ['www.wanfangdata.com.cn', 'www.icloud.com.cn', 'www.azure.cn', 'login.chinacloudapi.cn',
+    's3.cn-north-1.amazonaws.com.cn', 'www.unity.cn', 'www.tesla.com.cn', 'www.duolingo.cn']
+  for (const patch of [{}, { webRtcMode: 'compatible' }, { preventWebRtcLeak: false }, { foreignSelection: 'party-smart' }]) {
+    const result = runOverride(compile(patch).code, fixtureConfig())
+    for (const host of direct) {
+      for (const network of ['TCP', 'UDP']) assert.equal(route(result, { host, network, port: 443 }), 'DIRECT', host)
+    }
+    for (const host of services) {
+      assert.equal(route(result, { host, network: 'TCP', port: 443 }), DOMESTIC, host)
+      assert.equal(route(result, { host, process: 'domestic-app.exe', network: 'UDP', port: 443 }), DOMESTIC, host)
+      if (patch.preventWebRtcLeak !== false) {
+        assert.equal(route(result, { host, process: 'chrome.exe', network: 'UDP', port: 443 }), 'REJECT', host)
+        assert.equal(route(result, { host, process: 'Codex.exe', network: 'UDP', port: 443 }), 'REJECT', host)
+      }
+    }
+    for (const host of ['www.google.cn', 'g.cn', 'www.apple.com', 'apps.apple.com', 'steamusercontent.com']) {
+      assert.equal(route(result, { host, network: 'TCP', port: 443 }), result['proxy-groups'][0].name, host)
+    }
+    assert.deepEqual(result.dns['nameserver-policy']['rule-set:lite-domestic-direct'], ['223.5.5.5', '223.6.6.6'])
+    assert.deepEqual(result.dns['nameserver-policy']['rule-set:lite-domestic-services'], ['223.5.5.5', '223.6.6.6'])
+  }
+})
+
+test('mainland overlays exclude bare TLDs and public suffixes; data sources must exist', () => {
+  const policy = buildDomesticPolicy({ sources: [{ category: 'test', role: 'services' }], services: [], foreignExceptions: [] },
+    { test: { patterns: ['+.cn', '+.com', '+.com.cn', '+.edu.cn', '+.baidu', '+.example.com.cn'] } })
+  assert.deepEqual(policy.services, ['+.example.com.cn'])
+  assert.throws(() => buildDomesticPolicy(inputs.domestic, {}), /Missing mainland source/)
+})
 
 test('domestic game processes, full game categories and mainland server IPs stay DIRECT in every mode', () => {
   const games = {
@@ -162,7 +195,7 @@ test('classical merging and tail pruning preserve precedence across domestic exc
     last: { type: 'inline', behavior: 'classical', format: 'yaml', payload: ['DOMAIN-SUFFIX,tail.test'] },
   }
   const baselineRules = [`RULE-SET,first,${FOREIGN}`, `RULE-SET,domain,${FOREIGN}`, `RULE-SET,second,${FOREIGN}`, `RULE-SET,domestic,${DOMESTIC}`, `RULE-SET,last,${FOREIGN}`]
-  const snapshot = { revisions: inputs.snapshot.revisions, aiDomains: inputs.snapshot.aiDomains,
+  const snapshot = { revisions: inputs.snapshot.revisions, aiDomains: inputs.snapshot.aiDomains, domesticSources: inputs.snapshot.domesticSources,
     files: Object.fromEntries(Object.entries(providers).map(([name, provider]) => [name, { payload: provider.payload, sha256: '0'.repeat(64), url: 'https://example.test/file.mrs' }])) }
   const optimized = compileOverride({ ...inputs, spec: { ...inputs.spec, preventWebRtcLeak: false, preRules: [], directRuleSets: [], ruleSetTargetOverrides: {}, forceChinaIpDirect: false },
     base: { ...inputs.base, ruleProviders: providers, baselineRules }, snapshot })

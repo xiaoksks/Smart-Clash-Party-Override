@@ -5,14 +5,15 @@ import { loadCustomSpec, ROOT } from './custom-spec.mjs'
 import { compileOverride } from './compile.mjs'
 
 export async function loadBuildInputs() {
-  const [spec, base, snapshot, catalog, runtime] = await Promise.all([
+  const [spec, base, snapshot, catalog, domestic, runtime] = await Promise.all([
     loadCustomSpec(),
     readFile(path.join(ROOT, 'scripts/base-data.json'), 'utf8').then(JSON.parse),
     readFile(path.join(ROOT, 'scripts/upstream-snapshot.json'), 'utf8').then(JSON.parse),
     readFile(path.join(ROOT, 'scripts/ai-services.json'), 'utf8').then(JSON.parse),
+    readFile(path.join(ROOT, 'scripts/domestic-services.json'), 'utf8').then(JSON.parse),
     readFile(path.join(ROOT, 'scripts/runtime.js'), 'utf8').then(text => text.replace(/\r\n/g, '\n')),
   ])
-  return { spec, base, snapshot, catalog, runtime }
+  return { spec, base, snapshot, catalog, domestic, runtime }
 }
 
 export async function buildLiteOverride() {

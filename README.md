@@ -35,6 +35,7 @@ https://raw.githubusercontent.com/xiaoksks/Smart-Clash-Party-Override/main/dist/
 strict、compatible 及关闭保护时均保持以下业务分流，直连目标固定为 `DIRECT`，不受「🇨🇳 国内节点」切换影响：
 
 - `directRuleSets` 将上游两套完整国内游戏分类（`014-game-cn-domain`、`070-game-cn-domain`）前置直连，覆盖腾讯/WeGame、米哈游、网易、完美世界等。上游分类随固定快照更新，不只为单个游戏添加例外。
+- `lite-domestic-direct` 补充真实国内游戏分类和国内下载覆盖，共 271 条匹配项；4399、九游、叠纸、网易国服及补丁服务不再被混杂的 `071-game-intl` 集合抢先代理，腾讯 `down.qq.com` / `dldir1.qq.com` 也固定直连。
 - 本地国内游戏域名（包括 `mihoyo.com`、`juequling.com`）保留字面 `DIRECT`，不再转换成国内策略组；未登记游戏直接连接大陆服务器 IP 时，也在剩余 UDP 拦截和无域名 TCP 代理之前直连。
 - `processTargetOverrides` 为 `dota2.exe` / `dota2`、`ZenlessZoneZero.exe`、`YuanShen.exe`、`StarRail.exe` 补充进程直连，覆盖未知域名及其他服务器 IP。这些进程按整体直连，适用于国服使用场景，不自动识别游戏内选择的服务器地区。
 - Steam 根据目的域名分流，不为 `steam.exe`、`steamwebhelper.exe` 或 `SteamService.exe` 设置全进程代理：`steamcontent.com`、SteamPipe、国内下载 CDN 等走直连；社区、用户图片、聊天、商店与 CM 登录服务走国外代理。CM 和社区图片的显式代理优先于上游国内游戏集合中重叠的域名。
@@ -43,6 +44,14 @@ strict、compatible 及关闭保护时均保持以下业务分流，直连目标
 需要运行 TUN 并使用规则模式，确保内核能识别发起连接的进程。更新后重新应用覆写并重启游戏及 Steam，清除旧连接；在连接面板确认游戏与 Steam 下载命中 `DIRECT`、Steam 社区命中国外组。AI/浏览器的 UDP 保护仍优先于国内游戏/CDN 规则，不按游戏端口对所有程序全局放行。
 
 Steam 游戏流量使用 UDP，参见 [Steam 官方端口说明](https://help.steampowered.com/en/faqs/view/2EA8-4D75-DA21-31EB)；规则按优先顺序匹配，参见 [Mihomo 进程规则](https://wiki.metacubex.one/config/rules/#process-name)。
+
+## 国内普通网站与本地化服务
+
+`lite-domestic-services` 使用 MetaCubeX 固定提交的 `geolocation-cn`、`category-companies@cn`，结合 `scripts/domestic-services.json` 的人工修正，提供 6212 条国内业务匹配项。万方、iCloud 中国、Azure 中国、AWS 中国、Unity 中国、Tesla 中国等域名在混杂的国外业务集合之前进入「🇨🇳 国内节点」，默认 DIRECT；该组被用户切换到代理时，普通业务仍遵循用户选择。游戏、下载的固定 DIRECT 保持独立。
+
+覆盖层不包含整个 `.cn`、`.com.cn` 等公共后缀，不将整个 Google、Apple、Microsoft 或国际游戏集合改为直连。Google 搜索的 `google.cn` / `g.cn`、Apple 国际门户和 App Store 保留既有代理策略；Steam 社区、海外 AI 和非日站点也优先于国内覆盖层。浏览器和已知 AI 客户端的 UDP 保护仍在这些例外之前生效。
+
+路由与 DNS 使用相同的覆盖集合及顺序。大陆 IP 的 `no-resolve` 仅匹配已知目标 IP，Fake-IP/按域名请求未必已有真实 IP；国内业务因此靠前置域名集合识别，不依赖取消 `no-resolve` 或额外解析每个未知域名。未登记业务仍可能需要后续更新，不能由匹配项数量推导完全覆盖。
 
 ## AI 与 WebRTC 保护
 
@@ -100,7 +109,7 @@ Clash 无法判断一个 STUN 请求由哪个网页发起，也不能阻止网�
 - 对 IP 补充规则使用 `no-resolve`，避免仅为匹配 IP 规则额外解析域名；删除最后一条国内规则之后与最终 MATCH 同出口的 8 条规则及闲置 provider。
 - 开启选择与 Fake-IP 持久化。不注入广告拦截规则。
 
-本次生成结果：**233 条入口规则、112 个规则集，其中 101 个远程 MRS、11 个内联集合**，最新统计见 [build-report.json](dist/build-report.json)。原版为 342 条入口规则、144 个远程规则文件。这些是结构与请求数量的减少，不能直接换算成网速或延迟提升百分比。
+本次生成结果：**236 条入口规则、115 个规则集，其中 101 个远程 MRS、14 个内联集合**，最新统计见 [build-report.json](dist/build-report.json)。原版为 342 条入口规则、144 个远程规则文件。这些是结构与请求数量的减少，不能直接换算成网速或延迟提升百分比。
 
 ## 构建、审计与上游同步
 
@@ -114,7 +123,7 @@ npm run report           # 输出真实格式统计与上游版本
 npm run check            # 完整离线检查
 npm run sync:upstream    # 同步整份固定提交快照，校验内容并记录 SHA256
 npm run check:upstream   # 联网验证固定文件及最新上游清单结构
-npm run check:core       # 设置 MIHOMO_BIN 后执行真实内核与 Party 兼容验证
+npm run check:core       # 真实 MRS 路由/DNS 矩阵、内核配置和 Party 兼容验证
 ```
 
 PowerShell 内核校验示例：
@@ -124,11 +133,13 @@ $env:MIHOMO_BIN = 'D:\tools\mihomo.exe'
 npm run check:core
 ```
 
-`scripts/upstream-snapshot.json` 同时记录两个上游提交、远程文件 SHA256、classical 内容和 AI 域名列表。构建阶段不依赖网络；运行配置不再使用带版本查询参数的漂移 `main` URL。
+`scripts/upstream-snapshot.json` 同时记录两个上游提交、远程文件 SHA256、classical 内容、AI 域名列表及三套国内分类的原始匹配项/校验值。构建阶段不依赖网络；运行配置不再使用带版本查询参数的漂移 `main` URL。
+
+`check:core` 不只检查 YAML 能否解析：它使用经 SHA256 验证的真实 MRS，启动仅监听回环地址的独立内核，按 `scripts/routing-cases.json` 验证 39 个国内业务与海外对照域名的 TCP 出口和 DNS 分类。目标服务器、代理和 DNS 都是本地测试服务，不访问这些网站，不启用 TUN，不修改正在运行的 Party 或系统路由。此验证不能代替实机浏览器 ICE / TUN 抓包检查。
 
 GitHub Actions 在推送/PR 时验证，在每周及手动触发时更新快照；全量审计和内核检查通过后才提交产物。若上游增加、删除或改名规则集，任务输出 `.build/upstream-diff.json` 并停止发布，必须审查新规则的类别与优先级后更新 `base-data.json`。不会依据编号猜测分流策略。上游继续提供 YAML/MRS 双格式以及广告集合，不视为需要新增的业务集合。
 
-新增 AI 产品或依赖请修改 `scripts/ai-services.json`，记录来源及精确域名。自建网关可加入 `foreignDnsDomains`，它也会进入前置海外集合。非日镜像、认证与 CDN 域名加入 `japanBlockedDomains`。所有修改后运行 `npm run check`；文件推送到仓库后，在线导入链接才会取得新版本。
+新增 AI 产品或依赖请修改 `scripts/ai-services.json`，记录来源及精确域名。国内分类修正请修改 `scripts/domestic-services.json`，并在 `routing-cases.json` 增加回归用例；不要直接编辑生成 JS。自建网关可加入 `foreignDnsDomains`，它也会进入前置海外集合。非日镜像、认证与 CDN 域名加入 `japanBlockedDomains`。所有修改后运行 `npm run check`；涉及分流时同时运行 `check:core`。文件推送到仓库后，在线导入链接才会取得新版本。
 
 ## 可选 Party Smart 模式
 
@@ -139,6 +150,6 @@ GitHub Actions 在推送/PR 时验证，在每周及手动触发时更新快照�
 ## 数据来源
 
 - [Smart-Config-Kit](https://github.com/IvanSolis1989/Smart-Config-Kit)：基础规则与斗鱼域名集合。
-- [MetaCubeX/meta-rules-dat](https://github.com/MetaCubeX/meta-rules-dat)：境外 AI 域名分类。
+- [MetaCubeX/meta-rules-dat](https://github.com/MetaCubeX/meta-rules-dat)：境外 AI、国内服务、国内游戏及国际厂商中国业务分类。
 - [Mihomo 文档](https://wiki.metacubex.one/config/dns/)：DNS、Fake-IP 与规则集合语法。
 - [Clash Party v2.0.4 配置流程](https://github.com/mihomo-party-org/clash-party/blob/v2.0.4/src/main/core/factory.ts)及 [Smart 覆写实现](https://github.com/mihomo-party-org/clash-party/blob/v2.0.4/src/main/config/smartOverride.ts)：客户端兼容验证依据。

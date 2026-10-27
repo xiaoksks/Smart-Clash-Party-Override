@@ -1,13 +1,15 @@
 {
-  "rules": 233,
-  "providers": 112,
+  "rules": 236,
+  "providers": 115,
   "providerFormats": {
     "mrs": 101,
-    "inline": 11
+    "inline": 14
   },
   "aiServices": 52,
   "aiDomains": 296,
   "aiProcesses": 35,
+  "domesticDirectDomains": 271,
+  "domesticServiceDomains": 6212,
   "webRtcMode": "strict",
   "foreignSelection": "select",
   "foreignGroupName": "🌐 国外节点",
@@ -56,7 +58,7 @@
     "scki-fused-081-social-residual",
     "scki-fused-082-google-residual"
   ],
-  "dnsProviderPolicies": 82,
+  "dnsProviderPolicies": 85,
   "revisions": {
     "scki": "70d4ddbe0b6d52af7acbd503ff1bf556a3bddacd",
     "meta": "c4d4a91ff5bd2847189d502aa60bd4b0e697753b"

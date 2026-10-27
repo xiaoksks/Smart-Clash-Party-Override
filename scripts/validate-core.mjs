@@ -9,6 +9,7 @@ import { compileOverride } from './compile.mjs'
 import { ROOT } from './custom-spec.mjs'
 import { fixtureConfig, runOverride } from './test-helpers.mjs'
 import { fetchBytes, digest } from './sync-upstream.mjs'
+import { validateRouting } from './validate-routing.mjs'
 
 const exec = promisify(execFile)
 const binary = process.env.MIHOMO_BIN
@@ -103,4 +104,5 @@ const manual = runOverride(compiled.code, fixture)
 const unsafeManual = runOverride(smartCode, manual)
 assert.notDeepEqual(unsafeManual.rules, manual.rules)
 console.log('Confirmed: manual select mode requires built-in Smart override OFF (documented).')
+await validateRouting({ binary, directory, inputs, prepareProviders })
 console.log('Core/Party validation complete. Actual browser ICE and OS TUN capture still require on-device testing.')

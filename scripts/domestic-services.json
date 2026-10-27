@@ -1,0 +1,53 @@
+{
+  "description": "Reviewed mainland-service overlay. Keep foreign AI, browser privacy guards and explicit foreign exceptions ahead of these sets. Do not promote the entire .cn suffix or mixed vendor rule sets.",
+  "sources": [
+    { "category": "geolocation-cn", "role": "services" },
+    { "category": "category-games-cn", "role": "direct" },
+    { "category": "category-companies@cn", "role": "services" }
+  ],
+  "foreignExceptions": ["+.google.cn", "+.g.cn", "www.apple.com", "apps.apple.com"],
+  "services": [
+    {
+      "name": "Tencent software downloads",
+      "source": "https://pc.qq.com/",
+      "role": "direct",
+      "domains": ["down.qq.com", "dldir1.qq.com"]
+    },
+    {
+      "name": "NetEase mainland Battle.net and game patch servers",
+      "source": "https://www.battlenet.com.cn/",
+      "role": "direct",
+      "domains": ["+.bnet.163.com", "+.blz.nosdn.127.net", "+.diablo3.nosdn.127.net", "+.hearthstone.nosdn.127.net", "+.overwatch.nosdn.127.net", "+.sc2.nosdn.127.net"]
+    },
+    {
+      "name": "Wanfang Data",
+      "source": "https://www.wanfangdata.com.cn/",
+      "role": "services",
+      "domains": ["+.wanfangdata.com.cn", "+.wanfangdata.com"]
+    },
+    {
+      "name": "Azure China",
+      "source": "https://docs.azure.cn/",
+      "role": "services",
+      "domains": ["+.azure.cn", "+.chinacloudapi.cn", "+.chinacloudapp.cn", "+.chinacloudsites.cn"]
+    },
+    {
+      "name": "AWS China",
+      "source": "https://www.amazonaws.cn/",
+      "role": "services",
+      "domains": ["+.amazonaws.cn", "+.amazonaws.com.cn"]
+    },
+    {
+      "name": "Tesla China",
+      "source": "https://www.tesla.cn/",
+      "role": "services",
+      "domains": ["+.tesla.cn", "+.tesla.com.cn", "+.teslamotors.cn", "+.teslamotors.com.cn"]
+    },
+    {
+      "name": "Duolingo China",
+      "source": "https://www.duolingo.cn/",
+      "role": "services",
+      "domains": ["+.duolingo.cn"]
+    }
+  ]
+}
