@@ -1,4 +1,6 @@
 // Configuration spec for Clash Party / Mihomo Lite override.
+// Designed for users with stable nodes: manual selection (select) keeps a fixed
+// exit IP to avoid AI/developer account risk controls and unnecessary probes.
 // Rules are prepended in order; foreignDnsDomains are resolved with overseas DoH.
 const CUSTOM_OVERRIDE_SPEC = {
   // Mainland IP direct routing follows AI/browser guards and service exceptions,
@@ -169,33 +171,6 @@ const CUSTOM_OVERRIDE_SPEC = {
     'DOMAIN,ip.cip.cc,DIRECT',
     'DOMAIN,myip.ipip.net,DIRECT',
 
-    // OpenAI / ChatGPT ecosystem: ensure web UI, API, static assets, telemetry, feature flags, and anti-bot challenges route to AI service consistently.
-    'DOMAIN-SUFFIX,chatgpt.com,🤖 AI 服务',
-    'DOMAIN-SUFFIX,oaistatic.com,🤖 AI 服务',
-    'DOMAIN-SUFFIX,oaiusercontent.com,🤖 AI 服务',
-    'DOMAIN-SUFFIX,openai.com,🤖 AI 服务',
-    'DOMAIN-SUFFIX,ai.com,🤖 AI 服务',
-    'DOMAIN-SUFFIX,sora.com,🤖 AI 服务',
-    'DOMAIN-SUFFIX,chat.com,🤖 AI 服务',
-    'DOMAIN-SUFFIX,api.statsig.com,🤖 AI 服务',
-    'DOMAIN-SUFFIX,events.statsigapi.net,🤖 AI 服务',
-    'DOMAIN-SUFFIX,featuregates.org,🤖 AI 服务',
-    'DOMAIN-SUFFIX,client-api.arkoselabs.com,🤖 AI 服务',
-    'DOMAIN-SUFFIX,openai-api.arkoselabs.com,🤖 AI 服务',
-    'DOMAIN-SUFFIX,challenges.cloudflare.com,🤖 AI 服务',
-    'DOMAIN-SUFFIX,turnstile.cloudflare.com,🤖 AI 服务',
-
-    // Patreon page bootstrap: first party, consent, media, video and chat CDNs.
-    'DOMAIN-SUFFIX,patreon.com,🌐 国外网站',
-    'DOMAIN-SUFFIX,patreonusercontent.com,🌐 国外网站',
-    'DOMAIN-SUFFIX,patreoncommunity.com,🌐 国外网站',
-    'DOMAIN-SUFFIX,transcend-cdn.com,🌐 国外网站',
-    'DOMAIN-SUFFIX,transcend.io,🌐 国外网站',
-    'DOMAIN,patreon-media.s3-accelerate.amazonaws.com,🌐 国外网站',
-    'DOMAIN-SUFFIX,mux.com,🌐 国外网站',
-    'DOMAIN-SUFFIX,stream-io-api.com,🌐 国外网站',
-    'DOMAIN-SUFFIX,stream-io-video.com,🌐 国外网站',
-
     // Login/community are explicitly proxied, including CM (not a download CDN).
     'DOMAIN-SUFFIX,steampowered.com,🌐 国外节点',
     'DOMAIN-SUFFIX,steamcommunity.com,🌐 国外节点',
@@ -279,18 +254,8 @@ const CUSTOM_OVERRIDE_SPEC = {
     'DOMAIN-SUFFIX,dingxiang-inc.com,DIRECT',
   ],
 
+  // Additional overseas domains folded into lite-ai + proxied DoH (AI services are maintained in scripts/ai-services.json).
   foreignDnsDomains: [
-    '+.chatgpt.com',
-    '+.oaistatic.com',
-    '+.oaiusercontent.com',
-    '+.openai.com',
-    '+.ai.com',
-    '+.sora.com',
-    '+.chat.com',
-    '+.statsig.com',
-    '+.statsigapi.net',
-    '+.featuregates.org',
-    '+.arkoselabs.com',
     '+.patreon.com',
     '+.patreonusercontent.com',
     '+.patreoncommunity.com',

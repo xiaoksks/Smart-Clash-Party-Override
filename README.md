@@ -1,6 +1,6 @@
 # Clash Party / Mihomo Lite Override
 
-保留三个策略组，集中维护分流、DNS 与海外 AI 连接保护。国内游戏和 Steam 下载固定直连；默认严格 WebRTC 模式优先保护 AI 与浏览器，再限制未命中直连规则的 UDP。
+保留三个策略组，集中维护分流、DNS 与海外 AI 连接保护。**推崇手动选择节点（`select`），服务于拥有稳定节点的用户**：固定单一境外出口，避免后台测速切换导致的出口 IP 跳变与海外 AI / 开发账号风控。国内游戏和 Steam 下载固定直连；默认严格 WebRTC 模式优先保护 AI 与浏览器，再限制未命中直连规则的 UDP。
 
 本版验证环境为 **Clash Party v2.0.4 的脚本执行流程、Mihomo v1.19.33**。导入前更新内核。普通 Mihomo 也可使用手动选择模式；`party-smart` 模式需要 Clash Party 的 Smart 内核。
 
@@ -101,15 +101,16 @@ Clash 无法判断一个 STUN 请求由哪个网页发起，也不能阻止网�
 ## DNS 与规则性能
 
 - 默认未知域名使用加密 DoH，并通过选中的国外组连接；AI 显式域名覆盖继承的国内解析策略，避免大陆 CDN 地址导致直连或 DNS 出口分裂。
-- 国内域名集合复用于 DNS policy，规则集之间保持分流顺序；原有企业/内网 DNS 策略保留，AI 保留域名除外。
-- 代理节点域名使用独立国内 DNS 引导解析，避免“先有代理才能解析代理节点”的依赖循环。
+- 预置核心 DoH 域名（`cloudflare-dns.com`、`dns.google`、`dns.alidns.com`、`doh.pub`）的静态 `hosts`，且 `default-nameserver` 优先使用加密 DoH-over-IP（`https://223.5.5.5/dns-query`）并保留明文兜底，省去 DoH 服务器自身的首次引导解析。
+- 国内域名集合复用于 DNS policy，规则集之间保持分流顺序；保留企业/内网自定义域名策略（AI 保留域名除外），自动清理原订阅遗留的失效 `rule-set:` DNS 引用。
+- 代理节点域名使用独立国内 DNS 引导解析，并仅按需保留当前活动节点域名的精确 `proxy-server-nameserver-policy` 与 `hosts`，避免“先有代理才能解析代理节点”的依赖循环或全局污染。
 - 非日站点的 DNS 使用非日策略组；网站及资源依赖应同时登记在 `japanBlockedDomains`，不会自动把第三方 CDN 的所有租户都划到非日组。
 - Fake-IP 使用 `rule` 模式。AI 优先返回 Fake-IP；局域网、NCSI 等协议例外返回真实 IP。移除 Docker、Bing 等宽泛的真实 IP 豁免。
-- 保留 MRS 的域名/IP 紧凑表示；将已校验的 classical 规则内联，并只在**相邻且出口相同**的区段合并，保留国内外例外顺序。
+- 保留 MRS 的域名/IP 紧凑表示；将已校验的 classical 规则内联，并只在**相邻且出口相同**的区段合并，保留国内外例外顺序；编译期自动剔除已被前置 `lite-ai` 与 `lite-domestic-direct` 覆盖的重复单域名规则。
 - 对 IP 补充规则使用 `no-resolve`，避免仅为匹配 IP 规则额外解析域名；删除最后一条国内规则之后与最终 MATCH 同出口的 8 条规则及闲置 provider。
 - 开启选择与 Fake-IP 持久化。不注入广告拦截规则。
 
-本次生成结果：**236 条入口规则、115 个规则集，其中 101 个远程 MRS、14 个内联集合**，最新统计见 [build-report.json](dist/build-report.json)。原版为 342 条入口规则、144 个远程规则文件。这些是结构与请求数量的减少，不能直接换算成网速或延迟提升百分比。
+本次生成结果：**227 条入口规则、115 个规则集，其中 101 个远程 MRS、14 个内联集合**，最新统计见 [build-report.json](dist/build-report.json)。原版为 342 条入口规则、144 个远程规则文件。这些是结构与请求数量的减少，不能直接换算成网速或延迟提升百分比。
 
 ## 构建、审计与上游同步
 

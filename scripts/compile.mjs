@@ -49,20 +49,25 @@ export function compileOverride({ spec, base, snapshot, catalog, domestic, runti
   providers['lite-domestic-services'] = { type: 'inline', behavior: 'domain', format: 'yaml', payload: mainland.services }
   providers['lite-foreign-exceptions'] = { type: 'inline', behavior: 'domain', format: 'yaml', payload: mainland.foreignExceptions }
   const subsumedDomainRules = new Set()
+  function coveredBy(patterns, type, host) {
+    return patterns.some(pattern => {
+      if (pattern.startsWith('+.')) return host === pattern.slice(2) || host.endsWith('.' + pattern.slice(2))
+      return type === 'DOMAIN' && host === pattern
+    })
+  }
   function retainDomainRule(rule) {
     const parts = rule.split(',')
-    if (targetOf(rule) !== FOREIGN || !['DOMAIN', 'DOMAIN-SUFFIX'].includes(parts[0])) return true
-    const covered = aiDomains.some(pattern => {
-      if (pattern.startsWith('+.')) return parts[1] === pattern.slice(2) || parts[1].endsWith('.' + pattern.slice(2))
-      return parts[0] === 'DOMAIN' && parts[1] === pattern
-    })
+    if (!['DOMAIN', 'DOMAIN-SUFFIX'].includes(parts[0])) return true
+    const target = targetOf(rule)
+    const covered = (target === FOREIGN && coveredBy(aiDomains, parts[0], parts[1])) ||
+      (target === 'DIRECT' && coveredBy(mainland.direct, parts[0], parts[1]) && !coveredBy(mainland.foreignExceptions, parts[0], parts[1]))
     if (covered) subsumedDomainRules.add(rule)
     return !covered
   }
 
   // Explicit local DIRECT means DIRECT; only the upstream domestic categories
   // that have no explicit override follow the selectable domestic group.
-  const directPreRules = spec.preRules.filter(r => ['DIRECT', DOMESTIC].includes(targetOf(r)))
+  const directPreRules = spec.preRules.filter(r => ['DIRECT', DOMESTIC].includes(targetOf(r))).filter(retainDomainRule)
   const foreignPreRules = spec.preRules.filter(r => !['DIRECT', DOMESTIC].includes(targetOf(r))).map(r => normalize(r)).filter(retainDomainRule)
   const aiProcesses = [...new Set(catalog.services.flatMap(s => s.processes || []))]
   const privacy = buildWebRtcProtectionRules({ ...spec, aiProcesses })

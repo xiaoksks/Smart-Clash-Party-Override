@@ -1,5 +1,5 @@
 {
-  "rules": 236,
+  "rules": 227,
   "providers": 115,
   "providerFormats": {
     "mrs": 101,
@@ -15,7 +15,7 @@
   "foreignGroupName": "🌐 国外节点",
   "trimmedTailRules": 8,
   "mergedClassicalRuns": 6,
-  "subsumedDomainRules": 22,
+  "subsumedDomainRules": 21,
   "removedProviders": [
     "scki-fused-008-social-residual",
     "scki-fused-009-tiktok-residual",

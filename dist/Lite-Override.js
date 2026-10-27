@@ -53,25 +53,16 @@ const LITE_RULES = [
   "DOMAIN-SUFFIX,steamstatic.com.8686c.com,DIRECT",
   "DOMAIN-SUFFIX,wmsjsteam.com,DIRECT",
   "DOMAIN-SUFFIX,xz.pphimalayanrt.com,DIRECT",
-  "DOMAIN-SUFFIX,mihoyo.com,DIRECT",
-  "DOMAIN-SUFFIX,miyoushe.com,DIRECT",
-  "DOMAIN-SUFFIX,yuanshen.com,DIRECT",
-  "DOMAIN-SUFFIX,bhsr.com,DIRECT",
   "DOMAIN-SUFFIX,zenlesszonezero.com,DIRECT",
-  "DOMAIN-SUFFIX,juequling.com,DIRECT",
   "DOMAIN,game.163.com,DIRECT",
   "DOMAIN-SUFFIX,gm.163.com,DIRECT",
   "DOMAIN-SUFFIX,ds.163.com,DIRECT",
   "DOMAIN-SUFFIX,nie.163.com,DIRECT",
   "DOMAIN-SUFFIX,netease.com,DIRECT",
-  "DOMAIN-SUFFIX,wegame.com,DIRECT",
-  "DOMAIN-SUFFIX,wegame.com.cn,DIRECT",
   "DOMAIN-SUFFIX,perfect-world.com,DIRECT",
-  "DOMAIN-SUFFIX,wanmei.com,DIRECT",
   "DOMAIN-SUFFIX,xd.com,DIRECT",
   "DOMAIN-SUFFIX,taptap.com,DIRECT",
   "DOMAIN-SUFFIX,taptap.io,DIRECT",
-  "DOMAIN-SUFFIX,papegames.com,DIRECT",
   "DOMAIN-SUFFIX,hypergryph.com,DIRECT",
   "DOMAIN-SUFFIX,gryphline.com,DIRECT",
   "DOMAIN-SUFFIX,lilith.com,DIRECT",
@@ -108,8 +99,6 @@ const LITE_RULES = [
   "DOMAIN-SUFFIX,ident.me,🌐 国外节点",
   "DOMAIN-SUFFIX,icanhazip.com,🌐 国外节点",
   "DOMAIN-SUFFIX,ifconfig.me,🌐 国外节点",
-  "DOMAIN-SUFFIX,challenges.cloudflare.com,🌐 国外节点",
-  "DOMAIN-SUFFIX,turnstile.cloudflare.com,🌐 国外节点",
   "DOMAIN-SUFFIX,steampowered.com,🌐 国外节点",
   "DOMAIN-SUFFIX,steamcommunity.com,🌐 国外节点",
   "DOMAIN-SUFFIX,steam-chat.com,🌐 国外节点",
@@ -124,6 +113,8 @@ const LITE_RULES = [
   "OR,((DST-PORT,3478),(DST-PORT,3479),(DST-PORT,3480),(DST-PORT,3481),(DST-PORT,5349),(DST-PORT,19302),(DST-PORT,19303),(DST-PORT,19304),(DST-PORT,19305),(DST-PORT,19306),(DST-PORT,19307),(DST-PORT,19308),(DST-PORT,19309)),REJECT",
   "NETWORK,UDP,REJECT",
   "AND,((NETWORK,TCP),(DOMAIN-REGEX,^$),(NOT,((GEOIP,PRIVATE,no-resolve)))),🌐 国外节点",
+  "DOMAIN-SUFFIX,challenges.cloudflare.com,🌐 国外节点",
+  "DOMAIN-SUFFIX,turnstile.cloudflare.com,🌐 国外节点",
   "RULE-SET,scki-fused-001-direct-domain,🇨🇳 国内节点",
   "RULE-SET,scki-fused-002-intl-site-domain,🌐 国外节点",
   "RULE-SET,scki-fused-003-payments-domain,🌐 国外节点",
@@ -9133,29 +9124,6 @@ const LITE_OPTIONS = {
     "DOMAIN-SUFFIX,ippure.com,🌐 国外网站",
     "DOMAIN,ip.cip.cc,DIRECT",
     "DOMAIN,myip.ipip.net,DIRECT",
-    "DOMAIN-SUFFIX,chatgpt.com,🤖 AI 服务",
-    "DOMAIN-SUFFIX,oaistatic.com,🤖 AI 服务",
-    "DOMAIN-SUFFIX,oaiusercontent.com,🤖 AI 服务",
-    "DOMAIN-SUFFIX,openai.com,🤖 AI 服务",
-    "DOMAIN-SUFFIX,ai.com,🤖 AI 服务",
-    "DOMAIN-SUFFIX,sora.com,🤖 AI 服务",
-    "DOMAIN-SUFFIX,chat.com,🤖 AI 服务",
-    "DOMAIN-SUFFIX,api.statsig.com,🤖 AI 服务",
-    "DOMAIN-SUFFIX,events.statsigapi.net,🤖 AI 服务",
-    "DOMAIN-SUFFIX,featuregates.org,🤖 AI 服务",
-    "DOMAIN-SUFFIX,client-api.arkoselabs.com,🤖 AI 服务",
-    "DOMAIN-SUFFIX,openai-api.arkoselabs.com,🤖 AI 服务",
-    "DOMAIN-SUFFIX,challenges.cloudflare.com,🤖 AI 服务",
-    "DOMAIN-SUFFIX,turnstile.cloudflare.com,🤖 AI 服务",
-    "DOMAIN-SUFFIX,patreon.com,🌐 国外网站",
-    "DOMAIN-SUFFIX,patreonusercontent.com,🌐 国外网站",
-    "DOMAIN-SUFFIX,patreoncommunity.com,🌐 国外网站",
-    "DOMAIN-SUFFIX,transcend-cdn.com,🌐 国外网站",
-    "DOMAIN-SUFFIX,transcend.io,🌐 国外网站",
-    "DOMAIN,patreon-media.s3-accelerate.amazonaws.com,🌐 国外网站",
-    "DOMAIN-SUFFIX,mux.com,🌐 国外网站",
-    "DOMAIN-SUFFIX,stream-io-api.com,🌐 国外网站",
-    "DOMAIN-SUFFIX,stream-io-video.com,🌐 国外网站",
     "DOMAIN-SUFFIX,steampowered.com,🌐 国外节点",
     "DOMAIN-SUFFIX,steamcommunity.com,🌐 国外节点",
     "DOMAIN-SUFFIX,steam-chat.com,🌐 国外节点",
@@ -9229,17 +9197,6 @@ const LITE_OPTIONS = {
     "DOMAIN-SUFFIX,dingxiang-inc.com,DIRECT"
   ],
   "foreignDnsDomains": [
-    "+.chatgpt.com",
-    "+.oaistatic.com",
-    "+.oaiusercontent.com",
-    "+.openai.com",
-    "+.ai.com",
-    "+.sora.com",
-    "+.chat.com",
-    "+.statsig.com",
-    "+.statsigapi.net",
-    "+.featuregates.org",
-    "+.arkoselabs.com",
     "+.patreon.com",
     "+.patreonusercontent.com",
     "+.patreoncommunity.com",
@@ -9291,18 +9248,25 @@ const LITE_OPTIONS = {
 }
 
 // Concatenated after generated LITE_* constants. No network or Node APIs at runtime.
-var INFO_REGEX = /流量|到期|过期|重置|官网|通知|订阅|套餐|客服|QQ群|TG频道|网址|剩余|官方/i
-var CN_NODE_REGEX = /中国(?:电信|联通|移动|铁通|中转|专线)|(?:^|[^a-zA-Z])(?:CN|China|Mainland|回国|国内|北京|上海|广州|深圳|杭州|南京|武汉|成都|重庆|天津|西安|苏州|郑州|长沙|沈阳|青岛|济南|大连|厦门|福州|合肥)(?:[^a-zA-Z]|$)/i
-var JP_NODE_REGEX = /(?:^|[^a-zA-Z])(?:JP|JPN|Japan|Tokyo|Osaka|Nagoya|Fukuoka|Yokohama|Saitama|Chiba|Hokkaido|Okinawa|Kyoto|Kobe)\d*(?:[^a-zA-Z]|$)|日本|东京|大阪|名古屋|福冈|横滨|埼玉|千叶|北海道|冲绳|京都|神户|🇯🇵/i
-var FOREIGN_KEYWORD_REGEX = /(?:^|[^a-zA-Z])(?:HK|HongKong|TW|Taiwan|JP|Japan|SG|Singapore|US|USA|KR|Korea|UK)(?:[^a-zA-Z]|$)|香港|台湾|日本|新加坡|美国|韩国|英国|德国|法国|🇭🇰|🇹🇼|🇯🇵|🇸🇬|🇺🇸|🇰🇷|🇬🇧|🇩🇪|🇫🇷/i
+var INFO_REGEX = /流量|到期|过期|重置|官网|通知|订阅|套餐|客服|QQ群|TG频道|网址|剩余|官方|防失联|群组|\b(?:Expire|Traffic|Remaining|Reset|Website)\b/i
+var CN_NODE_REGEX = /中国大陆|回国|国内|北京|上海|广州|深圳|杭州|南京|武汉|成都|重庆|天津|西安|苏州|郑州|长沙|沈阳|青岛|济南|大连|厦门|福州|合肥|宁波|无锡|东莞|佛山|昆明|贵阳|南宁|海口|石家庄|太原|长春|哈尔滨|南昌|兰州|银川|西宁|乌鲁木齐|拉萨|呼和浩特|🇨🇳|(?:^|[^a-zA-Z])(?:CN|CHN|Mainland|China(?!\s*(?:Telecom|Unicom|Mobile|BGP|IPLC|IEPL)))\d*(?:[^a-zA-Z]|$)/i
+var JP_NODE_REGEX = /(?:^|[^a-zA-Z])(?:JP|JPN|Japan|Tokyo|Osaka|Nagoya|Fukuoka|Yokohama|Saitama|Chiba|Hokkaido|Okinawa|Kyoto|Kobe|Sapporo|Sendai|NRT|HND|KIX|NGO|FUK|CTS|OKA)\d*(?:[^a-zA-Z]|$)|日本|东京|大阪|名古屋|福冈|横滨|埼玉|千叶|北海道|冲绳|京都|神户|札幌|仙台|🇯🇵/i
+var FOREIGN_KEYWORD_REGEX = /(?:^|[^a-zA-Z])(?:HK|HKG|HongKong|TW|TWN|Taiwan|TPE|JP|JPN|Japan|SG|SGP|Singapore|SIN|US|USA|KR|KOR|Korea|ICN|UK|GBR|DE|DEU|FR|FRA|CA|CAN|AU|AUS|RU|RUS|NL|NLD|IN|IND|MY|MYS|TH|THA|VN|VNM|PH|PHL|ID|IDN|TR|TUR|BR|BRA|AR|ARG|CL|CHL|MX|MEX|IT|ITA|ES|ESP|CH|CHE|SE|SWE|NO|NOR|FI|FIN|DK|DNK|PL|POL|IE|IRL|AT|AUT|BE|BEL|PT|PRT|AE|ARE|ZA|ZAF|NZ|NZL)\d*(?:[^a-zA-Z]|$)|香港|台湾|台北|日本|新加坡|狮城|美国|韩国|首尔|英国|伦敦|德国|法兰克福|法国|巴黎|加拿大|澳大利亚|澳洲|俄罗斯|荷兰|印度|马来西亚|泰国|越南|菲律宾|印尼|土耳其|巴西|阿根廷|智利|墨西哥|意大利|西班牙|瑞士|瑞典|挪威|芬兰|丹麦|波兰|爱尔兰|奥地利|比利时|葡萄牙|阿联酋|迪拜|南非|新西兰|🇭🇰|🇹🇼|🇯🇵|🇸🇬|🇺🇸|🇰🇷|🇬🇧|🇩🇪|🇫🇷|🇨🇦|🇦🇺|🇷🇺|🇳🇱|🇮🇳|🇲🇾|🇹🇭|🇻🇳|🇵🇭|🇮🇩|🇹🇷|🇧🇷|🇦🇷|🇨🇱|🇲🇽|🇮🇹|🇪🇸|🇨🇭|🇸🇪|🇳🇴|🇫🇮|🇩🇰|🇵🇱|🇮🇪|🇦🇹|🇧🇪|🇵🇹|🇦🇪|🇿🇦|🇳🇿/i
+var DOH_HOSTS = {
+  'cloudflare-dns.com': ['1.1.1.1', '1.0.0.1'],
+  'dns.google': ['8.8.8.8', '8.8.4.4'],
+  'dns.alidns.com': ['223.5.5.5', '223.6.6.6'],
+  'doh.pub': ['119.29.29.29', '1.12.12.12'],
+}
 
 function liteClone(value) { return JSON.parse(JSON.stringify(value)) }
 function liteObject(value) { return value && typeof value === 'object' && !Array.isArray(value) }
 function isCnNode(name) { return !FOREIGN_KEYWORD_REGEX.test(name) && CN_NODE_REGEX.test(name) }
 function isJpNode(name) { return JP_NODE_REGEX.test(name) }
 
-function applyLiteDns(config) {
+function applyLiteDns(config, nodeServers) {
   var previous = liteObject(config.dns) ? config.dns : {}
+  var bootstrap = ['https://223.5.5.5/dns-query', 'https://223.6.6.6/dns-query', '223.5.5.5']
   var domestic = ['223.5.5.5', '223.6.6.6']
   // Force encrypted overseas DNS through the SAME selected foreign exit. These
   // explicit routes cannot accidentally follow a mainland CDN IP direct rule.
@@ -9313,13 +9277,13 @@ function applyLiteDns(config) {
   var nonJpDns = ['https://cloudflare-dns.com/dns-query#🚫 日本禁用', 'https://dns.google/dns-query#🚫 日本禁用']
   var policy = {}
   var explicit = {}
-  // Preserve user/corporate policies while reserved AI routes always take priority.
+  // Preserve user/corporate host policies while dropping stale subscription rule-sets.
   var previousPolicy = liteObject(previous['nameserver-policy']) ? previous['nameserver-policy'] : {}
   policy['rule-set:lite-ai'] = foreign.slice()
   policy['rule-set:lite-non-jp'] = nonJpDns
   Object.keys(previousPolicy).forEach(function(key) {
-    // Rebuild our entries in deterministic order on every invocation.
-    if (key.indexOf('rule-set:lite-') !== 0 && !LITE_DNS_POLICY.some(function(p) { return key === 'rule-set:' + p.name })) {
+    // Rebuild our rule-set entries in deterministic order on every invocation.
+    if (key.indexOf('rule-set:') !== 0) {
       explicit[key] = liteClone(previousPolicy[key])
     }
   })
@@ -9352,11 +9316,20 @@ function applyLiteDns(config) {
   // including endpoints resolving to CN CDN addresses.
   var dns = Object.assign({}, previous, liteClone(LITE_DNS_CONFIG))
   dns.nameserver = foreign.slice()
-  dns['default-nameserver'] = domestic.slice()
+  dns['default-nameserver'] = bootstrap.slice()
   dns['proxy-server-nameserver'] = domestic.slice()
   dns['direct-nameserver'] = domestic.slice()
   dns['direct-nameserver-follow-policy'] = false
   dns['nameserver-policy'] = policy
+  var prevNodePolicy = liteObject(previous['proxy-server-nameserver-policy']) ? previous['proxy-server-nameserver-policy'] : null
+  var nodePolicy = {}
+  if (prevNodePolicy && nodeServers) {
+    Object.keys(prevNodePolicy).sort().forEach(function(key) {
+      if (nodeServers[key.toLowerCase()]) nodePolicy[key] = liteClone(prevNodePolicy[key])
+    })
+  }
+  if (Object.keys(nodePolicy).length) dns['proxy-server-nameserver-policy'] = nodePolicy
+  else delete dns['proxy-server-nameserver-policy']
   dns['use-hosts'] = true
   dns.ipv6 = false
   dns['prefer-h3'] = false
@@ -9382,6 +9355,7 @@ function applyLiteDns(config) {
     'DOMAIN-SUFFIX,msftncsi.com,real-ip',
     'MATCH,fake-ip',
   ]
+  config.hosts = Object.assign({}, liteObject(config.hosts) ? config.hosts : {}, liteClone(DOH_HOSTS))
   config.dns = dns
 }
 
@@ -9391,12 +9365,15 @@ function main(config) {
   var providerNames = liteObject(config['proxy-providers']) ? Object.keys(config['proxy-providers']) : []
   if (!nodes.length && !providerNames.length) return config
   var foreignNodes = [], nonJpNodes = [], cnNodes = []
-  var seen = Object.create(null)
+  var seen = Object.create(null), nodeServers = Object.create(null)
   nodes.forEach(function(p) {
     if (!liteObject(p) || !p.name || /^(direct|reject)$/i.test(p.type || '')) return
     var name = String(p.name)
     if (INFO_REGEX.test(name) || seen[name]) return
     seen[name] = true
+    if (typeof p.server === 'string' && p.server.indexOf(':') === -1 && !/^\d+\.\d+\.\d+\.\d+$/.test(p.server)) {
+      nodeServers[p.server.toLowerCase()] = true
+    }
     if (isCnNode(name)) cnNodes.push(name)
     else { foreignNodes.push(name); if (!isJpNode(name)) nonJpNodes.push(name) }
   })
@@ -9445,7 +9422,7 @@ function main(config) {
   })
   config['rule-providers'] = liteClone(LITE_RULE_PROVIDERS)
   config.rules = LITE_RULES.slice()
-  applyLiteDns(config)
+  applyLiteDns(config, nodeServers)
   config.tun = Object.assign({}, liteObject(config.tun) ? config.tun : {}, {
     enable: true, 'auto-route': true, 'strict-route': true,
     'auto-detect-interface': true, 'dns-hijack': ['any:53', 'tcp://any:53'],

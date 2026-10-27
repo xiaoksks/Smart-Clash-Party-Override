@@ -212,11 +212,50 @@ test('classical merging and tail pruning preserve precedence across domestic exc
 })
 
 test('Japan-only and CN-only subscriptions never restore Japanese nodes into non-JP group', () => {
-  for (const names of [['JP01', 'Japan02', '🇯🇵 Osaka03'], ['🇨🇳 国内中转-上海电信']]) {
+  for (const names of [['JP01', 'Japan02', '🇯🇵 Osaka03', 'IEPL-NRT-01', 'KIX-02', 'HND-专线'], ['🇨🇳 国内中转-上海电信']]) {
     const result = runOverride(strict.code, { proxies: names.map(name => ({ name, type: 'ss' })) })
     assert.deepEqual(result['proxy-groups'][1].proxies, ['DIRECT'])
   }
   assert.equal(route(fixture, { host: 'hgamefree.info', network: 'TCP', port: 443, ip: '223.5.5.5' }, cn), NON_JP)
+})
+
+test('carrier-prefixed foreign lines stay in manual foreign/non-JP lists while IATA Japan codes are excluded from non-JP', () => {
+  const nodes = [
+    { name: '中国电信IPLC-加拿大01', type: 'ss', server: 'ca1.node.test' },
+    { name: '联通专线-荷兰01', type: 'ss', server: 'nl1.node.test' },
+    { name: 'China Telecom - NL02', type: 'ss', server: 'nl2.node.test' },
+    { name: 'IEPL-NRT-01', type: 'ss', server: 'nrt1.node.test' },
+    { name: '专线-KIX-02', type: 'ss', server: 'kix2.node.test' },
+    { name: 'Traffic Remaining 120GB', type: 'ss', server: 'info.node.test' },
+    { name: 'Expire: 2027-01-01', type: 'ss', server: 'info2.node.test' },
+  ]
+  const staticResult = runOverride(strict.code, {
+    proxies: nodes,
+    hosts: { 'ca1.node.test': '203.0.113.10' },
+    dns: {
+      'nameserver-policy': { 'rule-set:stale-airport-set': ['223.5.5.5'], '+.corp.test': ['10.0.0.53'] },
+      'proxy-server-nameserver-policy': { 'ca1.node.test': ['https://doh.pub/dns-query'], '+.untrusted.test': ['1.1.1.1'] },
+    },
+  })
+  const [foreign, nonJp, domestic] = staticResult['proxy-groups']
+  assert.deepEqual(foreign.proxies, ['中国电信IPLC-加拿大01', '联通专线-荷兰01', 'China Telecom - NL02', 'IEPL-NRT-01', '专线-KIX-02'])
+  assert.deepEqual(nonJp.proxies, ['中国电信IPLC-加拿大01', '联通专线-荷兰01', 'China Telecom - NL02', 'DIRECT'])
+  assert.deepEqual(domestic.proxies, ['DIRECT', FOREIGN])
+  assert.equal(staticResult.dns['nameserver-policy']['rule-set:stale-airport-set'], undefined)
+  assert.deepEqual(staticResult.dns['nameserver-policy']['+.corp.test'], ['10.0.0.53'])
+  assert.deepEqual(staticResult.dns['proxy-server-nameserver-policy'], { 'ca1.node.test': ['https://doh.pub/dns-query'] })
+  assert.equal(staticResult.hosts['ca1.node.test'], '203.0.113.10')
+  assert.deepEqual(staticResult.hosts['cloudflare-dns.com'], ['1.1.1.1', '1.0.0.1'])
+  const providerResult = runOverride(strict.code, { 'proxy-providers': { airport: { type: 'inline', payload: nodes } } })
+  const regex = pattern => new RegExp(pattern.replace(/^\(\?i\)/, ''), 'i')
+  for (const name of ['中国电信IPLC-加拿大01', '联通专线-荷兰01', 'China Telecom - NL02']) {
+    assert.ok(!regex(providerResult['proxy-groups'][0]['exclude-filter']).test(name), name)
+    assert.ok(!regex(providerResult['proxy-groups'][1]['exclude-filter']).test(name), name)
+  }
+  for (const name of ['IEPL-NRT-01', '专线-KIX-02']) {
+    assert.ok(!regex(providerResult['proxy-groups'][0]['exclude-filter']).test(name), name)
+    assert.ok(regex(providerResult['proxy-groups'][1]['exclude-filter']).test(name), name)
+  }
 })
 
 test('strict removes inherited TUN exclusions and DIRECT listeners, preserves TCP Thunder DIRECT', () => {
