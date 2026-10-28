@@ -65,6 +65,12 @@ export async function auditLiteOverride() {
   assert.equal(result.dns['fake-ip-filter-mode'], 'rule')
   assert.ok(!result.dns.fallback && !result.dns['fallback-filter'])
   assert.deepEqual(result.dns['default-nameserver'], ['https://223.5.5.5/dns-query', 'https://223.6.6.6/dns-query', '223.5.5.5'])
+  assert.deepEqual(result.dns['proxy-server-nameserver'], [
+    'https://223.5.5.5/dns-query',
+    'https://223.6.6.6/dns-query',
+    'https://1.12.12.12/dns-query',
+    'https://120.53.53.53/dns-query',
+  ])
   assert.deepEqual(result.hosts['cloudflare-dns.com'], ['1.1.1.1', '1.0.0.1'])
   assert.deepEqual(result.hosts['dns.google'], ['8.8.8.8', '8.8.4.4'])
   assert.ok(result.dns.nameserver.every(ns => ns.endsWith('#' + expected.report.foreignGroupName)))

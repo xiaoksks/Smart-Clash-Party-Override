@@ -9268,6 +9268,12 @@ function applyLiteDns(config, nodeServers) {
   var previous = liteObject(config.dns) ? config.dns : {}
   var bootstrap = ['https://223.5.5.5/dns-query', 'https://223.6.6.6/dns-query', '223.5.5.5']
   var domestic = ['223.5.5.5', '223.6.6.6']
+  var nodeDns = [
+    'https://223.5.5.5/dns-query',
+    'https://223.6.6.6/dns-query',
+    'https://1.12.12.12/dns-query',
+    'https://120.53.53.53/dns-query',
+  ]
   // Force encrypted overseas DNS through the SAME selected foreign exit. These
   // explicit routes cannot accidentally follow a mainland CDN IP direct rule.
   var foreign = [
@@ -9317,7 +9323,7 @@ function applyLiteDns(config, nodeServers) {
   var dns = Object.assign({}, previous, liteClone(LITE_DNS_CONFIG))
   dns.nameserver = foreign.slice()
   dns['default-nameserver'] = bootstrap.slice()
-  dns['proxy-server-nameserver'] = domestic.slice()
+  dns['proxy-server-nameserver'] = nodeDns.slice()
   dns['direct-nameserver'] = domestic.slice()
   dns['direct-nameserver-follow-policy'] = false
   dns['nameserver-policy'] = policy
