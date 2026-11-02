@@ -138,9 +138,9 @@ npm run check:core
 
 `check:core` 不只检查 YAML 能否解析：它使用经 SHA256 验证的真实 MRS，启动仅监听回环地址的独立内核，按 `scripts/routing-cases.json` 验证 39 个国内业务与海外对照域名的 TCP 出口和 DNS 分类。目标服务器、代理和 DNS 都是本地测试服务，不访问这些网站，不启用 TUN，不修改正在运行的 Party 或系统路由。此验证不能代替实机浏览器 ICE / TUN 抓包检查。
 
-GitHub Actions 在推送/PR 时验证，在每周及手动触发时更新快照；全量审计和内核检查通过后才提交产物。若上游增加、删除或改名规则集，任务输出 `.build/upstream-diff.json` 并停止发布，必须审查新规则的类别与优先级后更新 `base-data.json`。不会依据编号猜测分流策略。上游继续提供 YAML/MRS 双格式以及广告集合，不视为需要新增的业务集合。
+项目采用本地手动构建与更新：需要更新上游时运行 `npm run sync:upstream`，再运行 `npm run check` 和 `npm run check:core`，检查通过后将快照与 `dist/` 生成产物一并提交、推送。若上游增加、删除或改名规则集，同步命令会输出 `.build/upstream-diff.json` 并停止，必须审查新规则的类别与优先级后更新 `base-data.json`。不会依据编号猜测分流策略。上游继续提供 YAML/MRS 双格式以及广告集合，不视为需要新增的业务集合。
 
-新增 AI 产品或依赖请修改 `scripts/ai-services.json`，记录来源及精确域名。国内分类修正请修改 `scripts/domestic-services.json`，并在 `routing-cases.json` 增加回归用例；不要直接编辑生成 JS。自建网关可加入 `foreignDnsDomains`，它也会进入前置海外集合。非日镜像、认证与 CDN 域名加入 `japanBlockedDomains`。所有修改后运行 `npm run check`；涉及分流时同时运行 `check:core`。文件推送到仓库后，在线导入链接才会取得新版本。
+新增 AI 产品或依赖请修改 `scripts/ai-services.json`，记录来源及精确域名。国内分类修正请修改 `scripts/domestic-services.json`，并在 `routing-cases.json` 增加回归用例；不要直接编辑生成 JS。自建网关可加入 `foreignDnsDomains`，它也会进入前置海外集合。非日镜像、认证与 CDN 域名加入 `japanBlockedDomains`。所有修改后运行 `npm run check`；涉及分流时同时运行 `check:core`。将生成的 `dist/Lite-Override.js` 一并推送到仓库后，在线导入链接才会取得新版本。
 
 ## 可选 Party Smart 模式
 
