@@ -12,6 +12,23 @@ const strict = compile({ webRtcMode: 'strict', preventWebRtcLeak: true, foreignS
 const fixture = runOverride(strict.code, fixtureConfig())
 const cn = { 'scki-fused-075-cn-site-ipcidr-no-resolve': { behavior: 'classical', payload: ['IP-CIDR,223.5.5.0/24,no-resolve'] } }
 
+test('ROSESELSA images use mainland DNS and direct TCP without widening the CDN exception', () => {
+  const host = 'gd2-cdn.rosetechnic.com'
+  for (const patch of [{}, { webRtcMode: 'compatible' }, { preventWebRtcLeak: false }, { foreignSelection: 'party-smart' }]) {
+    const result = runOverride(compile(patch).code, fixtureConfig())
+    result['proxy-groups'][2].proxies = [result['proxy-groups'][0].name]
+    assert.equal(route(result, { host, process: 'chrome.exe', network: 'TCP', port: 443 }), 'DIRECT')
+    assert.ok(result['rule-providers']['lite-domestic-direct'].payload.includes(host))
+    assert.deepEqual(result.dns['nameserver-policy']['rule-set:lite-domestic-direct'], ['223.5.5.5', '223.6.6.6'])
+    for (const other of ['other.rosetechnic.com', 'unrelated.qiniudns.com']) {
+      assert.ok(!result['rule-providers']['lite-domestic-direct'].payload.some(pattern => matchesDomain(pattern, other)))
+    }
+    if (patch.preventWebRtcLeak !== false) {
+      assert.equal(route(result, { host, process: 'chrome.exe', network: 'UDP', port: 443 }), 'REJECT')
+    }
+  }
+})
+
 test('reviewed mainland domains precede mixed foreign sets without relying on real IP resolution', () => {
   const direct = ['www.4399.com', 'www.9game.cn', 'bnet.163.com', 'blz.nosdn.127.net', 'down.qq.com', 'dldir1.qq.com']
   const services = ['www.wanfangdata.com.cn', 'www.icloud.com.cn', 'www.azure.cn', 'login.chinacloudapi.cn',

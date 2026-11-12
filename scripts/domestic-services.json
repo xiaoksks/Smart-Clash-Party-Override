@@ -8,6 +8,12 @@
   "foreignExceptions": ["+.google.cn", "+.g.cn", "www.apple.com", "apps.apple.com"],
   "services": [
     {
+      "name": "ROSESELSA mainland product image CDN",
+      "source": "https://www.roseselsa.com/",
+      "role": "direct",
+      "domains": ["gd2-cdn.rosetechnic.com"]
+    },
+    {
       "name": "Tencent software downloads",
       "source": "https://pc.qq.com/",
       "role": "direct",

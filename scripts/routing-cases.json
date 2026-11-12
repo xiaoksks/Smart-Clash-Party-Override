@@ -1,4 +1,5 @@
 [
+  { "host": "gd2-cdn.rosetechnic.com", "exit": "direct", "dns": "domestic" },
   { "host": "www.baidu.com", "exit": "direct", "dns": "domestic" },
   { "host": "www.taobao.com", "exit": "direct", "dns": "domestic" },
   { "host": "www.bilibili.com", "exit": "direct", "dns": "domestic" },

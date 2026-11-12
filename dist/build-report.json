@@ -8,7 +8,7 @@
   "aiServices": 52,
   "aiDomains": 296,
   "aiProcesses": 35,
-  "domesticDirectDomains": 271,
+  "domesticDirectDomains": 272,
   "domesticServiceDomains": 6212,
   "webRtcMode": "strict",
   "foreignSelection": "select",

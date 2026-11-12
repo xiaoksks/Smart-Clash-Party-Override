@@ -103,6 +103,7 @@ Clash 无法判断一个 STUN 请求由哪个网页发起，也不能阻止网�
 - 默认未知域名使用加密 DoH，并通过选中的国外组连接；AI 显式域名覆盖继承的国内解析策略，避免大陆 CDN 地址导致直连或 DNS 出口分裂。
 - 预置核心 DoH 域名（`cloudflare-dns.com`、`dns.google`、`dns.alidns.com`、`doh.pub`）的静态 `hosts`，且 `default-nameserver` 优先使用加密 DoH-over-IP（`https://223.5.5.5/dns-query`）并保留明文兜底，省去 DoH 服务器自身的首次引导解析。
 - 国内域名集合复用于 DNS policy，规则集之间保持分流顺序；保留企业/内网自定义域名策略（AI 保留域名除外），自动清理原订阅遗留的失效 `rule-set:` DNS 引用。
+- 弱水时砂产品图域名 `gd2-cdn.rosetechnic.com` 使用国内 DNS 并直连，避免未收录的七牛自定义 CDN 域名落入海外兜底；例外仅覆盖该精确域名。
 - 代理节点域名使用独立国内 DNS 引导解析，并仅按需保留当前活动节点域名的精确 `proxy-server-nameserver-policy` 与 `hosts`，避免“先有代理才能解析代理节点”的依赖循环或全局污染。
 - 非日站点的 DNS 使用非日策略组；网站及资源依赖应同时登记在 `japanBlockedDomains`，不会自动把第三方 CDN 的所有租户都划到非日组。
 - Fake-IP 使用 `rule` 模式。AI 优先返回 Fake-IP；局域网、NCSI 等协议例外返回真实 IP。移除 Docker、Bing 等宽泛的真实 IP 豁免。
@@ -136,7 +137,7 @@ npm run check:core
 
 `scripts/upstream-snapshot.json` 同时记录两个上游提交、远程文件 SHA256、classical 内容、AI 域名列表及三套国内分类的原始匹配项/校验值。构建阶段不依赖网络；运行配置不再使用带版本查询参数的漂移 `main` URL。
 
-`check:core` 不只检查 YAML 能否解析：它使用经 SHA256 验证的真实 MRS，启动仅监听回环地址的独立内核，按 `scripts/routing-cases.json` 验证 39 个国内业务与海外对照域名的 TCP 出口和 DNS 分类。目标服务器、代理和 DNS 都是本地测试服务，不访问这些网站，不启用 TUN，不修改正在运行的 Party 或系统路由。此验证不能代替实机浏览器 ICE / TUN 抓包检查。
+`check:core` 不只检查 YAML 能否解析：它使用经 SHA256 验证的真实 MRS，启动仅监听回环地址的独立内核，按 `scripts/routing-cases.json` 验证 40 个国内业务与海外对照域名的 TCP 出口和 DNS 分类。目标服务器、代理和 DNS 都是本地测试服务，不访问这些网站，不启用 TUN，不修改正在运行的 Party 或系统路由。此验证不能代替实机浏览器 ICE / TUN 抓包检查。
 
 项目采用本地手动构建与更新：需要更新上游时运行 `npm run sync:upstream`，再运行 `npm run check` 和 `npm run check:core`，检查通过后将快照与 `dist/` 生成产物一并提交、推送。若上游增加、删除或改名规则集，同步命令会输出 `.build/upstream-diff.json` 并停止，必须审查新规则的类别与优先级后更新 `base-data.json`。不会依据编号猜测分流策略。上游继续提供 YAML/MRS 双格式以及广告集合，不视为需要新增的业务集合。
 

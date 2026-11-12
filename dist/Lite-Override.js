@@ -1895,7 +1895,8 @@ const LITE_RULE_PROVIDERS = {
       "dldir1.qq.com",
       "down.qq.com",
       "end-api.shallow.ink",
-      "end.shallow.ink"
+      "end.shallow.ink",
+      "gd2-cdn.rosetechnic.com"
     ]
   },
   "lite-domestic-services": {
