@@ -1,5 +1,6 @@
 import { readFile, writeFile, mkdir } from 'node:fs/promises'
 import { createHash } from 'node:crypto'
+import { isIP } from 'node:net'
 import { zstdDecompressSync } from 'node:zlib'
 import { execFile } from 'node:child_process'
 import { promisify } from 'node:util'
@@ -41,6 +42,19 @@ export function parsePayload(text) {
   })
 }
 
+export async function readMrsPayload(binary, behavior, file) {
+  const output = file + '.txt'
+  await exec(binary, ['convert-ruleset', behavior, 'mrs', file, output], { windowsHide: true, timeout: 60000 })
+  const text = await readFile(output, 'utf8')
+  const payload = behavior === 'domain' ? parseDomainList(text) : text.trim().split(/\r?\n/)
+  if (!payload.length || (behavior === 'ipcidr' && payload.some(rule => {
+    const [, address, prefix] = /^([^/]+)\/(\d{1,3})$/.exec(rule) || []
+    const version = isIP(address)
+    return !version || Number(prefix) > (version === 4 ? 32 : 128)
+  }))) throw new Error(`Invalid embedded MRS payload: ${file}`)
+  return [...new Set(payload)]
+}
+
 export async function fetchDomesticSources(metaRevision) {
   const definition = JSON.parse(await readFile(path.join(ROOT, 'scripts/domestic-services.json'), 'utf8'))
   const records = await Promise.all(definition.sources.map(async ({ category }) => {
@@ -74,6 +88,10 @@ async function sourceTopology(sha) {
 
 export async function syncUpstream({ check = false } = {}) {
   const base = JSON.parse(await readFile(path.join(ROOT, 'scripts/base-data.json'), 'utf8'))
+  const binary = process.env.MIHOMO_BIN
+  if (Object.values(base.ruleProviders).some(provider => provider.inlineAtBuild) && !binary) {
+    throw new Error('Set MIHOMO_BIN to the Clash Party Mihomo core to verify and export embedded MRS rules.')
+  }
   const previous = await readFile(SNAPSHOT, 'utf8').then(JSON.parse).catch(error => { if (error.code !== 'ENOENT') throw error; return null })
   const [scki, meta] = await Promise.all([revision(SCKI, 'main'), revision(META, 'meta')])
   const topology = await sourceTopology(scki)
@@ -87,6 +105,8 @@ export async function syncUpstream({ check = false } = {}) {
   const revisions = check ? previous.revisions : { scki, meta }
   const result = { revisions, files: {}, aiDomains: [] }
   const entries = Object.entries(base.ruleProviders)
+  const cacheDir = path.join(ROOT, '.build/provider-cache')
+  await mkdir(cacheDir, { recursive: true })
   let cursor = 0
   await Promise.all(Array.from({ length: 6 }, async () => {
     while (cursor < entries.length) {
@@ -100,11 +120,11 @@ export async function syncUpstream({ check = false } = {}) {
         if (data.subarray(0, 3).toString() !== 'MRS') throw new Error(`Invalid MRS header: ${name}`)
       } else record.payload = parsePayload(bytes.toString('utf8'))
       if (check && previous.files[name]?.sha256 !== record.sha256) throw new Error(`Snapshot hash mismatch: ${name}`)
-      if (check && JSON.stringify(previous.files[name]?.payload) !== JSON.stringify(record.payload)) throw new Error(`Classical payload differs from pinned source: ${name}`)
+      const cacheFile = path.join(cacheDir, record.sha256 + '.' + provider.format)
+      await writeFile(cacheFile, bytes)
+      if (provider.inlineAtBuild) record.payload = await readMrsPayload(binary, provider.behavior, cacheFile)
+      if (check && JSON.stringify(previous.files[name]?.payload) !== JSON.stringify(record.payload)) throw new Error(`Snapshot payload differs from pinned source: ${name}`)
       result.files[name] = record
-      const cacheDir = path.join(ROOT, '.build/provider-cache')
-      await mkdir(cacheDir, { recursive: true })
-      await writeFile(path.join(cacheDir, record.sha256 + '.' + provider.format), bytes)
     }
   }))
   const aiUrl = `https://raw.githubusercontent.com/${META}/${revisions.meta}/geo/geosite/category-ai-!cn.list`

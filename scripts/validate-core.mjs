@@ -8,7 +8,7 @@ import { loadBuildInputs } from './build.mjs'
 import { compileOverride } from './compile.mjs'
 import { ROOT } from './custom-spec.mjs'
 import { fixtureConfig, runOverride } from './test-helpers.mjs'
-import { fetchBytes, digest } from './sync-upstream.mjs'
+import { fetchBytes, digest, readMrsPayload } from './sync-upstream.mjs'
 import { validateRouting } from './validate-routing.mjs'
 
 const exec = promisify(execFile)
@@ -26,22 +26,32 @@ console.log(version.stdout.trim())
 
 const compiled = compileOverride(inputs)
 const prepared = new Set()
+async function prepareMrs(name) {
+  const locked = inputs.snapshot.files[name]
+  const target = path.join(directory, name + '.mrs')
+  if (!prepared.has(name)) {
+    const cache = path.join(ROOT, '.build/provider-cache', locked.sha256 + '.mrs')
+    let bytes = await readFile(cache).catch(error => { if (error.code !== 'ENOENT') throw error; return null })
+    if (!bytes || digest(bytes) !== locked.sha256) bytes = await fetchBytes(locked.url)
+    assert.equal(digest(bytes), locked.sha256, `Provider hash mismatch: ${name}`)
+    await writeFile(target, bytes)
+    prepared.add(name)
+  }
+  return target
+}
+
+for (const [name, provider] of Object.entries(inputs.base.ruleProviders)) {
+  if (!provider.inlineAtBuild) continue
+  const payload = await readMrsPayload(binary, provider.behavior, await prepareMrs(name))
+  assert.deepEqual(compiled.providers[name].payload, payload, `Embedded payload differs from pinned MRS: ${name}`)
+}
+
 async function prepareProviders(config) {
   const result = structuredClone(config)
   for (const [name, provider] of Object.entries(result['rule-providers'])) {
     if (provider.type !== 'http') continue
-    const locked = inputs.snapshot.files[name]
-    const target = path.join(directory, name + '.mrs')
-    if (!prepared.has(name)) {
-      const cache = path.join(ROOT, '.build/provider-cache', locked.sha256 + '.mrs')
-      let bytes = await readFile(cache).catch(error => { if (error.code !== 'ENOENT') throw error; return null })
-      if (!bytes || digest(bytes) !== locked.sha256) bytes = await fetchBytes(locked.url)
-      assert.equal(digest(bytes), locked.sha256, `Provider hash mismatch: ${name}`)
-      await writeFile(target, bytes)
-      prepared.add(name)
-    }
     provider.type = 'file'
-    provider.path = target
+    provider.path = await prepareMrs(name)
     delete provider.url
     delete provider.proxy
     delete provider.interval
@@ -105,4 +115,5 @@ const unsafeManual = runOverride(smartCode, manual)
 assert.notDeepEqual(unsafeManual.rules, manual.rules)
 console.log('Confirmed: manual select mode requires built-in Smart override OFF (documented).')
 await validateRouting({ binary, directory, inputs, prepareProviders })
+await validateRouting({ binary, directory, inputs, prepareProviders, coldStart: true })
 console.log('Core/Party validation complete. Actual browser ICE and OS TUN capture still require on-device testing.')

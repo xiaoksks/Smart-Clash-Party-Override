@@ -18,8 +18,8 @@ export function runOverride(code, config) {
 }
 
 // A small evaluator for regression scenarios, not a replacement for core tests.
-// Unknown remote sets are deliberately unmatched; fixtures supply any relevant
-// IP/domain sets so priority tests cannot accidentally rely on live network data.
+// Unknown remote sets are deliberately unmatched so priority tests cannot
+// accidentally rely on live network data.
 function split(value) {
   let depth = 0, start = 0
   const result = []
@@ -35,6 +35,7 @@ function split(value) {
 function ipv4Cidr(ip, cidr) {
   if (isIP(ip) !== 4) return false
   const [network, bits] = cidr.split('/')
+  if (network.includes(':')) return false
   const number = value => value.split('.').reduce((n, part) => (n * 256 + Number(part)) >>> 0, 0)
   const mask = Number(bits) === 0 ? 0 : (0xffffffff << (32 - Number(bits))) >>> 0
   return ((number(ip) & mask) >>> 0) === ((number(network) & mask) >>> 0)
@@ -63,6 +64,7 @@ export function matches(rule, connection, providers) {
     case 'RULE-SET': {
       const provider = providers[payload]
       if (!provider?.payload) return false
+      if (provider.behavior === 'ipcidr') return provider.payload.some(cidr => ipv4Cidr(connection.ip || '', cidr))
       return provider.payload.some(item => provider.behavior === 'domain' ? matchesDomain(item, host) : matches(item, connection, providers))
     }
     case 'AND': case 'OR': case 'NOT': {

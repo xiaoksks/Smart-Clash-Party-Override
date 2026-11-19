@@ -33,6 +33,9 @@ export function compileOverride({ spec, base, snapshot, catalog, domestic, runti
     if (provider.behavior === 'classical') {
       if (!Array.isArray(locked.payload)) throw new Error(`Missing classical payload: ${name}`)
       providers[name] = { type: 'inline', behavior: 'classical', format: 'yaml', payload: [...new Set(locked.payload.map(noResolve))] }
+    } else if (provider.inlineAtBuild) {
+      if (!Array.isArray(locked.payload) || !locked.payload.length) throw new Error(`Missing embedded MRS payload: ${name}`)
+      providers[name] = { type: 'inline', behavior: provider.behavior, format: 'yaml', payload: locked.payload.slice() }
     } else {
       provider.url = locked.url
       // Keep unchanged files cached when the upstream commit advances.

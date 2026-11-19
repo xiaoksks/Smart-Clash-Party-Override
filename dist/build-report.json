@@ -2,8 +2,8 @@
   "rules": 227,
   "providers": 115,
   "providerFormats": {
-    "mrs": 101,
-    "inline": 14
+    "mrs": 98,
+    "inline": 17
   },
   "aiServices": 52,
   "aiDomains": 296,

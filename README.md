@@ -1,5 +1,7 @@
 # Clash Party / Mihomo Lite Override
 
+**Clash Party 是本项目的主要使用和验证客户端。** 后续新增规则、优化分流和同步上游时，优先以 Clash Party 的普通订阅、JavaScript 覆写流程和随附的 Mihomo 内核为准，并验证最终运行配置。启用可选的 Party Smart 模式时，同时验证内置 Smart 覆写的执行顺序。
+
 保留三个策略组，集中维护分流、DNS 与海外 AI 连接保护。**推崇手动选择节点（`select`），服务于拥有稳定节点的用户**：固定单一境外出口，避免后台测速切换导致的出口 IP 跳变与海外 AI / 开发账号风控。国内游戏和 Steam 下载固定直连；默认严格 WebRTC 模式优先保护 AI 与浏览器，再限制未命中直连规则的 UDP。
 
 本版验证环境为 **Clash Party v2.0.4 的脚本执行流程、Mihomo v1.19.33**。导入前更新内核。普通 Mihomo 也可使用手动选择模式；`party-smart` 模式需要 Clash Party 的 Smart 内核。
@@ -34,8 +36,8 @@ https://raw.githubusercontent.com/xiaoksks/Smart-Clash-Party-Override/main/dist/
 
 strict、compatible 及关闭保护时均保持以下业务分流，直连目标固定为 `DIRECT`，不受「🇨🇳 国内节点」切换影响：
 
-- `directRuleSets` 将上游两套完整国内游戏分类（`014-game-cn-domain`、`070-game-cn-domain`）前置直连，覆盖腾讯/WeGame、米哈游、网易、完美世界等。上游分类随固定快照更新，不只为单个游戏添加例外。
-- `lite-domestic-direct` 补充真实国内游戏分类和国内下载覆盖，共 271 条匹配项；4399、九游、叠纸、网易国服及补丁服务不再被混杂的 `071-game-intl` 集合抢先代理，腾讯 `down.qq.com` / `dldir1.qq.com` 也固定直连。
+- `directRuleSets` 将上游两套完整国内游戏分类（`014-game-cn-domain`、`070-game-cn-domain`）前置直连，覆盖腾讯/WeGame、米哈游、网易、完美世界等。两套分类和大陆 IP 集合 `075-cn-site-ipcidr-no-resolve` 随覆写脚本内联。首次导入后，即使规则缓存为空、国外节点暂时不可用，内核也能加载这三套规则。
+- `lite-domestic-direct` 补充真实国内游戏分类和国内下载覆盖，共 272 条匹配项；4399、九游、叠纸、网易国服及补丁服务不再被混杂的 `071-game-intl` 集合抢先代理，腾讯 `down.qq.com` / `dldir1.qq.com` 也固定直连。
 - 本地国内游戏域名（包括 `mihoyo.com`、`juequling.com`）保留字面 `DIRECT`，不再转换成国内策略组；未登记游戏直接连接大陆服务器 IP 时，也在剩余 UDP 拦截和无域名 TCP 代理之前直连。
 - `processTargetOverrides` 为 `dota2.exe` / `dota2`、`ZenlessZoneZero.exe`、`YuanShen.exe`、`StarRail.exe` 补充进程直连，覆盖未知域名及其他服务器 IP。这些进程按整体直连，适用于国服使用场景，不自动识别游戏内选择的服务器地区。
 - Steam 根据目的域名分流，不为 `steam.exe`、`steamwebhelper.exe` 或 `SteamService.exe` 设置全进程代理：`steamcontent.com`、SteamPipe、国内下载 CDN 等走直连；社区、用户图片、聊天、商店与 CM 登录服务走国外代理。CM 和社区图片的显式代理优先于上游国内游戏集合中重叠的域名。
@@ -107,15 +109,15 @@ Clash 无法判断一个 STUN 请求由哪个网页发起，也不能阻止网�
 - 代理节点域名使用独立国内 DNS 引导解析，并仅按需保留当前活动节点域名的精确 `proxy-server-nameserver-policy` 与 `hosts`，避免“先有代理才能解析代理节点”的依赖循环或全局污染。
 - 非日站点的 DNS 使用非日策略组；网站及资源依赖应同时登记在 `japanBlockedDomains`，不会自动把第三方 CDN 的所有租户都划到非日组。
 - Fake-IP 使用 `rule` 模式。AI 优先返回 Fake-IP；局域网、NCSI 等协议例外返回真实 IP。移除 Docker、Bing 等宽泛的真实 IP 豁免。
-- 保留 MRS 的域名/IP 紧凑表示；将已校验的 classical 规则内联，并只在**相邻且出口相同**的区段合并，保留国内外例外顺序；编译期自动剔除已被前置 `lite-ai` 与 `lite-domestic-direct` 覆盖的重复单域名规则。
+- 内联已校验的三套国内规则和 classical 规则，其余远程规则保留紧凑的 MRS 格式。只在**相邻且出口相同**的区段合并 classical 规则，保留国内外例外顺序；编译期自动剔除已被前置 `lite-ai` 与 `lite-domestic-direct` 覆盖的重复单域名规则。
 - 对 IP 补充规则使用 `no-resolve`，避免仅为匹配 IP 规则额外解析域名；删除最后一条国内规则之后与最终 MATCH 同出口的 8 条规则及闲置 provider。
 - 开启选择与 Fake-IP 持久化。不注入广告拦截规则。
 
-本次生成结果：**227 条入口规则、115 个规则集，其中 101 个远程 MRS、14 个内联集合**，最新统计见 [build-report.json](dist/build-report.json)。原版为 342 条入口规则、144 个远程规则文件。这些是结构与请求数量的减少，不能直接换算成网速或延迟提升百分比。
+本次生成结果为 **227 条入口规则、115 个规则集，其中 98 个远程 MRS、17 个内联集合**。最新统计见 [build-report.json](dist/build-report.json)。原版为 342 条入口规则、144 个远程规则文件。这些是结构与请求数量的减少，不能直接换算成网速或延迟提升百分比。
 
 ## 构建、审计与上游同步
 
-需要 Node.js 24+ 和 Git；运行覆写本身不需要 Node、Git 或外部模块。
+构建需要 Node.js 24+。同步或检查上游需要 Git，并通过 `MIHOMO_BIN` 指定 Mihomo 内核来转换和核对内联 MRS。运行覆写只需在 Clash Party 中导入生成的 JS。
 
 ```bash
 npm run build            # 离线、可重复构建 JS 和 build-report.json
@@ -128,16 +130,16 @@ npm run check:upstream   # 联网验证固定文件及最新上游清单结构
 npm run check:core       # 真实 MRS 路由/DNS 矩阵、内核配置和 Party 兼容验证
 ```
 
-PowerShell 内核校验示例：
+PowerShell 设置内核路径示例。更新和验证时优先使用 Clash Party 自带的 Mihomo 内核。
 
 ```powershell
 $env:MIHOMO_BIN = 'D:\tools\mihomo.exe'
 npm run check:core
 ```
 
-`scripts/upstream-snapshot.json` 同时记录两个上游提交、远程文件 SHA256、classical 内容、AI 域名列表及三套国内分类的原始匹配项/校验值。构建阶段不依赖网络；运行配置不再使用带版本查询参数的漂移 `main` URL。
+`scripts/upstream-snapshot.json` 记录上游提交、规则文件 SHA256、classical 内容、三套内联 MRS 的完整文本规则、AI 域名列表及 MetaCubeX 国内分类的匹配项和校验值。构建使用本地快照，运行配置中的远程规则指向固定提交。
 
-`check:core` 不只检查 YAML 能否解析：它使用经 SHA256 验证的真实 MRS，启动仅监听回环地址的独立内核，按 `scripts/routing-cases.json` 验证 40 个国内业务与海外对照域名的 TCP 出口和 DNS 分类。目标服务器、代理和 DNS 都是本地测试服务，不访问这些网站，不启用 TUN，不修改正在运行的 Party 或系统路由。此验证不能代替实机浏览器 ICE / TUN 抓包检查。
+`check:core` 核对三套内联规则与原始 MRS 的内容，并用经过 SHA256 验证的真实规则测试 40 个国内业务与海外对照域名的 TCP 出口和 DNS 分类。冷启动测试还会模拟空缓存和国外节点不可用，检查国内游戏和下载分流、大陆 IP 集合加载，以及代理恢复后手动刷新远程规则。测试使用独立内核和回环地址。浏览器 ICE 和 TUN 抓包仍需在本机单独验证。
 
 项目采用本地手动构建与更新：需要更新上游时运行 `npm run sync:upstream`，再运行 `npm run check` 和 `npm run check:core`，检查通过后将快照与 `dist/` 生成产物一并提交、推送。若上游增加、删除或改名规则集，同步命令会输出 `.build/upstream-diff.json` 并停止，必须审查新规则的类别与优先级后更新 `base-data.json`。不会依据编号猜测分流策略。上游继续提供 YAML/MRS 双格式以及广告集合，不视为需要新增的业务集合。
 

@@ -62,19 +62,23 @@ test('mainland overlays exclude bare TLDs and public suffixes; data sources must
 })
 
 test('domestic game processes, full game categories and mainland server IPs stay DIRECT in every mode', () => {
-  const games = {
-    'scki-fused-014-game-cn-domain': { behavior: 'domain', payload: ['+.wegame.com', '+.game.qq.com', '+.new-game-fixture.test'] },
-    'scki-fused-070-game-cn-domain': { behavior: 'domain', payload: ['+.mihoyo.com', '+.zenlesszonezero.com', '+.netease.com', '+.wanmei.com', 'dota2.wmsj.cn', '+.cm.steampowered.com', '+.steamcontent.com'] },
-  }
+  const games = ['scki-fused-014-game-cn-domain', 'scki-fused-070-game-cn-domain']
+  const mainland = 'scki-fused-075-cn-site-ipcidr-no-resolve'
   for (const patch of [{}, { webRtcMode: 'compatible' }, { preventWebRtcLeak: false }, { foreignSelection: 'party-smart' }]) {
     const result = runOverride(compile(patch).code, fixtureConfig())
     const foreign = result['proxy-groups'][0].name
     result['proxy-groups'][2].proxies = [foreign]
+    for (const name of [...games, mainland]) {
+      const provider = result['rule-providers'][name]
+      assert.equal(provider.type, 'inline', name)
+      assert.equal(provider.url, undefined, name)
+      assert.deepEqual(provider.payload, inputs.snapshot.files[name].payload)
+    }
     for (const process of ['dota2.exe', 'DOTA2.EXE', 'dota2', 'ZenlessZoneZero.exe', 'YuanShen.exe', 'StarRail.exe']) {
       for (const network of ['TCP', 'UDP']) {
         for (const host of ['', 'unknown-game-server.test']) {
           for (const port of [443, 3478, 4380, 27015, 27050, 61000]) {
-            assert.equal(route(result, { process, network, host, port, ip: '203.0.113.20' }, cn), 'DIRECT',
+            assert.equal(route(result, { process, network, host, port, ip: '203.0.113.20' }), 'DIRECT',
               `${JSON.stringify(patch)} / ${process} / ${network} / ${host} / ${port}`)
           }
         }
@@ -82,16 +86,16 @@ test('domestic game processes, full game categories and mainland server IPs stay
     }
     for (const network of ['TCP', 'UDP']) {
       for (const host of ['dispatch.juequling.com', 'sdk.mihoyo.com', 'zenlesszonezero.com', 'wegame.com',
-        'game.qq.com', 'game.163.com', 'netease.com', 'wanmei.com', 'dota2.wmsj.cn', 'new-game-fixture.test']) {
-        assert.equal(route(result, { host, network, port: 27015, ip: '203.0.113.20' }, games), 'DIRECT', host)
+        'game.qq.com', 'game.163.com', 'netease.com', 'wanmei.com', 'dota2.wmsj.cn', 'patch.gcloudsdk.com', 'patch.gm825.net']) {
+        assert.equal(route(result, { host, network, port: 27015, ip: '203.0.113.20' }), 'DIRECT', host)
       }
       for (const process of ['unlisted-game.exe', '']) {
         for (const port of [443, 3478, 27015, 61000]) {
-          assert.equal(route(result, { process, host: '', network, port, ip: '223.5.5.5' }, cn), 'DIRECT')
+          assert.equal(route(result, { process, host: '', network, port, ip: '223.5.5.5' }), 'DIRECT')
         }
       }
     }
-    for (const name of Object.keys(games)) {
+    for (const name of games) {
       assert.deepEqual(result.dns['nameserver-policy']['rule-set:' + name], ['223.5.5.5', '223.6.6.6'])
     }
   }
