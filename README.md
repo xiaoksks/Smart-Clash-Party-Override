@@ -4,7 +4,7 @@
 
 保留三个策略组，集中维护分流、DNS 与海外 AI 连接保护。**推崇手动选择节点（`select`），服务于拥有稳定节点的用户**：固定单一境外出口，避免后台测速切换导致的出口 IP 跳变与海外 AI / 开发账号风控。国内游戏和 Steam 下载固定直连；默认严格 WebRTC 模式优先保护 AI 与浏览器，再限制未命中直连规则的 UDP。
 
-本版验证环境为 **Clash Party v2.0.4 的脚本执行流程、Mihomo v1.19.33**。导入前更新内核。普通 Mihomo 也可使用手动选择模式；`party-smart` 模式需要 Clash Party 的 Smart 内核。
+本版使用 **Clash Party v2.0.5 的配置生成流程**和独立的 **Mihomo v1.19.34** 进行验证。`party-smart` 模式需要 Clash Party 的 Smart 内核。
 
 ## 导入与客户端设置
 
@@ -14,13 +14,15 @@
 https://raw.githubusercontent.com/xiaoksks/Smart-Clash-Party-Override/main/dist/Lite-Override.js
 ```
 
-1. 在 Clash Party 的普通订阅模式中，添加 JavaScript 覆写并绑定订阅。**v2.0.4 简易模式有独立的配置生成流程，会跳过这类 JavaScript 覆写，不能用来运行本脚本。**
-2. 默认 `foreignSelection: 'select'`：关闭客户端的**内置 Smart 覆写**。否则客户端会在本脚本之后创建 Smart Group 并重写国内及非日规则。仅选择 Smart 内核不等于必须开启内置 Smart 覆写。
-3. 使用本脚本管理 DNS：关闭客户端的 **DNS 覆写**，保留 DNS 覆写保护。新版保护只检查原始订阅，不能阻止 JavaScript 改写 DNS；开启客户端 DNS 覆写又可能在脚本之后覆盖脚本配置。
-4. 应用配置，确认 **TUN 已实际运行**、严格路由启用，DNS 劫持包含 UDP/TCP 53。仅开启系统代理无法保护不遵循代理设置的应用。
-5. 在最终运行配置中确认只有三个策略组，存在 `lite-ai`。规则开头为 DNS 代理、AI/浏览器保护；国内游戏、下载域名和大陆 IP 的 `DIRECT` 规则位于 `NETWORK,UDP,REJECT` 之前。不要同时启用会在之后改写 DNS、TUN 或规则目标的其他覆写。
+1. 在 Clash Party 中添加 JavaScript 覆写，并绑定到要使用的普通订阅。
+2. 使用默认 `foreignSelection: 'select'` 时，关闭客户端的**内置 Smart 覆写**。内置 Smart 覆写会在本脚本之后执行，可能重写国内及非日规则。
+3. 关闭客户端的 **DNS 覆写**并保留 DNS 覆写保护，由本脚本管理 DNS。保护检查原始订阅。开启客户端 DNS 覆写时，客户端会在脚本之后合并 DNS 设置。
+4. 在客户端选择**规则模式**，启用 TUN、自动路由和严格路由。应用后确认 TUN 正在运行，并检查最终配置中的 `mode: rule`、`tun.enable: true`、`auto-route: true`、`strict-route: true`，以及 `dns-hijack` 中的 `any:53` 和 `tcp://any:53`。客户端设置在脚本之后合并，以最终运行配置为准。
+5. 在最终配置中确认三个策略组、`lite-ai`，以及默认海外 DoH 的 `#组名` 指向国外组。在默认 strict 模式下，国内游戏、下载域名和大陆 IP 的 `DIRECT` 规则应位于 `NETWORK,UDP,REJECT` 之前。
 
-脚本不会修改客户端设置、操作系统防火墙或浏览器策略。保存脚本也不代表上述应用开关已经设置正确。
+### v2.0.5 本地配置
+
+Clash Party v2.0.5 将原「简易模式」并入「本地配置」。可在本地配置的编辑信息里绑定同一份 JavaScript 覆写。全局覆写也会应用到本地配置。先保存有效的基础配置并重新加载，再查看最终运行配置。本地编辑器展示基础配置，脚本运行时会重新生成规则、规则集和策略组。启用本地配置时，DNS 由本地配置和已应用的脚本提供。
 
 ## 三个策略组
 
@@ -139,7 +141,9 @@ npm run check:core
 
 `scripts/upstream-snapshot.json` 记录上游提交、规则文件 SHA256、classical 内容、三套内联 MRS 的完整文本规则、AI 域名列表及 MetaCubeX 国内分类的匹配项和校验值。构建使用本地快照，运行配置中的远程规则指向固定提交。
 
-`check:core` 核对三套内联规则与原始 MRS 的内容，并用经过 SHA256 验证的真实规则测试 40 个国内业务与海外对照域名的 TCP 出口和 DNS 分类。冷启动测试还会模拟空缓存和国外节点不可用，检查国内游戏和下载分流、大陆 IP 集合加载，以及代理恢复后手动刷新远程规则。测试使用独立内核和回环地址。浏览器 ICE 和 TUN 抓包仍需在本机单独验证。
+`check:core` 使用固定提交和 SHA256 校验的 Clash Party v2.0.5 官方源码，通过模拟订阅和客户端设置回归最终配置。覆盖普通订阅、本地配置及 Smart 覆写，检查最终 DNS、TUN、运行模式、`lite-ai` 和三个策略组。
+
+它也核对三套内联规则与原始 MRS 的内容，并用真实规则测试 40 个域名的 TCP 出口和 DNS 分类。冷启动测试模拟空缓存和国外节点不可用，检查国内游戏和下载分流、大陆 IP 集合加载，以及代理恢复后手动刷新远程规则。运行测试使用独立内核和回环地址。浏览器 ICE 和 Windows TUN 实际运行仍需在设备上验证。
 
 项目采用本地手动构建与更新：需要更新上游时运行 `npm run sync:upstream`，再运行 `npm run check` 和 `npm run check:core`，检查通过后将快照与 `dist/` 生成产物一并提交、推送。若上游增加、删除或改名规则集，同步命令会输出 `.build/upstream-diff.json` 并停止，必须审查新规则的类别与优先级后更新 `base-data.json`。不会依据编号猜测分流策略。上游继续提供 YAML/MRS 双格式以及广告集合，不视为需要新增的业务集合。
 
@@ -149,11 +153,11 @@ npm run check:core
 
 将 `foreignSelection` 改为 `'party-smart'`，重新构建并启用客户端 Smart 内核及内置 Smart 覆写。脚本只将国外组预设为 `url-test`，并提前固定其 Smart 名称；Party 随后的转换只处理该组，不会把国内或非日规则重定向过去，也不会破坏 DNS 中的 `#组名` 引用。
 
-已通过官方 v2.0.4 脚本的静态节点与代理集合执行顺序测试。其他客户端或后续 Party 版本需要重新校验；默认手动模式始终保留 `select`。
+已通过官方 v2.0.5 配置生成流程的静态节点与代理集合测试，确认 Smart 覆写在本脚本之后执行，海外规则和 DNS 引用指向同一个策略组。
 
 ## 数据来源
 
 - [Smart-Config-Kit](https://github.com/IvanSolis1989/Smart-Config-Kit)：基础规则与斗鱼域名集合。
 - [MetaCubeX/meta-rules-dat](https://github.com/MetaCubeX/meta-rules-dat)：境外 AI、国内服务、国内游戏及国际厂商中国业务分类。
 - [Mihomo 文档](https://wiki.metacubex.one/config/dns/)：DNS、Fake-IP 与规则集合语法。
-- [Clash Party v2.0.4 配置流程](https://github.com/mihomo-party-org/clash-party/blob/v2.0.4/src/main/core/factory.ts)及 [Smart 覆写实现](https://github.com/mihomo-party-org/clash-party/blob/v2.0.4/src/main/config/smartOverride.ts)：客户端兼容验证依据。
+- 客户端验证使用官方配置生成与 Smart 覆写源码。 [Clash Party v2.0.5 配置流程](https://github.com/mihomo-party-org/clash-party/blob/v2.0.5/src/main/core/factory.ts) · [Smart 覆写实现](https://github.com/mihomo-party-org/clash-party/blob/v2.0.5/src/main/config/smartOverride.ts)

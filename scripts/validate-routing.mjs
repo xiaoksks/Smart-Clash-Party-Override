@@ -4,7 +4,7 @@ import path from 'node:path'
 import net from 'node:net'
 import http from 'node:http'
 import dgram from 'node:dgram'
-import { randomUUID } from 'node:crypto'
+import { randomInt, randomUUID } from 'node:crypto'
 import { spawn } from 'node:child_process'
 import { compileOverride } from './compile.mjs'
 import { runOverride } from './test-helpers.mjs'
@@ -20,10 +20,12 @@ async function freePort() {
   for (let attempt = 0; attempt < 10; attempt++) {
     const udp = dgram.createSocket('udp4')
     const server = net.createServer()
+    // A sequential allocation can keep landing in the same excluded range.
+    const candidate = attempt === 0 ? 0 : randomInt(49152, 65536)
     try {
       await new Promise((resolve, reject) => {
         udp.once('error', reject)
-        udp.bind(0, '127.0.0.1', resolve)
+        udp.bind(candidate, '127.0.0.1', resolve)
       })
       return await listen(server, udp.address().port)
     } catch (error) {

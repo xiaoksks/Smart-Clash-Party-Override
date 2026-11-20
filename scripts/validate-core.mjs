@@ -3,12 +3,12 @@ import { readFile, writeFile, mkdir, copyFile } from 'node:fs/promises'
 import { execFile } from 'node:child_process'
 import { promisify } from 'node:util'
 import path from 'node:path'
-import vm from 'node:vm'
 import { loadBuildInputs } from './build.mjs'
 import { compileOverride } from './compile.mjs'
 import { ROOT } from './custom-spec.mjs'
 import { fixtureConfig, runOverride } from './test-helpers.mjs'
 import { fetchBytes, digest, readMrsPayload } from './sync-upstream.mjs'
+import { validateParty } from './validate-party.mjs'
 import { validateRouting } from './validate-routing.mjs'
 
 const exec = promisify(execFile)
@@ -85,35 +85,7 @@ for (const [name, spec, base] of cases) {
   }
 }
 
-// Verify against the exact official Party script, including its execution after
-// the user override. Fetching pinned, hashed code is restricted to this test.
-const partyUrl = 'https://raw.githubusercontent.com/mihomo-party-org/clash-party/ac294fed972c0c25c641abe603c3a6fe709dfdb3/src/main/config/smartOverride.ts'
-const source = await fetchBytes(partyUrl)
-assert.equal(digest(source), '2e56aa50f5960d18dcd82678ff06a6375c9866a740a79634c7e8ee35fd8cdfbc')
-const text = source.toString('utf8')
-const start = text.indexOf('  return `') + '  return '.length
-let end = start + 1
-for (; end < text.length; end++) if (text[end] === '`' && text[end - 1] !== '\\') break
-assert.ok(start > 0 && end < text.length)
-const smartCode = vm.runInNewContext(text.slice(start, end + 1), { collectorSize: 100, useLightGBM: false, collectData: false }, { timeout: 1000 })
-for (const [label, base] of [['static', fixture], ['provider-only', cases[3][2]]]) {
-  const config = runOverride(compileOverride({ ...inputs, spec: { ...inputs.spec, foreignSelection: 'party-smart' } }).code, base)
-  const after = runOverride(smartCode, config)
-  assert.equal(after['proxy-groups'].length, 3)
-  assert.equal(after['proxy-groups'][0].type, 'smart')
-  assert.equal(after['proxy-groups'][1].type, 'select')
-  assert.equal(after['proxy-groups'][2].type, 'select')
-  assert.deepEqual(after.rules, config.rules)
-  assert.deepEqual(after.dns, config.dns)
-  assert.deepEqual(after['rule-providers'], config['rule-providers'])
-  assert.ok(after.dns.nameserver.every(ns => ns.endsWith('#' + after['proxy-groups'][0].name)))
-  console.log(`Party v2.0.4 Smart execution order passed: ${label}`)
-}
-// The default select configuration requires the built-in Smart override OFF.
-const manual = runOverride(compiled.code, fixture)
-const unsafeManual = runOverride(smartCode, manual)
-assert.notDeepEqual(unsafeManual.rules, manual.rules)
-console.log('Confirmed: manual select mode requires built-in Smart override OFF (documented).')
+await validateParty(inputs)
 await validateRouting({ binary, directory, inputs, prepareProviders })
 await validateRouting({ binary, directory, inputs, prepareProviders, coldStart: true })
 console.log('Core/Party validation complete. Actual browser ICE and OS TUN capture still require on-device testing.')
